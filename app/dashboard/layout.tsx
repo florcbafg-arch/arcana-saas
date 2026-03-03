@@ -40,14 +40,19 @@ export default function DashboardLayout({
      // 🟢 Manejar activeBusinessId
 let activeId = localStorage.getItem('activeBusinessId')
 
+const validBusinessIds = businesses.map(b => b.business_id)
+
+// 🔐 Si no existe o no pertenece al usuario
+if (!activeId || !validBusinessIds.includes(activeId as string)) {
+  activeId = validBusinessIds[0]
+}
+
+// 👇 ahora sí lo guardamos seguro
+localStorage.setItem('activeBusinessId', activeId as string)
 if (!activeId) {
   activeId = businesses[0].business_id
 }
 
-if (!activeId) {
-  router.push('/onboarding')
-  return
-}
 
 // 👇 ahora sí lo guardamos seguro
 localStorage.setItem('activeBusinessId', activeId as string)
@@ -68,7 +73,7 @@ if (!business) {
 const now = new Date()
 
 if (
-  business.subscription_active &&
+  !business.subscription_active &&
   business.trial_end &&
   new Date(business.trial_end) < now
 ) {
