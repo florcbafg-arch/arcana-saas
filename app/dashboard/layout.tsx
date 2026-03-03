@@ -13,17 +13,15 @@ export default function DashboardLayout({
   const router = useRouter()
   const [loading, setLoading] = useState(true)
 
- useEffect(() => {
-  let mounted = true
-
+useEffect(() => {
   const checkAccess = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-   const { data: { user } } = await supabase.auth.getUser()
-
-if (!user) {
-  router.replace('/login')
-  return
-}
+    if (!user) {
+      return // 👈 NO redirigimos todavía
+    }
 
     const { data: businesses, error } = await supabase
       .from('business_users')
@@ -37,18 +35,14 @@ if (!user) {
 
     const validBusinessIds = businesses.map(b => b.business_id)
 
-// Siempre usar el primero como base segura
-let activeId = validBusinessIds[0]
+    let activeId = validBusinessIds[0]
+    const storedId = localStorage.getItem('activeBusinessId')
 
-// Ver si hay uno guardado válido
-const storedId = localStorage.getItem('activeBusinessId')
+    if (storedId && validBusinessIds.includes(storedId)) {
+      activeId = storedId
+    }
 
-if (storedId && validBusinessIds.includes(storedId)) {
-  activeId = storedId
-}
-
-// Guardar el definitivo
-localStorage.setItem('activeBusinessId', activeId)
+    localStorage.setItem('activeBusinessId', activeId)
 
     const { data: business } = await supabase
       .from('businesses')
@@ -72,13 +66,18 @@ localStorage.setItem('activeBusinessId', activeId)
       return
     }
 
-    if (mounted) setLoading(false)
+    setLoading(false)
   }
+
+  // 👇 Escuchar cambios de auth
+  const { data: listener } = supabase.auth.onAuthStateChange(() => {
+    checkAccess()
+  })
 
   checkAccess()
 
   return () => {
-    mounted = false
+    listener.subscription.unsubscribe()
   }
 }, [router])
 
