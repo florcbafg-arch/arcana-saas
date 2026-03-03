@@ -49,13 +49,6 @@ if (!activeId || !validBusinessIds.includes(activeId as string)) {
 
 // 👇 ahora sí lo guardamos seguro
 localStorage.setItem('activeBusinessId', activeId as string)
-if (!activeId) {
-  activeId = businesses[0].business_id
-}
-
-
-// 👇 ahora sí lo guardamos seguro
-localStorage.setItem('activeBusinessId', activeId as string)
 
 // 🔥 TRAER BUSINESS ACTIVO
 const { data: business } = await supabase
