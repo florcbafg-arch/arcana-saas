@@ -18,14 +18,12 @@ export default function DashboardLayout({
 
   const checkAccess = async () => {
 
-    const { data: sessionData } = await supabase.auth.getSession()
+   const { data: { user } } = await supabase.auth.getUser()
 
-    if (!sessionData.session) {
-      router.replace('/login')
-      return
-    }
-
-    const user = sessionData.session.user
+if (!user) {
+  router.replace('/login')
+  return
+}
 
     const { data: businesses, error } = await supabase
       .from('business_users')
@@ -39,14 +37,18 @@ export default function DashboardLayout({
 
     const validBusinessIds = businesses.map(b => b.business_id)
 
-    let activeId =
-      localStorage.getItem('activeBusinessId') ?? validBusinessIds[0]
+// Siempre usar el primero como base segura
+let activeId = validBusinessIds[0]
 
-    if (!validBusinessIds.includes(activeId)) {
-      activeId = validBusinessIds[0]
-    }
+// Ver si hay uno guardado válido
+const storedId = localStorage.getItem('activeBusinessId')
 
-    localStorage.setItem('activeBusinessId', activeId)
+if (storedId && validBusinessIds.includes(storedId)) {
+  activeId = storedId
+}
+
+// Guardar el definitivo
+localStorage.setItem('activeBusinessId', activeId)
 
     const { data: business } = await supabase
       .from('businesses')
