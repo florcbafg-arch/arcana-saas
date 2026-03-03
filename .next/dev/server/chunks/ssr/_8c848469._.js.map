@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 4, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/flor/era-digital-system/app/layout.tsx"],"sourcesContent":["import './globals.css'\n\nexport default function RootLayout({\n  children,\n}: {\n  children: React.ReactNode\n}) {\n  return (\n    <html lang=\"es\">\n      <body>\n        <header style={{ padding: 16, borderBottom: '1px solid #eee' }}>\n          🚀 Sistema Arcana\n        </header>\n\n        <main style={{ padding: 24 }}>\n          {children}\n        </main>\n      </body>\n    </html>\n  )\n}\n\n"],"names":[],"mappings":";;;;;;;AAEe,SAAS,WAAW,EACjC,QAAQ,EAGT;IACC,qBACE,8OAAC;QAAK,MAAK;kBACT,cAAA,8OAAC;;8BACC,8OAAC;oBAAO,OAAO;wBAAE,SAAS;wBAAI,cAAc;oBAAiB;8BAAG;;;;;;8BAIhE,8OAAC;oBAAK,OAAO;wBAAE,SAAS;oBAAG;8BACxB;;;;;;;;;;;;;;;;;AAKX"}},
+    {"offset": {"line": 53, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/flor/era-digital-system/node_modules/next/src/server/route-modules/app-page/vendored/rsc/react-jsx-dev-runtime.ts"],"sourcesContent":["module.exports = (\n  require('../../module.compiled') as typeof import('../../module.compiled')\n).vendored['react-rsc']!.ReactJsxDevRuntime\n"],"names":["module","exports","require","vendored","ReactJsxDevRuntime"],"mappings":"AAAAA,OAAOC,OAAO,GACZC,QAAQ,4HACRC,QAAQ,CAAC,YAAY,CAAEC,kBAAkB","ignoreList":[0]}}]
+}
