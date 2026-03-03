@@ -13,72 +13,72 @@ export default function DashboardLayout({
   const router = useRouter()
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const checkAccess = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser()
+ useEffect(() => {
+  let mounted = true
 
-      // 🔴 No autenticado
-      if (!user) {
-        router.push('/login')
-        return
-      }
+  const checkAccess = async () => {
 
-      // 🔵 Verificar negocio
-      const { data: businesses } = await supabase
-        .from('business_users')
-        .select('business_id')
-        .eq('user_id', user.id)
-        
+    const { data: sessionData } = await supabase.auth.getSession()
 
-      if (!businesses || businesses.length === 0) {
-        router.push('/onboarding')
-        return
-      }
-
-     // 🟢 Manejar activeBusinessId
-let activeId = localStorage.getItem('activeBusinessId')
-
-const validBusinessIds = businesses.map(b => b.business_id)
-
-// 🔐 Si no existe o no pertenece al usuario
-if (!activeId || !validBusinessIds.includes(activeId as string)) {
-  activeId = validBusinessIds[0]
-}
-
-// 👇 ahora sí lo guardamos seguro
-localStorage.setItem('activeBusinessId', activeId as string)
-
-// 🔥 TRAER BUSINESS ACTIVO
-const { data: business } = await supabase
-  .from('businesses')
-  .select('trial_end, subscription_active')
-  .eq('id', activeId)
-  .single()
-
-if (!business) {
-  router.push('/onboarding')
-  return
-}
-
-// 🔥 VERIFICAR TRIAL
-const now = new Date()
-
-if (
-  !business.subscription_active &&
-  business.trial_end &&
-  new Date(business.trial_end) < now
-) {
-  router.push('/upgrade')
-  return
-}
-
-      setLoading(false)
+    if (!sessionData.session) {
+      router.replace('/login')
+      return
     }
 
-    checkAccess()
-  }, [router])
+    const user = sessionData.session.user
+
+    const { data: businesses, error } = await supabase
+      .from('business_users')
+      .select('business_id')
+      .eq('user_id', user.id)
+
+    if (error || !businesses || businesses.length === 0) {
+      router.replace('/onboarding')
+      return
+    }
+
+    const validBusinessIds = businesses.map(b => b.business_id)
+
+    let activeId =
+      localStorage.getItem('activeBusinessId') ?? validBusinessIds[0]
+
+    if (!validBusinessIds.includes(activeId)) {
+      activeId = validBusinessIds[0]
+    }
+
+    localStorage.setItem('activeBusinessId', activeId)
+
+    const { data: business } = await supabase
+      .from('businesses')
+      .select('trial_end, subscription_active')
+      .eq('id', activeId)
+      .single()
+
+    if (!business) {
+      router.replace('/onboarding')
+      return
+    }
+
+    const now = new Date()
+
+    if (
+      !business.subscription_active &&
+      business.trial_end &&
+      new Date(business.trial_end) < now
+    ) {
+      router.replace('/upgrade')
+      return
+    }
+
+    if (mounted) setLoading(false)
+  }
+
+  checkAccess()
+
+  return () => {
+    mounted = false
+  }
+}, [router])
 
   if (loading) {
     return (
