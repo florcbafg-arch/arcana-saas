@@ -16,19 +16,20 @@ export default function Page() {
         return
       }
  
-      const { data } = await supabase
-        .from('business_users')
-        .select('business_id')
-        .eq('user_id', user.id)
-        .maybeSingle()
+      const { data: businesses, error } = await supabase
+  .from('business_users')
+  .select('business_id')
+  .eq('user_id', user.id)
 
+if (error || !businesses || businesses.length === 0) {
+  router.push('/onboarding')
+  return
+}
 
-      if (!data) {
-        router.push('/onboarding')
-        return
-      }
+// usar el primero como default
+const firstBusinessId = businesses[0].business_id
 
-      localStorage.setItem('activeBusinessId', data.business_id)
+localStorage.setItem('activeBusinessId', firstBusinessId)
 
      router.push('/dashboard')
 
