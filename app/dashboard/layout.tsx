@@ -30,7 +30,7 @@ export default function DashboardLayout({
         .from('business_users')
         .select('business_id')
         .eq('user_id', user.id)
-        .limit(1)
+        
 
       if (!businesses || businesses.length === 0) {
         router.push('/onboarding')
