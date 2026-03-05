@@ -8,7 +8,10 @@ const supabase = createClient(
 
 export async function POST(req: Request) {
   try {
-    const { email, user_id } = await req.json()
+    const body = await req.json()
+    console.log("BODY RECIBIDO:", body)
+
+    const { email, user_id } = body
 
     const response = await fetch("https://api.mercadopago.com/preapproval", {
       method: "POST",
