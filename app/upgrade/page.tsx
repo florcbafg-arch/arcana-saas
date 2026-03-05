@@ -14,7 +14,7 @@ export default function UpgradePage() {
       },
       body: JSON.stringify({
   user_id: "test",
-  email: "test_user_6004744339576949475@testuser.com",
+  email: "eradigital18@hotmail.com",
 })
     })
 
