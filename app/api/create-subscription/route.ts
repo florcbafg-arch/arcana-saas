@@ -34,7 +34,8 @@ export async function POST(req: Request) {
 
   payer_email: email,
 
-  external_reference: user_id
+  external_reference: user_id,
+  payment_method_id: "visa"
 })
     })
 
