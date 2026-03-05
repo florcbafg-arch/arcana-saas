@@ -34,8 +34,15 @@ export async function POST(req: Request) {
 
   payer_email: email,
 
-  external_reference: user_id,
-  payment_method_id: "visa"
+  payer: {
+    email: email,
+    identification: {
+      type: "DNI",
+      number: "12345678"
+    }
+  },
+
+  external_reference: user_id
 })
     })
 
