@@ -5,6 +5,33 @@ import { useRouter } from 'next/navigation'
 export default function UpgradePage() {
   const router = useRouter()
 
+ const handleSubscribe = async () => {
+  try {
+    const res = await fetch("/api/create-subscription", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: "test",
+        email: "test_user_6004744339576949475@testuser.com",
+      }),
+    })
+
+    const data = await res.json()
+
+    console.log("RESPUESTA COMPLETA:", data)
+
+    if (data.init_point) {
+      window.location.href = data.init_point
+    } else {
+      alert("No vino init_point")
+    }
+  } catch (err) {
+    console.error("ERROR:", err)
+  }
+}
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0B0B0F] text-white px-6">
       <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-10 max-w-md w-full text-center space-y-6">
@@ -30,11 +57,12 @@ export default function UpgradePage() {
           </p>
         </div>
 
-        <button
-          className="w-full bg-[#1F6BFF] hover:bg-blue-600 transition rounded-xl py-3 font-medium"
-        >
-          Activar suscripción
-        </button>
+       <button
+  onClick={handleSubscribe}
+  className="bg-yellow-500 text-black px-6 py-2 rounded-lg mt-4"
+>
+  Activar suscripción
+</button>
 
         <button
           onClick={() => router.push('/login')}
