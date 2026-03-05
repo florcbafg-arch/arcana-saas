@@ -13,9 +13,9 @@ export default function UpgradePage() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        userId: "test",
-        email: "test_user_6004744339576949475@testuser.com",
-      }),
+  user_id: "test",
+  email: "test_user_6004744339576949475@testuser.com",
+})
     })
 
     const data = await res.json()
