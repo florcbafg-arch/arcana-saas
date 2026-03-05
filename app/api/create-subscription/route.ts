@@ -21,14 +21,20 @@ export async function POST(req: Request) {
       },
    body: JSON.stringify({
   reason: "Arcana Pro - Suscripción mensual",
+
   auto_recurring: {
     frequency: 1,
     frequency_type: "months",
     transaction_amount: 15000,
-    currency_id: "ARS"
+    currency_id: "ARS",
+    start_date: new Date(Date.now() + 60000).toISOString()
   },
+
   back_url: "https://arcana-saas.vercel.app/dashboard",
-  payer_email: email
+
+  payer_email: email,
+
+  external_reference: user_id
 })
     })
 
