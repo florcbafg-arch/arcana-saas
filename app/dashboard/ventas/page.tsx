@@ -38,10 +38,12 @@ export default function VentasPage() {
   const [salePaid, setSalePaid] = useState(true)
   const [sales, setSales] = useState<any[]>([])
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
+  const [scannerActive, setScannerActive] = useState(false)
   const [toast, setToast] = useState<{
   type: "success" | "error"
   message: string
 } | null>(null)
+
 
   // Obtener negocio activo
   useEffect(() => {
@@ -177,11 +179,68 @@ const handleKeyDown = (e: React.KeyboardEvent) => {
   }
 }
 
+const handleScanner = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+
+  if (e.key !== "Enter") return
+
+  setScannerActive(true)
+
+setTimeout(() => {
+  setScannerActive(false)
+}, 10000)
+
+  const code = (e.target as HTMLInputElement).value.trim()
+
+  if (!code) return
+
+  const { data: product } = await supabase
+    .from("products")
+    .select("*")
+    .eq("code", code)
+    .eq("business_id", selectedBusinessId)
+    .single()
+
+  if (!product) {
+
+    setToast({
+      type: "error",
+      message: "Producto no encontrado"
+    })
+
+    ;(e.target as HTMLInputElement).value = ""
+    return
+  }
+
+  // seleccionar producto
+  setSelectedProduct(product)
+
+  // cantidad automática
+  setSaleQuantity(1)
+
+  // ejecutar venta automática
+  await createSale()
+
+  setToast({
+    type: "success",
+    message: `Venta rápida: ${product.name}`
+  })
+
+  ;(e.target as HTMLInputElement).value = ""
+}
+
   return (
      <div
   className="space-y-8 w-full text-white"
   onKeyDown={handleKeyDown}
 >
+
+<input
+  type="text"
+  onKeyDown={handleScanner}
+  autoFocus
+  placeholder="Escanear código de barras..."
+  className="w-full bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white mb-4"
+/>
 
 {toast && (
   <div
@@ -218,6 +277,24 @@ const handleKeyDown = (e: React.KeyboardEvent) => {
           Registrá ventas rápidas y seguras.
         </p>
       </div>
+
+<div className="flex items-center gap-3 text-sm text-gray-400 mb-4">
+
+  <span className="text-gray-400">
+    Scanner
+  </span>
+
+  <div
+    className={`w-4 h-4 rounded-full ${
+      scannerActive ? "bg-green-500" : "bg-gray-600"
+    }`}
+  />
+
+  <span className="text-xs">
+    {scannerActive ? "Activo" : "Inactivo"}
+  </span>
+
+</div>
 
       {/* GRID PRINCIPAL */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
