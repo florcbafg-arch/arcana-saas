@@ -211,11 +211,6 @@ const handleExcelUpload = async (e: any) => {
   return (
   <div className="p-6 space-y-8">
 
-{/* IMPORTAR EXCEL */}
-<div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-4">
-  <p className="text-sm text-gray-400 mb-2">
-    Importar productos desde Excel
-  </p>
 
   <input
   type="file"
@@ -225,7 +220,6 @@ const handleExcelUpload = async (e: any) => {
   style={{ display: "none" }}
 />
    
-</div>
 
 {toast && (
   <div
@@ -237,6 +231,7 @@ const handleExcelUpload = async (e: any) => {
   >
     {toast.message}
   </div>
+
 )}
 
     {/* HEADER */}
@@ -250,6 +245,8 @@ const handleExcelUpload = async (e: any) => {
         </p>
       </div>
 
+<div className="flex gap-3">
+
 <button
   onClick={() => fileInputRef.current?.click()}
   className="bg-[#2A2A32] hover:bg-[#34343E] transition rounded-xl px-5 py-3 font-semibold"
@@ -257,14 +254,14 @@ const handleExcelUpload = async (e: any) => {
   📥 Importar
 </button>
 
-      <button
+<button
   onClick={() => setIsOpen(true)}
   className="bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-5 py-3 font-semibold"
 >
   ➕ Nuevo producto
 </button>
 
-    </div>
+</div>
 
 <div className="flex justify-between items-center mb-4">
   <input
@@ -503,6 +500,7 @@ const handleExcelUpload = async (e: any) => {
     </div>
   </div>
 )}
+  </div>
 
   </div>
 )
