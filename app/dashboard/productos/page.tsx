@@ -186,19 +186,28 @@ const handleExcelUpload = async (e: any) => {
   const rows: any[] = XLSX.utils.sheet_to_json(sheet)
 
   console.log(rows)
+  
+for (const row of rows) {
 
-  for (const row of rows) {
+  const { data: existing } = await supabase
+    .from("products")
+    .select("id")
+    .eq("name", row.name)
+    .eq("business_id", selectedBusinessId)
+    .single()
 
-    await supabase.from("products").insert({
-      name: row.name,
-      price: row.price,
-      stock_quantity: row.stock,
-      unit: row.unit || "unidad",
-      business_id: selectedBusinessId
-    })
+  if (existing) continue
 
-  }
+  await supabase.from("products").insert({
+    name: row.name,
+    price: row.price,
+    stock_quantity: row.stock,
+    unit: row.unit || "unidad",
+    business_id: selectedBusinessId
+  })
 
+}
+ 
   fetchProducts()
 
   setToast({
