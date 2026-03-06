@@ -249,7 +249,7 @@ const handleExcelUpload = async (e: any) => {
 
 <button
   onClick={() => fileInputRef.current?.click()}
-  className="bg-purple-600 hover:bg-purple-700 text-white transition rounded-xl px-5 py-3 font-semibold"
+  className="bg-[#6C5CE7] hover:bg-[#5A4BD1] transition rounded-xl px-5 py-3 font-semibold"
 >
   📥 Importar
 </button>
