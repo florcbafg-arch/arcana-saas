@@ -39,6 +39,10 @@ export default function VentasPage() {
   const [sales, setSales] = useState<any[]>([])
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
   const [scannerActive, setScannerActive] = useState(false)
+  const beep = () => {
+  const audio = new Audio("/beep.mp3")
+  audio.play()
+}
   const [toast, setToast] = useState<{
   type: "success" | "error"
   message: string
@@ -183,12 +187,6 @@ const handleScanner = async (e: React.KeyboardEvent<HTMLInputElement>) => {
 
   if (e.key !== "Enter") return
 
-  setScannerActive(true)
-
-setTimeout(() => {
-  setScannerActive(false)
-}, 10000)
-
   const code = (e.target as HTMLInputElement).value.trim()
 
   if (!code) return
@@ -201,29 +199,19 @@ setTimeout(() => {
     .single()
 
   if (!product) {
-
     setToast({
       type: "error",
       message: "Producto no encontrado"
     })
-
-    ;(e.target as HTMLInputElement).value = ""
     return
   }
 
-  // seleccionar producto
   setSelectedProduct(product)
-
-  // cantidad automática
   setSaleQuantity(1)
 
-  // ejecutar venta automática
-  await createSale()
+  beep()
 
-  setToast({
-    type: "success",
-    message: `Venta rápida: ${product.name}`
-  })
+  await createSale()
 
   ;(e.target as HTMLInputElement).value = ""
 }
@@ -238,8 +226,7 @@ setTimeout(() => {
   type="text"
   onKeyDown={handleScanner}
   autoFocus
-  placeholder="Escanear código de barras..."
-  className="w-full bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white mb-4"
+  className="absolute opacity-0 pointer-events-none"
 />
 
 {toast && (
