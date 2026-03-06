@@ -233,44 +233,51 @@ const handleExcelUpload = async (e: any) => {
   </div>
 
 )}
+{/* HEADER */}
+<div className="flex justify-between items-center">
 
-    {/* HEADER */}
-    <div className="flex justify-between items-center">
-      <div>
-        <h1 className="text-2xl font-semibold text-white">
-          📦 Productos
-        </h1>
-        <p className="text-gray-400 mt-1">
-          Gestioná tu catálogo y stock.
-        </p>
-      </div>
+  <div>
+    <h1 className="text-2xl font-semibold text-white">
+      📦 Productos
+    </h1>
+    <p className="text-gray-400 mt-1">
+      Gestioná tu catálogo y stock.
+    </p>
+  </div>
 
-<div className="flex gap-3">
+  <div className="flex gap-3">
 
-<button
-  onClick={() => fileInputRef.current?.click()}
-  className="bg-[#6C5CE7] hover:bg-[#5A4BD1] transition rounded-xl px-5 py-3 font-semibold"
->
-  📥 Importar
-</button>
+    <button
+      onClick={() => fileInputRef.current?.click()}
+      className="bg-[#6C5CE7] hover:bg-[#5A4BD1] transition rounded-xl px-5 py-3 font-semibold"
+    >
+      📥 Importar
+    </button>
 
-<button
-  onClick={() => setIsOpen(true)}
-  className="bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-5 py-3 font-semibold"
->
-  ➕ Nuevo producto
-</button>
+    <button
+      onClick={() => setIsOpen(true)}
+      className="bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-5 py-3 font-semibold"
+    >
+      ➕ Nuevo producto
+    </button>
 
-</div>
+  </div>
 
-<div className="flex justify-between items-center mb-4">
+</div>   {/* ← ACA SE CIERRA EL HEADER */}
+
+{/* BUSCADOR */}
+<div className="mt-4 mb-4">
+
   <input
     type="text"
     placeholder="Buscar producto..."
     className="bg-[#0B0B10] border border-[#2A2A32] rounded-xl px-4 py-2 text-white w-64 focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40"
     onChange={(e) => setSearchTerm(e.target.value)}
   />
+
 </div>
+
+    
 
     {/* TABLA */}
     <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl overflow-hidden">
@@ -502,6 +509,5 @@ const handleExcelUpload = async (e: any) => {
 )}
   </div>
 
-  </div>
 )
 }
