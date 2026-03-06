@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import * as XLSX from "xlsx"
+import { useRef } from "react"
 
 type Product = {
   id: string
@@ -30,7 +31,7 @@ export default function ProductosPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
-
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [toast, setToast] = useState<{
   type: "success" | "error"
   message: string
@@ -182,9 +183,28 @@ const handleExcelUpload = async (e: any) => {
 
   const sheet = workbook.Sheets[workbook.SheetNames[0]]
 
-  const rows = XLSX.utils.sheet_to_json(sheet)
+  const rows: any[] = XLSX.utils.sheet_to_json(sheet)
 
   console.log(rows)
+
+  for (const row of rows) {
+
+    await supabase.from("products").insert({
+      name: row.name,
+      price: row.price,
+      stock_quantity: row.stock,
+      unit: row.unit || "unidad",
+      business_id: selectedBusinessId
+    })
+
+  }
+
+  fetchProducts()
+
+  setToast({
+    type: "success",
+    message: "Productos importados correctamente"
+  })
 
 }
 
@@ -198,11 +218,13 @@ const handleExcelUpload = async (e: any) => {
   </p>
 
   <input
-    type="file"
-    accept=".xlsx,.xls"
-    onChange={handleExcelUpload}
-    className="text-sm text-white"
-  />
+  type="file"
+  accept=".xlsx,.xls"
+  ref={fileInputRef}
+  onChange={handleExcelUpload}
+  style={{ display: "none" }}
+/>
+   
 </div>
 
 {toast && (
@@ -227,6 +249,13 @@ const handleExcelUpload = async (e: any) => {
           Gestioná tu catálogo y stock.
         </p>
       </div>
+
+<button
+  onClick={() => fileInputRef.current?.click()}
+  className="bg-[#2A2A32] hover:bg-[#34343E] transition rounded-xl px-5 py-3 font-semibold"
+>
+  📥 Importar
+</button>
 
       <button
   onClick={() => setIsOpen(true)}
