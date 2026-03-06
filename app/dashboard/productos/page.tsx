@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import * as XLSX from "xlsx"
 
 type Product = {
   id: string
@@ -169,8 +170,40 @@ useEffect(() => {
   return () => clearTimeout(timer)
 }, [toast])
 
+const handleExcelUpload = async (e: any) => {
+
+  const file = e.target.files[0]
+
+  if (!file) return
+
+  const data = await file.arrayBuffer()
+
+  const workbook = XLSX.read(data)
+
+  const sheet = workbook.Sheets[workbook.SheetNames[0]]
+
+  const rows = XLSX.utils.sheet_to_json(sheet)
+
+  console.log(rows)
+
+}
+
   return (
   <div className="p-6 space-y-8">
+
+{/* IMPORTAR EXCEL */}
+<div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-4">
+  <p className="text-sm text-gray-400 mb-2">
+    Importar productos desde Excel
+  </p>
+
+  <input
+    type="file"
+    accept=".xlsx,.xls"
+    onChange={handleExcelUpload}
+    className="text-sm text-white"
+  />
+</div>
 
 {toast && (
   <div
