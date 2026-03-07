@@ -189,19 +189,23 @@ const handleExcelUpload = async (e: any) => {
   
 for (const row of rows) {
 
+  const productName = row.name.trim().toLowerCase()
+
   const { data } = await supabase
     .from("products")
-    .select("id")
-    .eq("name", row.name)
+    .select("id,name")
     .eq("business_id", selectedBusinessId)
-    .limit(1)
 
-  if (data && data.length > 0) {
+  const exists = data?.some(
+    p => p.name.trim().toLowerCase() === productName
+  )
+
+  if (exists) {
     continue
   }
 
   await supabase.from("products").insert({
-    name: row.name,
+    name: row.name.trim(),
     price: row.price,
     stock_quantity: row.stock,
     unit: row.unit || "unidad",
