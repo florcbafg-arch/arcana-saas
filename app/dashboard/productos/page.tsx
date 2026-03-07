@@ -193,24 +193,33 @@ for (const row of rows) {
 
   const { data } = await supabase
     .from("products")
-    .select("id,name")
+    .select("*")
     .eq("business_id", selectedBusinessId)
 
-  const exists = data?.some(
+  const existing = data?.find(
     p => p.name.trim().toLowerCase() === productName
   )
 
-  if (exists) {
-    continue
-  }
+  if (existing) {
 
-  await supabase.from("products").insert({
-    name: row.name.trim(),
-    price: row.price,
-    stock_quantity: row.stock,
-    unit: row.unit || "unidad",
-    business_id: selectedBusinessId
-  })
+    await supabase
+      .from("products")
+      .update({
+        stock_quantity: existing.stock_quantity + Number(row.stock)
+      })
+      .eq("id", existing.id)
+
+  } else {
+
+    await supabase.from("products").insert({
+      name: row.name.trim(),
+      price: row.price,
+      stock_quantity: row.stock,
+      unit: row.unit || "unidad",
+      business_id: selectedBusinessId
+    })
+
+  }
 
 }
  
