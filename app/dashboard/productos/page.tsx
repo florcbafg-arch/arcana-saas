@@ -15,6 +15,7 @@ type Product = {
   price: number
   unit: string
   active: boolean
+  barcode?: string
 }
 
 export default function ProductosPage() {
@@ -83,6 +84,7 @@ const createProduct = async () => {
           min_stock_red: Math.max(1, Math.floor(newMinStock / 2)),
           price: newPrice,
           active: newActive,
+          barcode: Date.now().toString(),
         })
         .eq('id', editingId)
 
@@ -314,6 +316,7 @@ for (const row of rows) {
     <th className="p-4">Precio</th>
     <th className="p-4">Stock</th>
     <th className="p-4">Estado</th>
+    <th className="p-4">Código</th>
     <th className="p-4 text-center">Acciones</th>
           </tr>
         </thead>
@@ -365,6 +368,10 @@ for (const row of rows) {
   >
     {estado}
   </span>
+</td>
+
+<td className="p-4 text-gray-400 text-xs">
+ {p.barcode}
 </td>
 
 <td className="p-4">
