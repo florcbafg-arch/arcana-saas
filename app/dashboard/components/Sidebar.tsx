@@ -98,7 +98,27 @@ useEffect(() => {
   window.location.reload()
 }
 
+const reportarProblema = () => {
 
+const pagina = window.location.pathname
+const dispositivo = /Mobi|Android/i.test(navigator.userAgent) ? "Móvil" : "Desktop"
+
+const mensaje = `
+Hola Arcana 👋
+
+Quiero reportar un problema.
+
+Página: ${pagina}
+Dispositivo: ${dispositivo}
+
+Descripción del problema:
+`
+
+const texto = encodeURIComponent(mensaje)
+
+window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
+
+}
 
   return (
     <aside className="w-64 min-h-screen bg-[#0E0E11] text-gray-300 border-r border-[#1F1F24] flex flex-col">
@@ -164,6 +184,13 @@ useEffect(() => {
     )
   })}
 </nav>
+
+<button
+  onClick={reportarProblema}
+  className="mt-4 bg-[#0F0F14] border border-[#1F1F24] text-gray-400 hover:text-white hover:border-blue-500 transition rounded-xl p-3"
+>
+  💬 Reportar problema
+</button>
 
       <button
         onClick={handleLogout}
