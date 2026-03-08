@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from "framer-motion"
 import { useRef } from 'react'
+import BarcodeScanner from "../components/BarcodeScanner"
 
 
 type Product = {
@@ -13,6 +14,8 @@ type Product = {
   stock_quantity: number
   price: number
   unit: string
+  code?: string
+  barcode?: string
 }
 
 
@@ -41,6 +44,7 @@ export default function VentasPage() {
   const [scannerActive, setScannerActive] = useState(true)
   const scannerRef = useRef<HTMLInputElement | null>(null)
   const lastScanRef = useRef<number>(0)
+  const [showScanner,setShowScanner] = useState(false)
   const beep = () => {
   const audio = new Audio("/beep.mp3")
   audio.play()
@@ -326,6 +330,31 @@ scannerRef.current?.focus()
   onKeyDown={handleScanner}
   className="w-full md:w-96 bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white mt-2 mb-4 focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40"
 />
+
+<button
+  onClick={() => setShowScanner(true)}
+  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg mb-4"
+>
+  📷 Escanear con cámara
+</button>
+
+{showScanner && (
+  <BarcodeScanner
+  onScan={(code) => {
+
+const product = products.find(
+(p) => p.code === code || p.barcode === code
+)
+
+if(product){
+setSelectedProduct(product)
+}
+
+setShowScanner(false)
+
+}}
+  />
+)}
 
       {/* GRID PRINCIPAL */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
