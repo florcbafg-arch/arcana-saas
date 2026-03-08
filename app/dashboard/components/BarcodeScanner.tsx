@@ -1,36 +1,83 @@
-'use client'
+"use client"
 
-import { useEffect } from "react"
-import { Html5QrcodeScanner } from "html5-qrcode"
+import { useEffect, useRef } from "react"
+import { BrowserMultiFormatReader } from "@zxing/browser"
 
-export default function BarcodeScanner({ onScan }: { onScan: (code:string)=>void }) {
-
-useEffect(() => {
-
-const scanner = new Html5QrcodeScanner(
-"reader",
-{ fps: 10, qrbox: 250 },
-false
-)
-
-scanner.render(
-(decodedText) => {
-onScan(decodedText)
-scanner.clear()
-},
-() => {}
-)
-
-return () => {
-scanner.clear().catch(()=>{})
+type Props = {
+  onScan: (code: string) => void
 }
 
-}, [])
+export default function BarcodeScanner({ onScan }: Props) {
+  const videoRef = useRef<HTMLVideoElement | null>(null)
+  const codeReader = useRef(new BrowserMultiFormatReader())
+  const controlsRef = useRef<any>(null)
 
-return (
-<div className="bg-black p-4 rounded-xl">
-<div id="reader" />
-</div>
+  useEffect(() => {
+    const startScanner = async () => {
+      try {
+        const devices = await BrowserMultiFormatReader.listVideoInputDevices()
+
+        const backCamera =
+          devices.find((d) =>
+            d.label.toLowerCase().includes("back")
+          ) || devices[0]
+
+       controlsRef.current = await codeReader.current.decodeFromVideoDevice(
+  backCamera.deviceId,
+  videoRef.current!,
+  (result, err) => {
+    if (result) {
+  const code = result.getText()
+
+  const beep = () => {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+    const oscillator = ctx.createOscillator()
+    const gainNode = ctx.createGain()
+
+    oscillator.type = "square"
+    oscillator.frequency.setValueAtTime(1000, ctx.currentTime)
+
+    oscillator.connect(gainNode)
+    gainNode.connect(ctx.destination)
+
+    oscillator.start()
+
+    gainNode.gain.exponentialRampToValueAtTime(
+      0.00001,
+      ctx.currentTime + 0.15
+    )
+  }
+
+  beep()
+
+  onScan(code)
+
+  controlsRef.current?.stop()
+}
+  }
 )
+      } catch (err) {
+        console.error(err)
+      }
+    }
 
+    startScanner()
+
+ return () => {
+  controlsRef.current?.stop()
+}
+  }, [onScan])
+
+  return (
+    <div className="bg-black rounded-xl p-4">
+      <p className="text-sm text-gray-400 mb-2">
+        Apunta la cámara al código de barras
+      </p>
+
+      <video
+        ref={videoRef}
+        className="w-full rounded-lg"
+      />
+    </div>
+  )
 }
