@@ -16,6 +16,7 @@ type Product = {
   unit: string
   active: boolean
   barcode?: string
+  code?: string
 }
 
 export default function ProductosPage() {
@@ -362,10 +363,11 @@ for (const row of rows) {
 
         <tbody>
 
-          {products
-  .filter((p) =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+          {products.filter((p) =>
+  p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  (p.barcode && p.barcode.includes(searchTerm)) ||
+  (p.code && p.code.includes(searchTerm))
+)
   .map((p) => {
             let estado = 'Disponible'
             let color = 'green'
@@ -410,7 +412,7 @@ for (const row of rows) {
 </td>
 
 <td className="p-4 text-gray-400 text-xs">
- {p.barcode}
+ {p.barcode || "—"}
 </td>
 
 <td className="p-4">

@@ -207,6 +207,8 @@ setTimeout(() => setScannerActive(false), 500)
 const code = input.value.trim()
 input.value = ""
 
+scannerRef.current?.focus()
+
   if (!code) return
 
   const { data: product } = await supabase
@@ -244,7 +246,7 @@ input.value = ""
   ref={scannerRef}
   type="text"
   onKeyDown={handleScanner}
-  className="absolute opacity-0"
+  className="absolute opacity-0 pointer-events-none"
 />
 
 {toast && (
@@ -300,6 +302,12 @@ input.value = ""
   </span>
 
 </div>
+
+{scannerActive && (
+  <div className="text-xs text-green-400 mb-4">
+    Escaneá un producto...
+  </div>
+)}
 
       {/* GRID PRINCIPAL */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
