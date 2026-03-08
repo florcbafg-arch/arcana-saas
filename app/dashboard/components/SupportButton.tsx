@@ -41,19 +41,17 @@ onClick={reportarProblema}
 className="
 fixed bottom-6 right-6
 bg-gradient-to-r from-blue-600 to-indigo-600
-hover:scale-105
+hover:scale-110
 text-white
-px-4 py-3
+px-5 py-3
 rounded-full
-shadow-lg
+shadow-xl
 flex items-center gap-2
 transition
 z-50
 "
 >
-
 💬 Soporte
-
 </button>
 
 )
