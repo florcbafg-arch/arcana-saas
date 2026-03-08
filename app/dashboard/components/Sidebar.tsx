@@ -102,14 +102,24 @@ const reportarProblema = () => {
 
 const pagina = window.location.pathname
 const dispositivo = /Mobi|Android/i.test(navigator.userAgent) ? "Móvil" : "Desktop"
+const navegador = navigator.userAgent
+
+const fecha = new Date().toLocaleDateString()
+const hora = new Date().toLocaleTimeString()
+
+const negocio = localStorage.getItem("activeBusinessId") || "desconocido"
 
 const mensaje = `
 Hola Arcana 👋
 
 Quiero reportar un problema.
 
+Negocio ID: ${negocio}
 Página: ${pagina}
 Dispositivo: ${dispositivo}
+Navegador: ${navegador}
+Fecha: ${fecha}
+Hora: ${hora}
 
 Descripción del problema:
 `
@@ -119,7 +129,6 @@ const texto = encodeURIComponent(mensaje)
 window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
 
 }
-
   return (
     <aside className="w-64 min-h-screen bg-[#0E0E11] text-gray-300 border-r border-[#1F1F24] flex flex-col">
 

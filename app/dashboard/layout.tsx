@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Sidebar from './components/Sidebar'
+import SupportButton from './components/SupportButton'
+import ErrorDetector from './components/ErrorDetector'
 
 type AccessState =
   | 'loading'
@@ -144,6 +146,8 @@ export default function DashboardLayout({
       <main className="flex-1 p-6 w-full">
         {children}
       </main>
+      <SupportButton />
+      <ErrorDetector />
     </div>
   )
 }
