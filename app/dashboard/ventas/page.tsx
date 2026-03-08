@@ -309,6 +309,14 @@ scannerRef.current?.focus()
   </div>
 )}
 
+<input
+  ref={scannerRef}
+  type="text"
+  placeholder="Escanear o escribir código..."
+  onKeyDown={handleScanner}
+  className="w-full md:w-96 bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white mt-2 mb-4 focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40"
+/>
+
       {/* GRID PRINCIPAL */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
 
