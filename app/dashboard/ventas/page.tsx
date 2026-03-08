@@ -165,6 +165,12 @@ if (!product) {
 
   await fetchProducts()
   await fetchSales()
+  if (sales.length === 0) {
+  setToast({
+    type: "success",
+    message: "🎉 ¡Primera venta registrada! Bienvenida a Arcana."
+  })
+}
 
   setSaleQuantity(1)
   setSelectedProduct(null)
