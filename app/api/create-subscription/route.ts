@@ -27,7 +27,6 @@ export async function POST(req: Request) {
     frequency_type: "months",
     transaction_amount: 15000,
     currency_id: "ARS",
-    start_date: new Date(Date.now() + 3600000).toISOString()
   },
 
   back_url: "https://arcana-saas.vercel.app/dashboard",
