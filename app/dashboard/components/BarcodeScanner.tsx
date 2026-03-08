@@ -11,6 +11,8 @@ export default function BarcodeScanner({ onScan }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const codeReader = useRef(new BrowserMultiFormatReader())
   const controlsRef = useRef<any>(null)
+  const lastScanRef = useRef<string | null>(null)
+  const scanningRef = useRef(false)
 
   useEffect(() => {
     const startScanner = async () => {
@@ -36,8 +38,14 @@ export default function BarcodeScanner({ onScan }: Props) {
   },
   videoRef.current!,
   (result, err) => {
-    if (result) {
+   if (result && !scanningRef.current) {
+
   const code = result.getText()
+
+  if (lastScanRef.current === code) return
+
+  scanningRef.current = true
+  lastScanRef.current = code
 
   const beep = () => {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
