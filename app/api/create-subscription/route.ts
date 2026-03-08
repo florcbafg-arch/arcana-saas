@@ -34,10 +34,6 @@ export async function POST(req: Request) {
 
   payer_email: email,
 
-  payer: {
-    email: email,
-    
-  },
 
   external_reference: user_id
 })
