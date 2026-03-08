@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     console.log("Webhook recibido:", body)
 
     // MercadoPago envía el ID de la suscripción
-    const subscriptionId = body.data?.id
+    const subscriptionId = body.data?.id || body.id
 
     if (!subscriptionId) {
       return NextResponse.json({ message: "No subscription id" })
