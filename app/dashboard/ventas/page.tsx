@@ -38,7 +38,7 @@ export default function VentasPage() {
   const [salePaid, setSalePaid] = useState(true)
   const [sales, setSales] = useState<any[]>([])
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
-  const [scannerActive, setScannerActive] = useState(false)
+  const [scannerActive, setScannerActive] = useState(true)
   const scannerRef = useRef<HTMLInputElement | null>(null)
   const lastScanRef = useRef<number>(0)
   const beep = () => {
