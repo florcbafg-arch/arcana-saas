@@ -198,8 +198,6 @@ if (now - lastScanRef.current < 1000) return
 
 lastScanRef.current = now
 
-  setScannerActive(true)
-setTimeout(() => setScannerActive(false), 500)
 
   if (e.key !== "Enter") return
 
@@ -225,6 +223,18 @@ scannerRef.current?.focus()
     })
     return
   }
+
+  if (product.stock_quantity <= 0) {
+  setToast({
+    type: "error",
+    message: "Producto sin stock"
+  })
+
+  input.value = ""
+  scannerRef.current?.focus()
+
+  return
+}
 
   setSelectedProduct(product)
   setSaleQuantity(1)
@@ -297,9 +307,9 @@ scannerRef.current?.focus()
     }`}
   />
 
-  <span className="text-xs">
-    {scannerActive ? "Activo" : "Inactivo"}
-  </span>
+  <span className="text-xs text-green-400">
+  Listo
+</span>
 
 </div>
 
