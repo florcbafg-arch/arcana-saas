@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { BrowserMultiFormatReader } from "@zxing/browser"
 
 type Props = {
@@ -13,6 +13,7 @@ export default function BarcodeScanner({ onScan }: Props) {
   const controlsRef = useRef<any>(null)
   const lastScanRef = useRef<string | null>(null)
   const scanningRef = useRef(false)
+  const [message, setMessage] = useState("Apuntá la cámara al código de barras")
 
   useEffect(() => {
     const startScanner = async () => {
@@ -44,8 +45,16 @@ export default function BarcodeScanner({ onScan }: Props) {
 
   if (lastScanRef.current === code) return
 
+  
   scanningRef.current = true
   lastScanRef.current = code
+
+
+  // desbloqueo de seguridad
+  setTimeout(() => {
+    scanningRef.current = false
+  }, 1200)
+
 
   const beep = () => {
     const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
@@ -65,6 +74,8 @@ export default function BarcodeScanner({ onScan }: Props) {
       ctx.currentTime + 0.15
     )
   }
+
+  setMessage("✔ Producto detectado")
 
   beep()
 
@@ -89,8 +100,8 @@ export default function BarcodeScanner({ onScan }: Props) {
   return (
     <div className="bg-black rounded-xl p-4">
       <p className="text-sm text-gray-400 mb-2">
-        Apunta la cámara al código de barras
-      </p>
+  {message}
+</p>
 
       <video
         ref={videoRef}
