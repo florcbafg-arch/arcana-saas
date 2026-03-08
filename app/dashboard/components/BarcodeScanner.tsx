@@ -27,8 +27,13 @@ export default function BarcodeScanner({ onScan }: Props) {
             d.label.toLowerCase().includes("back")
           ) || devices[0]
 
-       controlsRef.current = await codeReader.current.decodeFromVideoDevice(
-  backCamera.deviceId,
+       
+        const controls = await codeReader.current.decodeFromConstraints(
+  {
+    video: {
+      facingMode: "environment"
+    }
+  },
   videoRef.current!,
   (result, err) => {
     if (result) {
