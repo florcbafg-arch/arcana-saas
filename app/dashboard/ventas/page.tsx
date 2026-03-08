@@ -40,6 +40,7 @@ export default function VentasPage() {
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
   const [scannerActive, setScannerActive] = useState(false)
   const scannerRef = useRef<HTMLInputElement | null>(null)
+  const lastScanRef = useRef<number>(0)
   const beep = () => {
   const audio = new Audio("/beep.mp3")
   audio.play()
@@ -190,6 +191,12 @@ const handleKeyDown = (e: React.KeyboardEvent) => {
 }
 
 const handleScanner = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+
+  const now = Date.now()
+
+if (now - lastScanRef.current < 1000) return
+
+lastScanRef.current = now
 
   setScannerActive(true)
 setTimeout(() => setScannerActive(false), 500)
