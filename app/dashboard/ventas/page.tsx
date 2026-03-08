@@ -39,6 +39,7 @@ export default function VentasPage() {
   const [sales, setSales] = useState<any[]>([])
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
   const [scannerActive, setScannerActive] = useState(false)
+  const scannerRef = useRef<HTMLInputElement | null>(null)
   const beep = () => {
   const audio = new Audio("/beep.mp3")
   audio.play()
@@ -74,6 +75,9 @@ export default function VentasPage() {
   return () => clearTimeout(timer)
 }, [toast])
 
+useEffect(() => {
+  scannerRef.current?.focus()
+}, [])
 
   const fetchProducts = async () => {
     const { data } = await supabase
@@ -113,11 +117,13 @@ export default function VentasPage() {
   setSales(data || [])
 }
 
-const createSale = async () => {
+const createSale = async (productFromScanner?: Product) => {
   if (creating) return
   if (!selectedBusinessId) return
 
-  if (!selectedProduct) {
+  const product = productFromScanner || selectedProduct
+
+if (!product) {
     setToast({ type: "error", message: "Seleccioná un producto" })
     return
   }
@@ -138,7 +144,7 @@ const createSale = async () => {
     "create_sale_atomic",
     {
       p_business_id: selectedBusinessId,
-      p_product_id: selectedProduct.id,
+      p_product_id: product.id,
       p_quantity: saleQuantity,
       p_customer_id: salePaid ? null : selectedCustomer?.id,
       p_payment_method: salePaid ? "paid" : "debt",
@@ -185,16 +191,21 @@ const handleKeyDown = (e: React.KeyboardEvent) => {
 
 const handleScanner = async (e: React.KeyboardEvent<HTMLInputElement>) => {
 
+  setScannerActive(true)
+setTimeout(() => setScannerActive(false), 500)
+
   if (e.key !== "Enter") return
 
-  const code = (e.target as HTMLInputElement).value.trim()
+  const input = e.target as HTMLInputElement
+const code = input.value.trim()
+input.value = ""
 
   if (!code) return
 
   const { data: product } = await supabase
     .from("products")
     .select("*")
-    .eq("code", code)
+    .or(`barcode.eq.${code},code.eq.${code}`)
     .eq("business_id", selectedBusinessId)
     .single()
 
@@ -211,7 +222,7 @@ const handleScanner = async (e: React.KeyboardEvent<HTMLInputElement>) => {
 
   beep()
 
-  await createSale()
+ await createSale(product)
 
   ;(e.target as HTMLInputElement).value = ""
 }
@@ -223,10 +234,10 @@ const handleScanner = async (e: React.KeyboardEvent<HTMLInputElement>) => {
 >
 
 <input
+  ref={scannerRef}
   type="text"
   onKeyDown={handleScanner}
-  autoFocus
-  className="absolute opacity-0 pointer-events-none"
+  className="absolute opacity-0"
 />
 
 {toast && (
@@ -374,7 +385,7 @@ const handleScanner = async (e: React.KeyboardEvent<HTMLInputElement>) => {
           
   <button
   type="button"
-  onClick={createSale}
+  onClick={() => createSale()}
  disabled={
   creating ||
   !selectedProduct ||
