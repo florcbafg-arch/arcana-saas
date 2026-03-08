@@ -11,6 +11,7 @@ type Product = {
   min_stock_red: number
   unit: string
   price: number
+  code?: string
 }
 
 type StockMovement = {
@@ -252,9 +253,9 @@ useEffect(() => {
 
        {products
   .filter((product) => {
-    const matchesSearch = product.name
-      .toLowerCase()
-      .includes(search.toLowerCase())
+   const matchesSearch =
+product.name.toLowerCase().includes(search.toLowerCase()) ||
+product.code?.toLowerCase().includes(search.toLowerCase())
 
     if (!matchesSearch) return false
 
