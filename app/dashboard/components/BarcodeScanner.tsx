@@ -15,6 +15,11 @@ export default function BarcodeScanner({ onScan }: Props) {
   useEffect(() => {
     const startScanner = async () => {
       try {
+
+        await navigator.mediaDevices.getUserMedia({
+  video: { facingMode: "environment" }
+})
+
         const devices = await BrowserMultiFormatReader.listVideoInputDevices()
 
         const backCamera =
