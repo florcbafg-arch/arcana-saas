@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Mail, Lock } from 'lucide-react'
+import AvisoRecomendacion from '../../components/AvisoRecomendacion'
 
 export default function LoginPage() {
   const router = useRouter()
