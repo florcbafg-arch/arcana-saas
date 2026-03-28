@@ -275,7 +275,7 @@ for (const row of rows) {
 }
 
   return (
-  <div className="p-6 space-y-8">
+  <div className="p-4 md:p-6 space-y-6 md:space-y-8">
 
 
   <input
@@ -300,7 +300,7 @@ for (const row of rows) {
 
 )}
 {/* HEADER */}
-<div className="flex justify-between items-center">
+<div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
 
   <div>
     <h1 className="text-2xl font-semibold text-white">
@@ -311,18 +311,19 @@ for (const row of rows) {
     </p>
   </div>
 
-  <div className="flex gap-3">
+  <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+  
 
     <button
       onClick={() => fileInputRef.current?.click()}
-      className="bg-[#6C5CE7] hover:bg-[#5A4BD1] transition rounded-xl px-5 py-3 font-semibold"
+      className="w-full sm:w-auto bg-[#6C5CE7] hover:bg-[#5A4BD1] transition rounded-xl px-5 py-3 font-semibold"
     >
       📥 Importar
     </button>
 
     <button
       onClick={() => setIsOpen(true)}
-      className="bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-5 py-3 font-semibold"
+      className="w-full sm:w-auto bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-5 py-3 font-semibold"
     >
       ➕ Nuevo producto
     </button>
@@ -337,7 +338,7 @@ for (const row of rows) {
   <input
     type="text"
     placeholder="Buscar producto..."
-    className="bg-[#0B0B10] border border-[#2A2A32] rounded-xl px-4 py-2 text-white w-64 focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40"
+   className="bg-[#0B0B10] border border-[#2A2A32] rounded-xl px-4 py-3 text-white w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40"
     onChange={(e) => setSearchTerm(e.target.value)}
   />
 
@@ -346,9 +347,10 @@ for (const row of rows) {
     
 
     {/* TABLA */}
-    <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl overflow-hidden">
-  <div className="max-h-[500px] overflow-y-auto">
-    <table className="w-full text-sm">
+   <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl overflow-hidden">
+  <div className="overflow-x-auto">
+    <div className="max-h-[500px] overflow-y-auto min-w-[720px]">
+      <table className="w-full text-sm">
 
         <thead className="bg-[#0F0F14] text-gray-400">
   <tr className="text-left">
@@ -439,7 +441,7 @@ for (const row of rows) {
         </tbody>
 
       </table>
-
+</div>
 </div>
 
       {products.length === 0 && (
@@ -450,8 +452,8 @@ for (const row of rows) {
 
     </div>
 {isOpen && (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
-    <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-8 w-full max-w-md space-y-6">
+<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-5 md:p-8 w-full max-w-md max-h-[90vh] overflow-y-auto space-y-6">
 
       <h2 className="text-2xl font-semibold text-white">
         Nuevo producto
