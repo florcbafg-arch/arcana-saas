@@ -20,28 +20,25 @@ export default function AvisoRecomendacion() {
   if (!visible) return null
 
   return (
-    <div className="w-full mb-4">
-      <div className="bg-[#0B0F1A] border border-[#1f2937] rounded-xl p-3 flex items-start justify-between gap-3">
-        <div className="flex gap-3">
-          <div className="text-blue-400 text-lg">💡</div>
+  <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md">
+    <div className="bg-[#0B0F1A] border border-[#1f2937] rounded-xl px-3 py-2 flex items-center justify-between gap-3 shadow-lg">
 
-          <div className="text-sm text-gray-300 leading-tight">
-            <span className="font-medium text-white">
-              Mejor experiencia recomendada:
-            </span>{' '}
-            Abrí Arcana desde{' '}
-            <span className="text-blue-400 font-medium">Google Chrome</span>{' '}
-            o desde tu computadora.
-          </div>
-        </div>
-
-        <button
-          onClick={cerrar}
-          className="text-gray-500 hover:text-white text-sm"
-        >
-          ✕
-        </button>
+      <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-300">
+        <span className="text-blue-400">💡</span>
+        <span>
+          Mejor experiencia: usar en{" "}
+          <span className="text-blue-400 font-medium">Chrome</span>
+        </span>
       </div>
+
+      <button
+        onClick={cerrar}
+        className="text-gray-500 hover:text-white text-sm"
+      >
+        ✕
+      </button>
+
     </div>
-  )
+  </div>
+)
 }
