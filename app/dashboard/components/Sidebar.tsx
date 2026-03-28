@@ -130,7 +130,7 @@ window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
 
 }
   return (
-    <aside className="w-64 min-h-screen bg-[#0E0E11] text-gray-300 border-r border-[#1F1F24] flex flex-col">
+   <aside className="hidden md:flex w-64 min-h-screen bg-[#0E0E11] text-gray-300 border-r border-[#1F1F24] flex-col">
 
       <div className="px-6 py-5 text-xl font-semibold text-white">
         Arcana

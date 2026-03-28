@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase'
 import Sidebar from './components/Sidebar'
 import SupportButton from './components/SupportButton'
 import ErrorDetector from './components/ErrorDetector'
+import Link from 'next/link'
 
 type AccessState =
   | 'loading'
@@ -141,13 +142,52 @@ export default function DashboardLayout({
   if (accessState !== 'authorized') return null
 
   return (
-    <div className="flex min-h-screen bg-[#0B0B0F]">
+  <div className="min-h-screen bg-[#0B0B0F] md:flex">
+    <div className="hidden md:block">
       <Sidebar />
-      <main className="flex-1 p-6 w-full">
-        {children}
-      </main>
-      <SupportButton />
-      <ErrorDetector />
     </div>
-  )
+
+    <main className="flex-1 w-full p-4 md:p-6 pb-24 md:pb-6">
+      {children}
+    </main>
+
+    <div className="hidden md:block">
+      <SupportButton />
+    </div>
+
+    <ErrorDetector />
+
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-[#1F1F24] bg-[#0F0F14]/95 backdrop-blur px-2 py-2">
+      <div className="grid grid-cols-4 gap-2 text-center text-xs">
+        <Link
+          href="/dashboard"
+          className="rounded-xl px-2 py-3 text-white bg-[#1F6BFF]/15 border border-[#1F6BFF]/30"
+        >
+          Inicio
+        </Link>
+
+        <Link
+          href="/dashboard/productos"
+          className="rounded-xl px-2 py-3 text-gray-300 bg-[#14141A] border border-[#1F1F24]"
+        >
+          Productos
+        </Link>
+
+        <Link
+          href="/dashboard/stock"
+          className="rounded-xl px-2 py-3 text-gray-300 bg-[#14141A] border border-[#1F1F24]"
+        >
+          Stock
+        </Link>
+
+        <Link
+          href="/dashboard/ventas"
+          className="rounded-xl px-2 py-3 text-gray-300 bg-[#14141A] border border-[#1F1F24]"
+        >
+          Ventas
+        </Link>
+      </div>
+    </nav>
+  </div>
+)
 }
