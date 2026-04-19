@@ -229,6 +229,18 @@ const handleExcelUpload = async (e: any) => {
 
   console.log(rows)
   
+  const requiredFields = ["name", "price", "stock"]
+
+for (const field of requiredFields) {
+  if (!rows[0] || !(field in rows[0])) {
+    setToast({
+      type: "error",
+      message: `El Excel debe tener la columna "${field}"`
+    })
+    return
+  }
+}
+
 for (const row of rows) {
 
   const productName = row.name.trim().toLowerCase()
@@ -254,13 +266,13 @@ for (const row of rows) {
   } else {
 
     await supabase.from("products").insert({
-      name: row.name.trim(),
-      price: row.price,
-      stock_quantity: row.stock,
-      unit: row.unit || "unidad",
-      business_id: selectedBusinessId
-    })
-
+  name: row.name.trim(),
+  price: Number(row.price),
+  stock_quantity: Number(row.stock),
+  unit: row.unit || "unidad",
+  code: row.code || null,
+  business_id: selectedBusinessId
+})
   }
 
 }
