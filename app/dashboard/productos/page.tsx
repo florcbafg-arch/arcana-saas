@@ -304,16 +304,36 @@ for (const row of rows) {
 
 const downloadTemplate = () => {
   const rows = [
-    { name: "Blazer Negro Clásico", price: 89900, stock: 5, unit: "unidad" },
-    { name: "Traje Femenino Gris Perla", price: 132500, stock: 2, unit: "unidad" },
-    { name: "Pantalón Sastrero Nude", price: 64500, stock: 4, unit: "unidad" },
+    {
+      name: "Blazer Negro Clásico",
+      price: 89900,
+      stock: 5,
+      unit: "unidad",
+      code: "ARC-001",
+      min_stock_yellow: 3,
+    },
+    {
+      name: "Traje Femenino Gris Perla",
+      price: 132500,
+      stock: 2,
+      unit: "unidad",
+      code: "ARC-002",
+      min_stock_yellow: 2,
+    },
+    {
+      name: "Pantalón Sastrero Nude",
+      price: 64500,
+      stock: 4,
+      unit: "unidad",
+      code: "ARC-003",
+      min_stock_yellow: 2,
+    },
   ]
 
   const worksheet = XLSX.utils.json_to_sheet(rows)
   const workbook = XLSX.utils.book_new()
 
   XLSX.utils.book_append_sheet(workbook, worksheet, "productos")
-
   XLSX.writeFile(workbook, "plantilla_productos_arcana.xlsx")
 }
 
@@ -537,22 +557,110 @@ const downloadTemplate = () => {
         </div>
       </div>
 
-      <div className="bg-[#0B0B10] border border-dashed border-[#2A2A32] rounded-xl p-4">
-        <p className="text-sm text-gray-300 mb-2 font-medium">
-          Tu archivo Excel debe tener estas columnas:
-        </p>
+      <div className="bg-[#0B0B10] border border-dashed border-[#2A2A32] rounded-xl p-5 md:p-6">
+  <div className="mb-4">
+    <p className="text-sm md:text-base text-gray-200 font-semibold">
+      Cómo debe estar armado tu Excel
+    </p>
+    <p className="text-xs md:text-sm text-gray-400 mt-1">
+      Arcana puede importar productos desde una planilla simple. Para empezar, no necesitás completar todo.
+    </p>
+  </div>
 
-        <div className="flex flex-wrap gap-2 mb-3">
-          <span className="px-3 py-1 rounded-full bg-[#1A1A22] text-gray-300 text-xs">name</span>
-          <span className="px-3 py-1 rounded-full bg-[#1A1A22] text-gray-300 text-xs">price</span>
-          <span className="px-3 py-1 rounded-full bg-[#1A1A22] text-gray-300 text-xs">stock</span>
-          <span className="px-3 py-1 rounded-full bg-[#1A1A22] text-gray-300 text-xs">unit</span>
-        </div>
+  <div className="mb-5">
+    <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">
+      Columnas obligatorias
+    </p>
 
-        <p className="text-xs text-gray-500">
-          Ejemplo: una fila por producto, sin cambiar los nombres de las columnas.
-        </p>
-      </div>
+    <div className="flex flex-wrap gap-2 mb-3">
+      <span
+        title="Nombre del producto"
+        className="px-3 py-1 rounded-full bg-[#1A1A22] text-white text-xs border border-[#2A2A32]"
+      >
+        name
+      </span>
+
+      <span
+        title="Precio de venta"
+        className="px-3 py-1 rounded-full bg-[#1A1A22] text-white text-xs border border-[#2A2A32]"
+      >
+        price
+      </span>
+
+      <span
+        title="Stock inicial"
+        className="px-3 py-1 rounded-full bg-[#1A1A22] text-white text-xs border border-[#2A2A32]"
+      >
+        stock
+      </span>
+    </div>
+
+    <p className="text-xs text-gray-500">
+      Con estas 3 columnas ya podés importar tus productos.
+    </p>
+  </div>
+
+  <div className="mb-5">
+    <p className="text-xs uppercase tracking-wide text-gray-500 mb-2">
+      Columnas opcionales
+    </p>
+
+    <div className="flex flex-wrap gap-2 mb-3">
+      <span
+        title="Unidad de venta, por ejemplo: unidad, kg, litro o pack"
+        className="px-3 py-1 rounded-full bg-[#121826] text-blue-300 text-xs border border-[#24304A]"
+      >
+        unit
+      </span>
+
+      <span
+        title="Código interno del producto, por ejemplo: VEL-202"
+        className="px-3 py-1 rounded-full bg-[#1A1426] text-purple-300 text-xs border border-[#34264A]"
+      >
+        code
+      </span>
+
+      <span
+        title="Stock mínimo para que Arcana te avise cuando el producto esté bajo"
+        className="px-3 py-1 rounded-full bg-[#20180F] text-yellow-300 text-xs border border-[#4A3A22]"
+      >
+        min_stock_yellow
+      </span>
+    </div>
+
+    <p className="text-xs text-gray-500">
+      Si no completás estas columnas, Arcana igual puede importar tu archivo.
+    </p>
+  </div>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+    <div className="bg-[#101522] border border-[#1D2740] rounded-xl p-4">
+      <p className="text-sm text-white font-medium mb-1">Qué hace cada campo</p>
+      <ul className="space-y-1 text-xs text-gray-400">
+        <li><span className="text-white">name:</span> nombre del producto</li>
+        <li><span className="text-white">price:</span> precio de venta</li>
+        <li><span className="text-white">stock:</span> cantidad inicial</li>
+        <li><span className="text-white">unit:</span> unidad de venta</li>
+        <li><span className="text-white">code:</span> código interno del producto</li>
+        <li><span className="text-white">min_stock_yellow:</span> alerta de stock mínimo</li>
+      </ul>
+    </div>
+
+    <div className="bg-[#0F1A14] border border-[#1F3A2A] rounded-xl p-4">
+      <p className="text-sm text-white font-medium mb-1">Consejo para empezar</p>
+      <p className="text-xs text-gray-300 leading-5">
+        Si recién empezás, usá solo <span className="text-white font-medium">name</span>,{" "}
+        <span className="text-white font-medium">price</span> y{" "}
+        <span className="text-white font-medium">stock</span>.
+        Después podés completar el resto desde Arcana o en una próxima importación.
+      </p>
+    </div>
+  </div>
+
+  <p className="text-xs text-gray-500">
+    Importante: una fila por producto y sin cambiar los nombres de las columnas.
+  </p>
+</div>
     </div>
   </div>
 )}
