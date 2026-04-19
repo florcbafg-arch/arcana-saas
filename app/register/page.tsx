@@ -32,12 +32,6 @@ const { data, error } = await supabase.auth.signUp({
     return
   }
 
-  // 🔒 SI EL USUARIO YA EXISTE
-if (data?.user && !data?.session) {
-  alert('Este email ya está registrado. Iniciá sesión.')
-  setLoading(false)
-  return
-}
 
   // 👇 CASO CONFIRM EMAIL ACTIVADO
   if (!data.session) {
