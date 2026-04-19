@@ -264,7 +264,7 @@ for (const row of rows) {
   }
 
 }
- 
+
   fetchProducts()
 
   setToast({
@@ -272,6 +272,21 @@ for (const row of rows) {
     message: "Productos importados correctamente"
   })
 
+}
+
+const downloadTemplate = () => {
+  const rows = [
+    { name: "Blazer Negro Clásico", price: 89900, stock: 5, unit: "unidad" },
+    { name: "Traje Femenino Gris Perla", price: 132500, stock: 2, unit: "unidad" },
+    { name: "Pantalón Sastrero Nude", price: 64500, stock: 4, unit: "unidad" },
+  ]
+
+  const worksheet = XLSX.utils.json_to_sheet(rows)
+  const workbook = XLSX.utils.book_new()
+
+  XLSX.utils.book_append_sheet(workbook, worksheet, "productos")
+
+  XLSX.writeFile(workbook, "plantilla_productos_arcana.xlsx")
 }
 
   return (
@@ -444,11 +459,75 @@ for (const row of rows) {
 </div>
 </div>
 
-      {products.length === 0 && (
-        <div className="p-6 text-gray-400">
-          No hay productos cargados.
+     {products.length === 0 && (
+  <div className="p-6 md:p-8">
+    <div className="bg-[#101018] border border-[#1F1F24] rounded-2xl p-6 md:p-8">
+      <h3 className="text-white text-lg md:text-xl font-semibold mb-2">
+        Empezá cargando tus productos
+      </h3>
+
+      <p className="text-gray-400 text-sm md:text-base mb-6 max-w-2xl">
+        Podés cargarlos uno por uno desde el botón <span className="text-white font-medium">Nuevo producto</span> o importar varios juntos usando un archivo Excel.
+      </p>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="bg-[#0B0B10] border border-[#1F1F24] rounded-xl p-5">
+          <h4 className="text-white font-semibold mb-2">Carga manual</h4>
+          <p className="text-gray-400 text-sm mb-4">
+            Ideal si recién empezás o si tenés pocos productos.
+          </p>
+
+          <button
+            onClick={() => setIsOpen(true)}
+            className="w-full sm:w-auto bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-5 py-3 font-semibold"
+          >
+            ➕ Nuevo producto
+          </button>
         </div>
-      )}
+
+        <div className="bg-[#0B0B10] border border-[#1F1F24] rounded-xl p-5">
+          <h4 className="text-white font-semibold mb-2">Importar desde Excel</h4>
+          <p className="text-gray-400 text-sm mb-4">
+            Usá la plantilla básica de Arcana para importar tus productos sin errores.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={downloadTemplate}
+              className="w-full sm:w-auto bg-[#2A2A32] hover:bg-[#333] transition rounded-xl px-5 py-3 font-semibold"
+            >
+              ⬇ Descargar plantilla
+            </button>
+
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="w-full sm:w-auto bg-[#6C5CE7] hover:bg-[#5A4BD1] transition rounded-xl px-5 py-3 font-semibold"
+            >
+              📥 Importar Excel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-[#0B0B10] border border-dashed border-[#2A2A32] rounded-xl p-4">
+        <p className="text-sm text-gray-300 mb-2 font-medium">
+          Tu archivo Excel debe tener estas columnas:
+        </p>
+
+        <div className="flex flex-wrap gap-2 mb-3">
+          <span className="px-3 py-1 rounded-full bg-[#1A1A22] text-gray-300 text-xs">name</span>
+          <span className="px-3 py-1 rounded-full bg-[#1A1A22] text-gray-300 text-xs">price</span>
+          <span className="px-3 py-1 rounded-full bg-[#1A1A22] text-gray-300 text-xs">stock</span>
+          <span className="px-3 py-1 rounded-full bg-[#1A1A22] text-gray-300 text-xs">unit</span>
+        </div>
+
+        <p className="text-xs text-gray-500">
+          Ejemplo: una fila por producto, sin cambiar los nombres de las columnas.
+        </p>
+      </div>
+    </div>
+  </div>
+)}
 
     </div>
 {isOpen && (
