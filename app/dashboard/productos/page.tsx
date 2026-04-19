@@ -494,7 +494,7 @@ const downloadTemplate = () => {
           <div className="flex flex-col sm:flex-row gap-3">
             <button
               onClick={downloadTemplate}
-              className="w-full sm:w-auto bg-[#2A2A32] hover:bg-[#333] transition rounded-xl px-5 py-3 font-semibold"
+              className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 transition rounded-xl px-5 py-3 font-semibold text-white shadow-lg shadow-purple-500/20"
             >
               ⬇ Descargar plantilla
             </button>
