@@ -243,6 +243,8 @@ for (const field of requiredFields) {
 
 for (const row of rows) {
 
+  const generatedCode = `PRD-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+
   const productName = row.name.trim().toLowerCase()
 
   const { data } = await supabase
@@ -441,7 +443,7 @@ const downloadTemplate = () => {
 </td>
 
 <td className="p-4 text-gray-400 text-xs">
- {p.barcode || "—"}
+ {p.code || p.barcode || "—"}
 </td>
 
 <td className="p-4">
