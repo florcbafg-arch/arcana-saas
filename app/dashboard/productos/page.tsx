@@ -256,23 +256,32 @@ for (const row of rows) {
     p => p.name.trim().toLowerCase() === productName
   )
 
-  if (existing) {
+ if (existing) {
+  await supabase
+    .from("products")
+    .update({
+      stock_quantity: existing.stock_quantity + Number(row.stock),
+      min_stock_yellow: row.min_stock_yellow
+        ? Number(row.min_stock_yellow)
+        : existing.min_stock_yellow,
+      min_stock_red: row.min_stock_yellow
+        ? Math.max(1, Math.floor(Number(row.min_stock_yellow) / 2))
+        : existing.min_stock_red,
+      code: row.code || existing.code,
+    })
+    .eq("id", existing.id)
+} else {
 
-    await supabase
-      .from("products")
-      .update({
-        stock_quantity: existing.stock_quantity + Number(row.stock)
-      })
-      .eq("id", existing.id)
-
-  } else {
-
-    await supabase.from("products").insert({
+ await supabase.from("products").insert({
   name: row.name.trim(),
   price: Number(row.price),
   stock_quantity: Number(row.stock),
   unit: row.unit || "unidad",
-  code: row.code || null,
+  code: row.code || generatedCode,
+  min_stock_yellow: row.min_stock_yellow ? Number(row.min_stock_yellow) : 1,
+  min_stock_red: row.min_stock_yellow
+    ? Math.max(1, Math.floor(Number(row.min_stock_yellow) / 2))
+    : 1,
   business_id: selectedBusinessId
 })
   }
