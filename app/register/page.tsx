@@ -15,10 +15,15 @@ export default function RegisterPage() {
 
   setLoading(true)
 
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-  })
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+
+const { data, error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo: `${siteUrl}/login?confirmed=true`,
+  },
+})
 
   if (error) {
     console.error(error.message)
@@ -27,16 +32,10 @@ export default function RegisterPage() {
     return
   }
 
-  // 🔒 SI EL USUARIO YA EXISTE
-if (data?.user && !data?.session) {
-  alert('Este email ya está registrado. Iniciá sesión.')
-  setLoading(false)
-  return
-}
 
   // 👇 CASO CONFIRM EMAIL ACTIVADO
   if (!data.session) {
-    alert('Cuenta creada. Revisa tu correo para verificar tu email.')
+  alert('Cuenta creada. Revisá tu correo y confirmá tu email para poder ingresar.')
     setLoading(false)
     return
   }

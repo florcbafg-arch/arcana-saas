@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Mail, Lock } from 'lucide-react'
-import AvisoRecomendacion from '../../components/AvisoRecomendacion'
+
 
 export default function LoginPage() {
   const router = useRouter()
@@ -40,8 +40,6 @@ export default function LoginPage() {
 
   return (
   <div className="relative min-h-screen flex items-center justify-center bg-[#0B0B0F] text-white overflow-hidden px-4">
-
-<AvisoRecomendacion />
 
     {/* Glow ambiental */}
     <div className="absolute w-[600px] h-[600px] bg-blue-600/10 rounded-full blur-3xl top-[-200px] right-[-150px]" />

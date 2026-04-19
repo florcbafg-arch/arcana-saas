@@ -13,7 +13,7 @@ export default function ResetPasswordPage() {
     setLoading(true)
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: 'http://localhost:3000/update-password',
+      redirectTo: 'https://app.arcanaapp.app/update-password',
     })
 
     setLoading(false)

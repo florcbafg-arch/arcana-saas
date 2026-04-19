@@ -387,11 +387,11 @@ useEffect(() => {
 }, [selectedRange])
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-4 md:p-6 space-y-6 md:space-y-8">
 
       {/* HEADER */}
       <div>
-        <h1 className="text-2xl font-semibold text-white">
+        <h1 className="text-xl md:text-2xl font-semibold text-white">
           📊 Panel principal
         </h1>
         <p className="text-gray-400 mt-1">
@@ -399,7 +399,7 @@ useEffect(() => {
         </p>
 
         {/* SELECTOR */}
-<div className="flex gap-2 mt-4">
+<div className="flex flex-wrap gap-2 mt-4">
   {[7, 30, 90].map((range) => (
     <button
       key={range}
@@ -464,7 +464,7 @@ useEffect(() => {
       </div>
 
       {/* KPI CARDS */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6">
 
        <div
   className={`bg-[#14141A] border rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
@@ -476,7 +476,7 @@ useEffect(() => {
   }`}
 >
           <p className="text-gray-400 text-sm">Ventas del día</p>
-          <p className="text-4xl semibold text-yellow-400 mt-3">
+          <p className="text-3xl md:text-4xl semibold text-yellow-400 mt-3">
   ${todaySales.toLocaleString()}
 </p>
 
@@ -499,21 +499,21 @@ useEffect(() => {
 
         <div className="bg-[#14141A] border border-[#2A2A33] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
           <p className="text-gray-400 text-sm">Productos activos</p>
-         <p className="text-4xl font-bold text-white mt-3">
+         <p className="text-3xl md:text-4xl font-bold text-white mt-3">
   {activeProductsCount}
 </p>
         </div>
 
         <div className="bg-[#14141A] border border-[#2A2A33] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
           <p className="text-gray-400 text-sm">En alerta</p>
-          <p className="text-4xl font-semibold text-yellow-400 mt-3 tracking-tight">
+          <p className="text-3xl md:text-4xl font-semibold text-yellow-400 mt-3 tracking-tight">
             {alertProductsCount}
           </p>
         </div>
 
         <div className="bg-[#14141A] border border-[#2A2A33] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
           <p className="text-gray-400 text-sm">Clientes en riesgo</p>
-<p className="text-4xl font-bold text-red-400 mt-3">
+<p className="text-3xl md:text-4xl font-bold text-red-400 mt-3">
   {highRiskCustomers.length}
 </p>
         </div>
@@ -538,7 +538,7 @@ useEffect(() => {
     recentActivity.map((item, index) => (
       <div
         key={index}
-        className="flex justify-between items-center bg-[#111117] border border-[#1F1F24] p-4 rounded-xl transition-all duration-200 hover:border-[#2A2A33]"
+       className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 bg-[#111117] border border-[#1F1F24] p-4 rounded-xl transition-all duration-200 hover:border-[#2A2A33]"
       >
         <div className="flex items-center gap-3">
 
@@ -569,7 +569,7 @@ useEffect(() => {
         </div>
 
         {/* Hora más visible */}
-        <span className="text-gray-300 text-sm font-medium">
+        <span className="text-gray-300 text-sm font-medium self-start sm:self-auto">
           {new Date(item.created_at).toLocaleTimeString()}
         </span>
       </div>
