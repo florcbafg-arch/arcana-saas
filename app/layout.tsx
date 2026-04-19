@@ -1,3 +1,4 @@
+// @ts-ignore
 import './globals.css'
 
 export default function RootLayout({
@@ -7,16 +8,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body>
-        <header style={{ padding: 16, borderBottom: '1px solid #eee' }}>
-          🚀 Sistema Arcana
-        </header>
-
-        <main style={{ padding: 24 }}>
-          {children}
-        </main>
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
-
