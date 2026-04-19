@@ -35,6 +35,7 @@ export default function ProductosPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [newBarcode, setNewBarcode] = useState('')
+  const [newCode, setNewCode] = useState('')
   const [toast, setToast] = useState<{
   type: "success" | "error"
   message: string
@@ -102,15 +103,16 @@ const createProduct = async () => {
       const { error } = await supabase
         .from('products')
         .update({
-          name: newProductName,
-          unit: newUnit,
-          stock_quantity: newStock,
-          min_stock_yellow: newMinStock,
-          min_stock_red: Math.max(1, Math.floor(newMinStock / 2)),
-          price: newPrice,
-          active: newActive,
-          barcode: barcodeToUse,
-        })
+  name: newProductName,
+  unit: newUnit,
+  stock_quantity: newStock,
+  min_stock_yellow: newMinStock,
+  min_stock_red: Math.max(1, Math.floor(newMinStock / 2)),
+  price: newPrice,
+  active: newActive,
+  code: newCode || null,
+  barcode: barcodeToUse,
+})
         .eq('id', editingId)
 
      if (error) throw error
@@ -133,7 +135,7 @@ setEditingId(null)
 
       const { error } = await supabase
         .from('products')
-        .insert({
+    .insert({
   name: newProductName,
   business_id: selectedBusinessId,
   unit: newUnit,
@@ -142,6 +144,7 @@ setEditingId(null)
   min_stock_red: Math.max(1, Math.floor(newMinStock / 2)),
   price: newPrice,
   active: newActive,
+  code: newCode || null,
   barcode: barcodeToUse,
 })
 
@@ -157,6 +160,7 @@ setEditingId(null)
     setNewPrice(0)
     setNewActive(true)
     setIsOpen(false)
+    setNewCode('')
     setNewBarcode('')
     fetchProducts()
 
@@ -199,8 +203,9 @@ const handleEdit = (product: Product) => {
   setNewMinStock(product.min_stock_yellow)
   setNewUnit(product.unit)
   setNewActive(product.active)
-  setIsOpen(true)
+  setNewCode(product.code || '')
   setNewBarcode(product.barcode || '')
+  setIsOpen(true)
 }
 
 useEffect(() => {
@@ -650,6 +655,21 @@ const downloadTemplate = () => {
           />
         </div>
 
+{/* Código interno */}
+<div className="space-y-1">
+  <label className="text-sm text-gray-400">
+    Código del producto (opcional)
+  </label>
+
+  <input
+    value={newCode}
+    onChange={(e) => setNewCode(e.target.value)}
+    placeholder="Ej: VEL-202"
+    className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
+    focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
+  />
+</div>
+
 {/* Barcode */}
 
 <div className="space-y-1">
@@ -696,7 +716,7 @@ const downloadTemplate = () => {
       <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
         <button
           onClick={() => setIsOpen(false)}
-          className="w-full sm:w-auto px-4 py-2 rounded-xl border border-[#1F1F24] hover:bg-[#1A1A22] transition"
+          className="w-full sm:w-auto px-4 py-2 rounded-xl border border-[#2A2A32] bg-[#1A1A22] text-white hover:bg-[#22222B] hover:border-[#3A3A48] transition"
         >
           Cancelar
         </button>
