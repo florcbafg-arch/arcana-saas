@@ -135,15 +135,15 @@ window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
 
       <div className="px-5 py-5 border-b border-white/5">
   <div className="flex items-center gap-3">
-    <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-[0_0_24px_rgba(79,124,255,0.12)]">
-      <Image
-        src="/logo-arcana.png"
-        alt="Arcana"
-        fill
-        className="object-cover"
-        sizes="44px"
-        priority
-      />
+    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_0_40px_rgba(79,124,255,0.15)]">
+     <Image
+  src="/logo-arcana.png"
+  alt="Arcana"
+  fill
+  className="object-contain p-1"
+  sizes="56px"
+  priority
+/>
     </div>
 
     <div className="min-w-0">
