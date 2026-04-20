@@ -1,6 +1,19 @@
 // @ts-ignore
 import './globals.css'
 
+import { Inter, Orbitron } from 'next/font/google'
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+})
+
+const orbitron = Orbitron({
+  subsets: ['latin'],
+  weight: ['500', '600', '700'],
+  variable: '--font-orbitron',
+})
+
 export default function RootLayout({
   children,
 }: {
@@ -8,7 +21,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body className={`${inter.variable} ${orbitron.variable}`}>
+        {children}
+      </body>
     </html>
   )
 }

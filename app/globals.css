@@ -184,3 +184,15 @@ textarea {
 .sales-scroll:hover::-webkit-scrollbar-thumb {
   background: linear-gradient(180deg, rgba(79, 124, 255, 0.55), rgba(139, 92, 246, 0.55));
 }
+body {
+  font-family: var(--font-inter), system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3,
+.brand-title,
+.arcana-title {
+  font-family: var(--font-orbitron), sans-serif;
+  letter-spacing: 0.5px;
+}
