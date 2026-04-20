@@ -133,27 +133,15 @@ window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
   return (
    <aside className="hidden md:flex w-64 min-h-screen bg-[#0E0E11] text-gray-300 border-r border-[#1F1F24] flex-col">
 
-      <div className="px-5 py-5 border-b border-white/5">
-  <div className="flex items-center gap-3">
-    <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_0_40px_rgba(79,124,255,0.15)]">
-     <Image
-  src="/logo-arcana.png"
-  alt="Arcana"
-  fill
-  className="object-contain p-1"
-  sizes="56px"
-  priority
-/>
-    </div>
-
-    <div className="min-w-0">
-      <p className="text-[15px] font-semibold leading-none text-white">
-        Arcana
-      </p>
-      <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-blue-300/70">
-        Inteligencia
-      </p>
-    </div>
+    <div className="px-4 py-6 border-b border-white/5 flex justify-center">
+  <div className="relative h-20 w-20 rounded-2xl bg-white/5 border border-white/10 shadow-[0_0_60px_rgba(79,124,255,0.15)] p-2">
+    <Image
+      src="/logo-arcana.png"
+      alt="Arcana"
+      fill
+      className="object-contain"
+      priority
+    />
   </div>
 </div>
 
