@@ -141,13 +141,13 @@ export default function DashboardLayout({
 
   if (accessState !== 'authorized') return null
 
-  return (
-  <div className="min-h-screen bg-[#0B0B0F] md:flex">
-    <div className="hidden md:block">
+ return (
+  <div className="min-h-screen bg-transparent md:flex">
+    <aside className="hidden md:flex md:h-screen md:sticky md:top-0 md:shrink-0">
       <Sidebar />
-    </div>
+    </aside>
 
-    <main className="flex-1 w-full p-4 md:p-6 pb-24 md:pb-6">
+    <main className="relative flex-1 min-w-0 w-full px-4 py-4 md:px-8 md:py-7 pb-24 md:pb-8">
       {children}
     </main>
 
@@ -157,7 +157,7 @@ export default function DashboardLayout({
 
     <ErrorDetector />
 
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-[#1F1F24] bg-[#0F0F14]/95 backdrop-blur px-2 py-2">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#0B0F1A]/92 backdrop-blur-xl px-2 py-2">
       <div className="grid grid-cols-4 gap-2 text-center text-xs">
         <Link
           href="/dashboard"

@@ -132,9 +132,22 @@ window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
   return (
    <aside className="hidden md:flex w-64 min-h-screen bg-[#0E0E11] text-gray-300 border-r border-[#1F1F24] flex-col">
 
-      <div className="px-6 py-5 text-xl font-semibold text-white">
+      <div className="px-6 py-6 border-b border-white/5">
+  <div className="flex items-center gap-3">
+    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
+      A
+    </div>
+
+    <div>
+      <p className="text-sm text-white font-semibold tracking-wide">
         Arcana
-      </div>
+      </p>
+      <p className="text-[10px] text-blue-300/70 uppercase tracking-[0.2em]">
+        Inteligencia
+      </p>
+    </div>
+  </div>
+</div>
 
       <div className="px-6 pb-4 border-b border-[#1F1F24]">
   <p className="text-xs text-gray-500 uppercase tracking-wide">
