@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -132,39 +133,46 @@ window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
   return (
    <aside className="hidden md:flex w-64 min-h-screen bg-[#0E0E11] text-gray-300 border-r border-[#1F1F24] flex-col">
 
-      <div className="px-6 py-6 border-b border-white/5">
+      <div className="px-5 py-5 border-b border-white/5">
   <div className="flex items-center gap-3">
-    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/20">
-      A
+    <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-white/5 shadow-[0_0_24px_rgba(79,124,255,0.12)]">
+      <Image
+        src="/logo-arcana.png"
+        alt="Arcana"
+        fill
+        className="object-cover"
+        sizes="44px"
+        priority
+      />
     </div>
 
-    <div>
-      <p className="text-sm text-white font-semibold tracking-wide">
+    <div className="min-w-0">
+      <p className="text-[15px] font-semibold leading-none text-white">
         Arcana
       </p>
-      <p className="text-[10px] text-blue-300/70 uppercase tracking-[0.2em]">
+      <p className="mt-1 text-[10px] uppercase tracking-[0.22em] text-blue-300/70">
         Inteligencia
       </p>
     </div>
   </div>
 </div>
 
-      <div className="px-6 pb-4 border-b border-[#1F1F24]">
-  <p className="text-xs text-gray-500 uppercase tracking-wide">
+      <div className="px-5 py-4 border-b border-[#1F1F24]">
+  <p className="text-[11px] uppercase tracking-[0.18em] text-gray-500">
     Negocio activo
   </p>
 
-  <p className="text-sm font-semibold text-white mt-1">
+  <p className="mt-2 text-[15px] font-semibold text-white">
     {activeBusinessName || 'Cargando...'}
   </p>
 
   {businesses.length > 1 && (
-    <div className="mt-3 space-y-1">
+    <div className="mt-3 space-y-1.5">
       {businesses.map((b) => (
         <button
           key={b.id}
           onClick={() => handleChangeBusiness(b.id, b.name)}
-          className="text-xs text-gray-400 hover:text-white block text-left w-full"
+          className="block w-full rounded-lg px-2 py-1.5 text-left text-[12px] text-gray-400 transition hover:bg-white/5 hover:text-white"
         >
           Cambiar a: {b.name}
         </button>
@@ -182,14 +190,14 @@ window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
       <Link
         key={item.name}
         href={item.href}
-        className={`
-          relative flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200
-          ${
-            isActive
-              ? 'bg-gradient-to-r from-blue-600/20 to-indigo-500/20 border border-blue-500/30 text-white shadow-md shadow-blue-600/10'
-              : 'text-gray-400 hover:text-white hover:bg-[#1A1A22]'
-          }
-        `}
+       className={`
+  relative flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200
+  ${
+    isActive
+      ? 'border border-[#6D5EFC]/35 bg-gradient-to-r from-[#4F7CFF]/18 to-[#6D5EFC]/18 text-white shadow-[0_0_24px_rgba(79,124,255,0.10)]'
+      : 'text-gray-400 hover:bg-white/5 hover:text-white'
+  }
+`}
       >
         {/* Barra activa animada */}
         {isActive && (
@@ -197,11 +205,12 @@ window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
         )}
 
         <item.icon
-          size={18}
-          className={isActive ? 'text-blue-400' : 'text-gray-500'}
-        />
+  size={19}
+  strokeWidth={2}
+  className={isActive ? 'text-[#7EA2FF]' : 'text-gray-500'}
+/>
 
-        <span className="text-sm font-medium">{item.name}</span>
+<span className="text-[15px] font-medium">{item.name}</span>
       </Link>
     )
   })}
@@ -209,17 +218,17 @@ window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
 
 <button
   onClick={reportarProblema}
-  className="mt-4 bg-[#0F0F14] border border-[#1F1F24] text-gray-400 hover:text-white hover:border-blue-500 transition rounded-xl p-3"
+  className="mx-3 mt-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-[14px] font-medium text-gray-300 transition hover:border-[#6D5EFC]/35 hover:bg-[#6D5EFC]/10 hover:text-white"
 >
   💬 Reportar problema
 </button>
 
-      <button
-        onClick={handleLogout}
-        className="mt-auto bg-[#0F0F14] border border-[#1F1F24] text-gray-400 hover:text-white hover:border-red-500 transition rounded-xl p-3"
-      >
-        🚪 Cerrar sesión
-      </button>
+     <button
+  onClick={handleLogout}
+  className="mx-3 mt-auto mb-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-[14px] font-medium text-gray-300 transition hover:border-red-400/35 hover:bg-red-500/10 hover:text-white"
+>
+  🚪 Cerrar sesión
+</button>
 
     </aside>
   )
