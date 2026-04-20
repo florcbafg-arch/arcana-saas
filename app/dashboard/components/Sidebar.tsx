@@ -133,8 +133,8 @@ window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
   return (
    <aside className="hidden md:flex w-64 min-h-screen bg-[#0E0E11] text-gray-300 border-r border-[#1F1F24] flex-col">
 
-   <div className="px-4 py-6 border-b border-white/5 flex justify-center">
-  <div className="relative w-full h-24">
+   <div className="px-4 py-8 border-b border-white/5 flex justify-center">
+  <div className="relative w-full h-32">
     <Image
       src="/logo-arcana.png"
       alt="Arcana"
