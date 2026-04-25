@@ -35,6 +35,7 @@ export default function VentasPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [successFlash, setSuccessFlash] = useState(false)
+  const [cart, setCart] = useState<any[]>([])
 
   const [saleQuantity, setSaleQuantity] = useState(1)
   const [creating, setCreating] = useState(false)
@@ -188,6 +189,90 @@ if (!product) {
   setTimeout(() => {
     salesRef.current?.scrollIntoView({ behavior: "smooth" })
   }, 200)
+
+  setCreating(false)
+}
+
+const addToCart = () => {
+  if (!selectedProduct) return
+
+  if (saleQuantity <= 0) {
+    setToast({ type: "error", message: "Cantidad inválida" })
+    return
+  }
+
+  if (selectedProduct.stock_quantity < saleQuantity) {
+    setToast({ type: "error", message: "Stock insuficiente" })
+    return
+  }
+
+  setCart(prev => {
+    const existing = prev.find(p => p.product_id === selectedProduct.id)
+
+    if (existing) {
+      return prev.map(p =>
+        p.product_id === selectedProduct.id
+          ? { ...p, quantity: p.quantity + saleQuantity }
+          : p
+      )
+    }
+
+    return [
+      ...prev,
+      {
+        product_id: selectedProduct.id,
+        name: selectedProduct.name,
+        quantity: saleQuantity,
+        price: selectedProduct.price,
+        unit: selectedProduct.unit
+      }
+    ]
+  })
+
+  setSelectedProduct(null)
+  setSaleQuantity(1)
+}
+
+const cartTotal = cart.reduce(
+  (acc, item) => acc + item.quantity * item.price,
+  0
+)
+
+const createCartSale = async () => {
+  if (cart.length === 0) {
+    setToast({ type: "error", message: "El carrito está vacío" })
+    return
+  }
+
+  if (!selectedBusinessId) return
+
+  setCreating(true)
+
+  const { data, error } = await supabase.rpc(
+    "create_sale_cart_atomic",
+    {
+      p_business_id: selectedBusinessId,
+      p_user_id: null, // después lo mejoramos
+      p_items: cart,
+      p_customer_id: salePaid ? null : selectedCustomer?.id,
+      p_payment_method: salePaid ? "paid" : "debt"
+    }
+  )
+
+  if (error) {
+    setToast({ type: "error", message: error.message })
+    setCreating(false)
+    return
+  }
+
+  await fetchProducts()
+  await fetchSales()
+
+  setCart([])
+  setToast({
+    type: "success",
+    message: "Venta con carrito registrada 🚀"
+  })
 
   setCreating(false)
 }
@@ -451,54 +536,66 @@ setShowScanner(false)
 
           {/* BOTÓN */}
           
+  <div className="flex flex-col gap-3">
+
   <button
-  type="button"
-  onClick={() => createSale()}
- disabled={
-  creating ||
-  !selectedProduct ||
-  selectedProduct.stock_quantity < saleQuantity
-}
- className={`w-full rounded-xl p-4 font-semibold flex items-center justify-center gap-3 transition-all duration-300
-${creating || !selectedProduct || selectedProduct.stock_quantity < saleQuantity
-  ? 'bg-gray-600 cursor-not-allowed'
-  : successFlash
-    ? 'bg-green-600 shadow-lg shadow-green-500/30'
-    : 'bg-[#1F6BFF] hover:bg-[#2E7BFF] active:scale-95'
-}`}
->
-  {creating && (
-    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-  )}
+    type="button"
+    onClick={addToCart}
+    disabled={!selectedProduct}
+    className="w-full bg-yellow-600 hover:bg-yellow-700 rounded-xl p-4 font-semibold transition"
+  >
+    ➕ Agregar al carrito
+  </button>
 
-  {creating ? "Procesando venta..." : "Registrar venta"}
-</button>
+  <button
+    type="button"
+    onClick={createCartSale}
+    disabled={cart.length === 0 || creating}
+    className="w-full bg-green-600 hover:bg-green-700 rounded-xl p-4 font-semibold transition"
+  >
+    🧾 Finalizar venta (${cartTotal})
+  </button>
 
- 
+</div>
+
+</div>
+
+{/* PANEL DERECHO */}
+<div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 shadow-md">
+  <h2 className="text-lg font-medium">Carrito</h2>
+
+{cart.length === 0 ? (
+  <p className="text-gray-400 text-sm">Carrito vacío</p>
+) : (
+  <div className="space-y-3">
+    {cart.map((item, i) => (
+      <div
+        key={i}
+        className="flex justify-between items-center bg-[#0F0F14] p-3 rounded-xl"
+      >
+        <div>
+          <p className="text-sm font-medium">{item.name}</p>
+          <p className="text-xs text-gray-400">
+            {item.quantity} {item.unit} · ${item.price}
+          </p>
         </div>
 
-        {/* PANEL DERECHO */}
-        <div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 shadow-md">
+        <button
+          onClick={() =>
+            setCart(prev => prev.filter((_, idx) => idx !== i))
+          }
+          className="text-red-400 text-xs"
+        >
+          ✖
+        </button>
+      </div>
+    ))}
 
-          <h2 className="text-lg font-medium">Resumen</h2>
-
-          {selectedProduct && (
-            <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
-              <p><strong>Producto:</strong> {selectedProduct.name}</p>
-              <p><strong>Stock actual:</strong> {selectedProduct.stock_quantity}</p>
-              <p><strong>Cantidad:</strong> {saleQuantity}</p>
-
-              {selectedProduct.stock_quantity >= saleQuantity ? (
-                <div className="bg-[#132A1A] text-green-400 rounded-xl p-3">
-                  ✔ Stock suficiente
-                </div>
-              ) : (
-                <div className="bg-[#2A1414] text-red-400 rounded-xl p-3">
-                  ✖ Stock insuficiente
-                </div>
-              )}
-            </div>
-          )}
+    <div className="text-right text-lg font-semibold text-green-400">
+      Total: ${cartTotal}
+    </div>
+  </div>
+)}
 
         </div>
 
