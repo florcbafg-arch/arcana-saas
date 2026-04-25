@@ -12,6 +12,7 @@ import {
   ShoppingCart,
   Users,
   Settings,
+   Truck,
 } from 'lucide-react'
 
 const menuItems = [
@@ -20,6 +21,7 @@ const menuItems = [
   { name: 'Stock', href: '/dashboard/stock', icon: Boxes },
   { name: 'Ventas', href: '/dashboard/ventas', icon: ShoppingCart },
   { name: 'Clientes', href: '/dashboard/clientes', icon: Users },
+  { name: 'Proveedores', href: '/dashboard/proveedores', icon: Truck },
   { name: 'Configuración', href: '/dashboard/configuracion', icon: Settings },
 ]
 
