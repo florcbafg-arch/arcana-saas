@@ -325,7 +325,7 @@ const createCartSale = async () => {
       p_items: cart,
       p_customer_id: salePaid ? null : selectedCustomer?.id,
       p_payment_method: salePaid ? "paid" : "debt",
-      p_payment_type: salePaid ? paymentType : null
+      paymentType: salePaid ? paymentType : null
     }
   )
 
@@ -898,7 +898,7 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
             </span>
 
             <span>
-              {item.quantity} {item.products?.unit} · ${item.price_unit}
+              {item.quantity} {item.products?.unit} · {formatCurrency(item.price_unit)}
             </span>
 
           </div>
