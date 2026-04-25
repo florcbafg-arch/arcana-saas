@@ -573,12 +573,12 @@ setToast({
 )}
 
       {/* GRID PRINCIPAL */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
 
         {/* PANEL IZQUIERDO */}
        
-        <div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 
-        transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
+        <div className="md:col-span-1 bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 
+transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
 
           <h2 className="text-lg font-medium">Registrar venta</h2>
 
@@ -686,7 +686,7 @@ setToast({
 </div>
 
 {/* PANEL DERECHO */}
-<div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 shadow-md">
+<div className="md:col-span-2 bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 shadow-md">
   <h2 className="text-lg font-medium">Carrito</h2>
 
 {cart.length === 0 ? (
