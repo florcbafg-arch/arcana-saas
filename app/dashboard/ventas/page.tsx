@@ -435,11 +435,21 @@ setToast({
 
 
       {/* HEADER */}
-<div>
-  <h1 className="text-3xl font-semibold">🧾 Nueva Venta</h1>
-  <p className="text-gray-400 text-sm">
-    Registrá ventas rápidas y seguras.
-  </p>
+<div className="flex items-center gap-3">
+  
+  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+    💳
+  </div>
+
+  <div>
+    <h1 className="text-3xl font-semibold text-white">
+      Nueva Venta
+    </h1>
+    <p className="text-sm text-gray-400">
+      Flujo rápido de ventas tipo POS
+    </p>
+  </div>
+
 </div>
 
 {/* RESUMEN CAJA */}
@@ -447,30 +457,55 @@ setToast({
 
   <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
     <p className="text-xs text-gray-400">Caja de hoy</p>
-    <p className="text-lg font-semibold text-green-400">
-      ${salesSummary.total}
-    </p>
+    <motion.p
+  key={salesSummary.total}
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.3 }}
+  className="text-lg font-semibold text-green-400"
+>
+  ${salesSummary.total}
+</motion.p>
+    
   </div>
 
   <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
     <p className="text-xs text-gray-400">Ventas</p>
-    <p className="text-lg font-semibold">
-      {salesSummary.count}
-    </p>
+    <motion.p
+  key={salesSummary.count}
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.3 }}
+  className="text-lg font-semibold"
+>
+  {salesSummary.count}
+</motion.p>
   </div>
 
   <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
     <p className="text-xs text-gray-400">Unidades</p>
-    <p className="text-lg font-semibold">
-      {salesSummary.units}
-    </p>
+   <motion.p
+  key={salesSummary.units}
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.3 }}
+  className="text-lg font-semibold"
+>
+  {salesSummary.units}
+</motion.p>
   </div>
 
   <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
     <p className="text-xs text-gray-400">Fiado</p>
-    <p className="text-lg font-semibold text-yellow-400">
-      ${salesSummary.debt}
-    </p>
+    <motion.p
+  key={salesSummary.debt}
+  initial={{ opacity: 0, y: 10 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.3 }}
+  className="text-lg font-semibold text-yellow-400"
+>
+  ${salesSummary.debt}
+</motion.p>
   </div>
 
 </div>
