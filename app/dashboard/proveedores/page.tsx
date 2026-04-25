@@ -18,42 +18,61 @@ export default function ProveedoresPage() {
   const [email, setEmail] = useState('')
   const [address, setAddress] = useState('')
 
-  const fetchSuppliers = async () => {
-    const { data, error } = await supabase
-      .from('suppliers')
-      .select('*')
+ const fetchSuppliers = async () => {
+  const activeBusinessId = localStorage.getItem('activeBusinessId')
 
-    if (!error) setSuppliers(data)
+  if (!activeBusinessId) return
+
+  const { data, error } = await supabase
+    .from('suppliers')
+    .select('*')
+    .eq('business_id', activeBusinessId)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.error('Error cargando proveedores:', error)
+    return
   }
+
+  setSuppliers(data || [])
+}
 
   const createSupplier = async () => {
-    const user = await supabase.auth.getUser()
+  const activeBusinessId = localStorage.getItem('activeBusinessId')
 
-    if (!user.data.user) return
-
-    const { data: userData } = await supabase
-      .from('users')
-      .select('business_id')
-      .eq('id', user.data.user.id)
-      .single()
-
-    await supabase.from('suppliers').insert([
-      {
-        name,
-        phone,
-        email,
-        address,
-        business_id: userData?.business_id
-      }
-    ])
-
-    setName('')
-    setPhone('')
-    setEmail('')
-    setAddress('')
-
-    fetchSuppliers()
+  if (!activeBusinessId) {
+    alert('No hay negocio activo')
+    return
   }
+
+  if (!name.trim()) {
+    alert('El nombre del proveedor es obligatorio')
+    return
+  }
+
+  const { error } = await supabase.from('suppliers').insert([
+    {
+      name,
+      phone,
+      email,
+      address,
+      business_id: activeBusinessId,
+    },
+  ])
+
+  if (error) {
+    console.error('Error creando proveedor:', error)
+    alert('No se pudo crear el proveedor')
+    return
+  }
+
+  setName('')
+  setPhone('')
+  setEmail('')
+  setAddress('')
+
+  fetchSuppliers()
+}
 
   useEffect(() => {
     fetchSuppliers()
