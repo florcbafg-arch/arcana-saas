@@ -37,6 +37,9 @@ export default function VentasPage() {
   const [successFlash, setSuccessFlash] = useState(false)
   const [cart, setCart] = useState<any[]>([])
   const [lastAddedId, setLastAddedId] = useState<string | null>(null)
+  const [business, setBusiness] = useState<any | null>(null)
+  const [lastSaleTicket, setLastSaleTicket] = useState<any | null>(null)
+  const [showTicket, setShowTicket] = useState(false)
   
   const [saleQuantity, setSaleQuantity] = useState(1)
   const [creating, setCreating] = useState(false)
@@ -69,13 +72,13 @@ const [salesSummary, setSalesSummary] = useState({
   }, [])
 
   // Cargar productos y clientes cuando haya negocio
-  useEffect(() => {
-    if (!selectedBusinessId) return
-    fetchProducts()
-    fetchCustomers()
-    fetchSales()
-
-  }, [selectedBusinessId])
+ useEffect(() => {
+  if (!selectedBusinessId) return
+  fetchProducts()
+  fetchCustomers()
+  fetchSales()
+  fetchBusiness()
+}, [selectedBusinessId])
 
   useEffect(() => {
   if (!toast) return
@@ -128,6 +131,18 @@ useEffect(() => {
 
   setSales(data || [])
 calculateSummary(data || [])
+}
+
+const fetchBusiness = async () => {
+  if (!selectedBusinessId) return
+
+  const { data } = await supabase
+    .from('businesses')
+    .select('name')
+    .eq('id', selectedBusinessId)
+    .single()
+
+  setBusiness(data)
 }
 
 const calculateSummary = (salesData: any[]) => {
@@ -320,6 +335,19 @@ const createCartSale = async () => {
 
   await fetchProducts()
   await fetchSales()
+
+  setLastSaleTicket({
+  businessName: business?.name || "Comercio",
+  saleId: data,
+  date: new Date(),
+  items: cart,
+  total: cartTotal,
+  units: cart.reduce((acc, item) => acc + item.quantity, 0),
+  customer: salePaid ? "Consumidor final" : selectedCustomer?.name || "Cliente",
+  paymentMethod: salePaid ? "Pago" : "Fiado"
+})
+
+setShowTicket(true)
 
   setCart([])
   setToast({
@@ -519,7 +547,7 @@ const formatCurrency = (value: number) => {
   transition={{ duration: 0.3 }}
   className="text-lg font-semibold text-yellow-400"
 >
-  ${salesSummary.debt}
+  {formatCurrency(salesSummary.debt)}
 </motion.p>
   </div>
 
@@ -689,7 +717,7 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
     disabled={cart.length === 0 || creating}
     className="w-full bg-green-600 hover:bg-green-700 rounded-xl p-4 font-semibold transition"
   >
-    🧾 Finalizar venta (${cartTotal})
+    🧾 Finalizar venta ({formatCurrency(cartTotal)})
   </button>
 
 </div>
@@ -723,7 +751,7 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
     <div>
       <p className="text-sm font-medium">{item.name}</p>
       <p className="text-xs text-gray-400">
-        {item.quantity} {item.unit} · ${item.price}
+        {item.quantity} {item.unit} · {formatCurrency(item.price)}
       </p>
     </div>
 
@@ -764,6 +792,7 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
   </p>
 ) : (
   <div className="sales-scroll space-y-3 overflow-y-auto pr-2">
+
     <AnimatePresence>
       {sales.map((sale) => {
   const totalItems = sale.sale_items?.reduce(
@@ -823,6 +852,7 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
 
           </div>
         ))}
+
       </div>
     </motion.div>
   )
@@ -831,6 +861,94 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
         </div>
   )}
 </div>
+
+{showTicket && lastSaleTicket && (
+  <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+    <div className="bg-white text-black rounded-xl w-full max-w-sm p-5 font-mono shadow-2xl">
+      
+      <div className="text-center mb-4">
+        <h2 className="text-lg font-bold uppercase">
+          {lastSaleTicket.businessName}
+        </h2>
+        <p className="text-xs">Ticket interno - No fiscal</p>
+        <p className="text-xs">A CONSUMIDOR FINAL</p>
+      </div>
+
+      <div className="text-xs mb-3 space-y-1">
+        <p>Fecha: {lastSaleTicket.date.toLocaleDateString("es-AR")}</p>
+        <p>Hora: {lastSaleTicket.date.toLocaleTimeString("es-AR")}</p>
+        <p>Venta: #{lastSaleTicket.saleId?.slice(0, 6)}</p>
+        <p>Cliente: {lastSaleTicket.customer}</p>
+      </div>
+
+      <hr className="border-black my-3" />
+
+      <div className="space-y-2 text-xs">
+        {lastSaleTicket.items.map((item: any, index: number) => (
+          <div key={index}>
+            <p className="font-bold">{item.name}</p>
+            <div className="flex justify-between">
+              <span>
+                {item.quantity} x {formatCurrency(item.price)}
+              </span>
+              <span>
+                {formatCurrency(item.quantity * item.price)}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <hr className="border-black my-3" />
+
+      <div className="text-sm space-y-1">
+        <div className="flex justify-between">
+          <span>Unidades</span>
+          <span>{lastSaleTicket.units}</span>
+        </div>
+
+        <div className="flex justify-between font-bold text-base">
+          <span>TOTAL</span>
+          <span>{formatCurrency(lastSaleTicket.total)}</span>
+        </div>
+
+        <div className="flex justify-between">
+          <span>Método</span>
+          <span>{lastSaleTicket.paymentMethod}</span>
+        </div>
+      </div>
+
+      <p className="text-center text-xs mt-4">
+        Gracias por tu compra
+      </p>
+      <p className="text-center text-[10px] mt-1">
+        Comprobante no válido como factura
+      </p>
+      <p className="text-center text-[10px]">
+        Generado por Arcana POS
+      </p>
+
+      <div className="flex gap-2 mt-5">
+        <button
+          type="button"
+          onClick={() => window.print()}
+          className="w-full bg-green-600 text-white py-2 rounded-lg font-sans"
+        >
+          Imprimir
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setShowTicket(false)}
+          className="w-full bg-gray-300 text-black py-2 rounded-lg font-sans"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 </div>
 )
 }
