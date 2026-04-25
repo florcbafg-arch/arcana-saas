@@ -618,44 +618,66 @@ setShowScanner(false)
   <div className="sales-scroll space-y-3 overflow-y-auto pr-2">
     <AnimatePresence>
       {sales.map((sale) => {
-        const item = sale.sale_items?.[0]
+  const totalItems = sale.sale_items?.reduce(
+    (acc: number, item: any) => acc + item.quantity,
+    0
+  )
 
-        return (
-          <motion.div
-            key={sale.id}
-            initial={{ opacity: 0, y: 20, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
-            className="flex justify-between items-center bg-[#0E0E11] border border-[#1F1F24] rounded-xl p-3"
+  return (
+    <motion.div
+      key={sale.id}
+      initial={{ opacity: 0, y: 20, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="bg-[#0E0E11] border border-[#1F1F24] rounded-xl p-4 space-y-3"
+    >
+      <div className="flex justify-between items-start">
+        <div>
+          <p className="text-white font-medium">
+            Venta #{sale.id.slice(0, 6)}
+          </p>
+          <p className="text-xs text-gray-400">
+            {sale.customers?.name || "Venta directa"}
+          </p>
+        </div>
+
+        <div className="text-right">
+          <p className="text-sm text-gray-300">
+            {totalItems} unidad/es · ${sale.total_amount}
+          </p>
+
+          <span
+            className={`text-xs px-3 py-1 rounded-full ${
+              sale.payment_method === "paid"
+                ? "bg-green-900 text-green-400"
+                : "bg-yellow-900 text-yellow-400"
+            }`}
           >
-            <div>
-              <p className="text-white font-medium">
-                {item?.products?.name || "Producto"}
-              </p>
-              <p className="text-xs text-gray-400">
-                {sale.customers?.name || "Venta directa"}
-              </p>
-            </div>
+            {sale.payment_method === "paid" ? "Pago" : "Fiado"}
+          </span>
+        </div>
+      </div>
 
-            <div className="text-right">
-              <p className="text-sm text-gray-300">
-                {item?.quantity} {item?.products?.unit} · ${sale.total_amount}
-              </p>
+      <div className="border-t border-[#1F1F24] pt-3 space-y-2">
+        {sale.sale_items?.map((item: any, index: number) => (
+          <div
+            key={index}
+            className="flex justify-between text-xs text-gray-400"
+          >
+            <span>
+              {item.products?.name || "Producto"}
+            </span>
 
-              <span
-                className={`text-xs px-3 py-1 rounded-full ${
-                  sale.payment_method === "paid"
-                    ? "bg-green-900 text-green-400"
-                    : "bg-yellow-900 text-yellow-400"
-                }`}
-              >
-                {sale.payment_method === "paid" ? "Pago" : "Fiado"}
-              </span>
-            </div>
-          </motion.div>
-        )
-      })}
+            <span>
+              {item.quantity} {item.products?.unit} · ${item.price_unit}
+            </span>
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  )
+})}
     </AnimatePresence>
         </div>
   )}
