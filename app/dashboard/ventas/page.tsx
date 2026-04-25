@@ -36,7 +36,8 @@ export default function VentasPage() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [successFlash, setSuccessFlash] = useState(false)
   const [cart, setCart] = useState<any[]>([])
-
+  const [lastAddedId, setLastAddedId] = useState<string | null>(null)
+  
   const [saleQuantity, setSaleQuantity] = useState(1)
   const [creating, setCreating] = useState(false)
   const [salePaid, setSalePaid] = useState(true)
@@ -249,6 +250,9 @@ const addProductToCart = (product: Product, quantity = 1) => {
           : p
       )
     }
+
+    setLastAddedId(product.id)
+setTimeout(() => setLastAddedId(null), 600)
 
     return [
       ...prev,
@@ -689,28 +693,40 @@ setToast({
   <p className="text-gray-400 text-sm">Carrito vacío</p>
 ) : (
   <div className="space-y-3">
-    {cart.map((item, i) => (
-      <div
-        key={i}
-        className="flex justify-between items-center bg-[#0F0F14] p-3 rounded-xl"
-      >
-        <div>
-          <p className="text-sm font-medium">{item.name}</p>
-          <p className="text-xs text-gray-400">
-            {item.quantity} {item.unit} · ${item.price}
-          </p>
-        </div>
+   {cart.map((item, i) => (
+  <motion.div
+    key={i}
+    initial={{ opacity: 0, scale: 0.95 }}
+    animate={{
+      opacity: 1,
+      scale: 1,
+      boxShadow:
+        item.product_id === lastAddedId
+          ? "0 0 15px rgba(34,197,94,0.6)"
+          : "0 0 0px rgba(0,0,0,0)"
+    }}
+    transition={{ duration: 0.3 }}
+    className="flex justify-between items-center bg-[#0F0F14] p-3 rounded-xl"
+  >
+    
+    <div>
+      <p className="text-sm font-medium">{item.name}</p>
+      <p className="text-xs text-gray-400">
+        {item.quantity} {item.unit} · ${item.price}
+      </p>
+    </div>
 
-        <button
-          onClick={() =>
-            setCart(prev => prev.filter((_, idx) => idx !== i))
-          }
-          className="text-red-400 text-xs"
-        >
-          ✖
-        </button>
-      </div>
-    ))}
+    <button
+      onClick={() =>
+        setCart(prev => prev.filter((_, idx) => idx !== i))
+      }
+      className="text-red-400 text-xs"
+    >
+      ✖
+    </button>
+
+  </motion.div>
+))}
 
     <div className="text-right text-lg font-semibold text-green-400">
       Total: ${cartTotal}
