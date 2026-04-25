@@ -447,17 +447,20 @@ const formatCurrency = (value: number) => {
 
 
       {/* HEADER */}
-<div className="flex items-center gap-3">
+<div className="flex items-center gap-4">
 
-  <span className="text-2xl">
-    🛒
-  </span>
+  {/* ICONO GRANDE */}
+  <div className="text-4xl md:text-5xl drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]">
+  🛒
+</div>
 
+  {/* TEXTO */}
   <div>
-    <h1 className="text-3xl font-semibold text-white">
+    <h1 className="text-3xl md:text-4xl font-semibold">
       Nueva Venta
     </h1>
-    <p className="text-sm text-gray-400">
+
+    <p className="text-gray-400 text-sm">
       Flujo rápido de ventas tipo POS
     </p>
   </div>
