@@ -44,6 +44,7 @@ export default function VentasPage() {
   const [saleQuantity, setSaleQuantity] = useState(1)
   const [creating, setCreating] = useState(false)
   const [salePaid, setSalePaid] = useState(true)
+  const [paymentType, setPaymentType] = useState("cash")
   const [sales, setSales] = useState<any[]>([])
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
   const [scannerActive, setScannerActive] = useState(true)
@@ -323,7 +324,8 @@ const createCartSale = async () => {
       p_user_id: null, // después lo mejoramos
       p_items: cart,
       p_customer_id: salePaid ? null : selectedCustomer?.id,
-      p_payment_method: salePaid ? "paid" : "debt"
+      p_payment_method: salePaid ? "paid" : "debt",
+      p_payment_type: salePaid ? paymentType : null
     }
   )
 
@@ -344,7 +346,8 @@ const createCartSale = async () => {
   total: cartTotal,
   units: cart.reduce((acc, item) => acc + item.quantity, 0),
   customer: salePaid ? "Consumidor final" : selectedCustomer?.name || "Cliente",
-  paymentMethod: salePaid ? "Pago" : "Fiado"
+  paymentMethod: salePaid ? "Pago" : "Fiado",
+  paymentType: paymentType
 })
 
 setShowTicket(true)
@@ -679,6 +682,42 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
             </label>
           </div>
 
+{/* Método de pago */}
+{salePaid && (
+  <div className="space-y-2">
+    <label className="text-sm text-gray-400">Método de pago</label>
+
+    <div className="grid grid-cols-1 gap-2">
+      <label className="flex items-center gap-2 bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3">
+        <input
+          type="radio"
+          checked={paymentType === "cash"}
+          onChange={() => setPaymentType("cash")}
+        />
+        💵 Efectivo
+      </label>
+
+      <label className="flex items-center gap-2 bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3">
+        <input
+          type="radio"
+          checked={paymentType === "transfer"}
+          onChange={() => setPaymentType("transfer")}
+        />
+        🏦 Transferencia
+      </label>
+
+      <label className="flex items-center gap-2 bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3">
+        <input
+          type="radio"
+          checked={paymentType === "card"}
+          onChange={() => setPaymentType("card")}
+        />
+        💳 Tarjeta
+      </label>
+    </div>
+  </div>
+)}
+
           {/* Cliente */}
           {!salePaid && (
             <div className="space-y-2">
@@ -835,7 +874,15 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
                 : "bg-yellow-900 text-yellow-400"
             }`}
           >
-            {sale.payment_method === "paid" ? "Pago" : "Fiado"}
+            {sale.payment_method === "paid"
+  ? (sale.payment_type === "cash"
+      ? "💵 Efectivo"
+      : sale.payment_type === "transfer"
+      ? "🏦 Transferencia"
+      : sale.payment_type === "card"
+      ? "💳 Tarjeta"
+      : "Pago")
+  : "Fiado"}
           </span>
         </div>
       </div>
@@ -918,7 +965,17 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
 
         <div className="flex justify-between">
           <span>Método</span>
-          <span>{lastSaleTicket.paymentMethod}</span>
+          <span>
+  {lastSaleTicket.paymentMethod === "Pago"
+  ? (lastSaleTicket.paymentType === "cash"
+      ? "💵 Efectivo"
+      : lastSaleTicket.paymentType === "transfer"
+      ? "🏦 Transferencia"
+      : lastSaleTicket.paymentType === "card"
+      ? "💳 Tarjeta"
+      : "Pago")
+  : "Fiado"}
+</span>
         </div>
       </div>
 
