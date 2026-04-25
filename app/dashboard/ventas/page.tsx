@@ -397,6 +397,14 @@ setToast({
   ;(e.target as HTMLInputElement).value = ""
 }
 
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    minimumFractionDigits: 0
+  }).format(value)
+}
+
   return (
      <div
   className="space-y-8 w-full text-white"
@@ -468,7 +476,7 @@ setToast({
   transition={{ duration: 0.3 }}
   className="text-lg font-semibold text-green-400"
 >
-  ${salesSummary.total}
+  {formatCurrency(salesSummary.total)}
 </motion.p>
     
   </div>
@@ -729,7 +737,7 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
 ))}
 
     <div className="text-right text-lg font-semibold text-green-400">
-      Total: ${cartTotal}
+      Total: {formatCurrency(cartTotal)}
     </div>
   </div>
 )}
@@ -781,7 +789,7 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
 
         <div className="text-right">
           <p className="text-sm text-gray-300">
-            {totalItems} unidad/es · ${sale.total_amount}
+            {totalItems} unidad/es · {formatCurrency(sale.total_amount)}
           </p>
 
           <span
