@@ -54,7 +54,12 @@ export default function VentasPage() {
   type: "success" | "error"
   message: string
 } | null>(null)
-
+const [salesSummary, setSalesSummary] = useState({
+  total: 0,
+  count: 0,
+  units: 0,
+  debt: 0
+})
 
   // Obtener negocio activo
   useEffect(() => {
@@ -121,6 +126,34 @@ useEffect(() => {
     .order('created_at', { ascending: false })
 
   setSales(data || [])
+calculateSummary(data || [])
+}
+
+const calculateSummary = (salesData: any[]) => {
+  let total = 0
+  let count = 0
+  let units = 0
+  let debt = 0
+
+  salesData.forEach(sale => {
+    total += sale.total_amount
+    count += 1
+
+    if (sale.payment_method === "debt") {
+      debt += sale.total_amount
+    }
+
+    sale.sale_items?.forEach((item: any) => {
+      units += item.quantity
+    })
+  })
+
+  setSalesSummary({
+    total,
+    count,
+    units,
+    debt
+  })
 }
 
 const createSale = async (productFromScanner?: Product) => {
@@ -407,6 +440,39 @@ setToast({
   <p className="text-gray-400 text-sm">
     Registrá ventas rápidas y seguras.
   </p>
+</div>
+
+{/* RESUMEN CAJA */}
+<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+  <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
+    <p className="text-xs text-gray-400">Caja de hoy</p>
+    <p className="text-lg font-semibold text-green-400">
+      ${salesSummary.total}
+    </p>
+  </div>
+
+  <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
+    <p className="text-xs text-gray-400">Ventas</p>
+    <p className="text-lg font-semibold">
+      {salesSummary.count}
+    </p>
+  </div>
+
+  <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
+    <p className="text-xs text-gray-400">Unidades</p>
+    <p className="text-lg font-semibold">
+      {salesSummary.units}
+    </p>
+  </div>
+
+  <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
+    <p className="text-xs text-gray-400">Fiado</p>
+    <p className="text-lg font-semibold text-yellow-400">
+      ${salesSummary.debt}
+    </p>
+  </div>
+
 </div>
 
 {/* SCANNER BAR */}
