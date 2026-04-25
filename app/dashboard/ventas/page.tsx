@@ -193,6 +193,43 @@ if (!product) {
   setCreating(false)
 }
 
+const addProductToCart = (product: Product, quantity = 1) => {
+  if (quantity <= 0) {
+    setToast({ type: "error", message: "Cantidad inválida" })
+    return
+  }
+
+  setCart(prev => {
+    const existing = prev.find(p => p.product_id === product.id)
+    const currentQty = existing?.quantity || 0
+    const newQty = currentQty + quantity
+
+    if (product.stock_quantity < newQty) {
+      setToast({ type: "error", message: "Stock insuficiente en carrito" })
+      return prev
+    }
+
+    if (existing) {
+      return prev.map(p =>
+        p.product_id === product.id
+          ? { ...p, quantity: newQty }
+          : p
+      )
+    }
+
+    return [
+      ...prev,
+      {
+        product_id: product.id,
+        name: product.name,
+        quantity,
+        price: product.price,
+        unit: product.unit
+      }
+    ]
+  })
+}
+
 const addToCart = () => {
   if (!selectedProduct) return
 
@@ -206,28 +243,7 @@ const addToCart = () => {
     return
   }
 
-  setCart(prev => {
-    const existing = prev.find(p => p.product_id === selectedProduct.id)
-
-    if (existing) {
-      return prev.map(p =>
-        p.product_id === selectedProduct.id
-          ? { ...p, quantity: p.quantity + saleQuantity }
-          : p
-      )
-    }
-
-    return [
-      ...prev,
-      {
-        product_id: selectedProduct.id,
-        name: selectedProduct.name,
-        quantity: saleQuantity,
-        price: selectedProduct.price,
-        unit: selectedProduct.unit
-      }
-    ]
-  })
+  addProductToCart(selectedProduct, saleQuantity)
 
   setSelectedProduct(null)
   setSaleQuantity(1)
@@ -331,12 +347,15 @@ scannerRef.current?.focus()
   return
 }
 
-  setSelectedProduct(product)
-  setSaleQuantity(1)
 
   beep()
 
- await createSale(product)
+ addProductToCart(product, 1)
+
+setToast({
+  type: "success",
+  message: `${product.name} agregado al carrito`
+})
 
   ;(e.target as HTMLInputElement).value = ""
 }
@@ -383,67 +402,68 @@ scannerRef.current?.focus()
 
 
       {/* HEADER */}
-      <div>
-        <h1 className="text-3xl font-semibold">🧾 Nueva Venta</h1>
-        <p className="text-gray-400 text-sm">
-          Registrá ventas rápidas y seguras.
-        </p>
-      </div>
-
-<div className="flex items-center gap-3 text-sm text-gray-400 mb-4">
-
-  <span className="text-gray-400">
-    Scanner
-  </span>
-
-  <div
-    className={`w-4 h-4 rounded-full ${
-      scannerActive ? "bg-green-500" : "bg-gray-600"
-    }`}
-  />
-
-  <span className="text-xs text-green-400">
-  Listo
-</span>
-
+<div>
+  <h1 className="text-3xl font-semibold">🧾 Nueva Venta</h1>
+  <p className="text-gray-400 text-sm">
+    Registrá ventas rápidas y seguras.
+  </p>
 </div>
 
-{scannerActive && (
-  <div className="text-xs text-green-400 mb-4">
-    Escaneá un producto...
+{/* SCANNER BAR */}
+<div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-4 space-y-3">
+
+  <div className="flex items-center justify-between gap-3">
+    <div className="flex items-center gap-3 text-sm text-gray-400">
+      <span>Scanner</span>
+
+      <div
+        className={`w-4 h-4 rounded-full ${
+          scannerActive ? "bg-green-500" : "bg-gray-600"
+        }`}
+      />
+
+      <span className="text-xs text-green-400">
+        Listo
+      </span>
+    </div>
+
+    <span className="text-xs text-green-400">
+      Escaneá un producto...
+    </span>
   </div>
-)}
 
-<input
-  ref={scannerRef}
-  type="text"
-  placeholder="Escanear o escribir código..."
-  onKeyDown={handleScanner}
-  className="w-full md:w-96 bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white mt-2 mb-4 focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40"
-/>
+  <div className="flex flex-col md:flex-row gap-3">
+    <input
+      ref={scannerRef}
+      type="text"
+      placeholder="🔍 Escanear o escribir código..."
+      onKeyDown={handleScanner}
+      className="flex-1 bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40"
+    />
 
-<button
-  onClick={() => setShowScanner(true)}
-  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg mb-4"
->
-  📷 Escanear con cámara
-</button>
+    <button
+      type="button"
+      onClick={() => setShowScanner(true)}
+      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-xl"
+    >
+      📷 Cámara
+    </button>
+  </div>
+</div>
 
 {showScanner && (
   <BarcodeScanner
-  onScan={(code) => {
+    onScan={(code) => {
+      const product = products.find(
+        (p) => p.code === code || p.barcode === code
+      )
 
-const product = products.find(
-(p) => p.code === code || p.barcode === code
-)
+      if (product) {
+        setSelectedProduct(product)
+      }
 
-if(product){
-setSelectedProduct(product)
-}
-
-setShowScanner(false)
-
-}}
+      setShowScanner(false)
+    }}
   />
 )}
 
@@ -672,6 +692,7 @@ setShowScanner(false)
             <span>
               {item.quantity} {item.products?.unit} · ${item.price_unit}
             </span>
+
           </div>
         ))}
       </div>
