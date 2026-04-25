@@ -433,6 +433,10 @@ const formatCurrency = (value: number) => {
   }).format(value)
 }
 
+const printTicket = () => {
+  window.print()
+}
+
   return (
      <div
   className="space-y-8 w-full text-white"
@@ -864,7 +868,7 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
 
 {showTicket && lastSaleTicket && (
   <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-    <div className="bg-white text-black rounded-xl w-full max-w-sm p-5 font-mono shadow-2xl">
+    <div className="ticket-print bg-white text-black rounded-xl w-full max-w-sm p-5 font-mono shadow-2xl">
       
       <div className="text-center mb-4">
         <h2 className="text-lg font-bold uppercase">
@@ -931,7 +935,7 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
       <div className="flex gap-2 mt-5">
         <button
           type="button"
-          onClick={() => window.print()}
+          onClick={printTicket}
           className="w-full bg-green-600 text-white py-2 rounded-lg font-sans"
         >
           Imprimir
