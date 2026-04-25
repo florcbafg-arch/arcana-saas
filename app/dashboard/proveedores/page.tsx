@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { Truck, Plus, Search, Phone, Mail, MapPin, Trash2 } from 'lucide-react'
 
 type Supplier = {
   id: string
@@ -17,6 +18,9 @@ export default function ProveedoresPage() {
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
   const [address, setAddress] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [isOpen, setIsOpen] = useState(false)
+  const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
 
  const fetchSuppliers = async () => {
   const activeBusinessId = localStorage.getItem('activeBusinessId')
@@ -40,15 +44,15 @@ export default function ProveedoresPage() {
   const createSupplier = async () => {
   const activeBusinessId = localStorage.getItem('activeBusinessId')
 
-  if (!activeBusinessId) {
-    alert('No hay negocio activo')
-    return
-  }
+ if (!activeBusinessId) {
+  setToast({ type: 'error', message: 'No hay negocio activo' })
+  return
+}
 
-  if (!name.trim()) {
-    alert('El nombre del proveedor es obligatorio')
-    return
-  }
+if (!name.trim()) {
+  setToast({ type: 'error', message: 'El nombre es obligatorio' })
+  return
+}
 
   const { error } = await supabase.from('suppliers').insert([
     {
@@ -61,10 +65,13 @@ export default function ProveedoresPage() {
   ])
 
   if (error) {
-    console.error('Error creando proveedor:', error)
-    alert('No se pudo crear el proveedor')
-    return
-  }
+  console.error('Error creando proveedor:', error)
+  setToast({ type: 'error', message: 'No se pudo crear el proveedor' })
+  return
+}
+
+setToast({ type: 'success', message: 'Proveedor creado correctamente' })
+setIsOpen(false)
 
   setName('')
   setPhone('')
@@ -78,17 +85,89 @@ export default function ProveedoresPage() {
     fetchSuppliers()
   }, [])
 
+  useEffect(() => {
+  if (!toast) return
+
+  const timer = setTimeout(() => {
+    setToast(null)
+  }, 2500)
+
+  return () => clearTimeout(timer)
+}, [toast])
+
   return (
     <div style={{ padding: 20 }}>
-      <h1>Proveedores</h1>
+{toast && (
+  <div
+    className={`mb-4 p-4 rounded-xl text-sm font-medium ${
+      toast.type === 'success'
+        ? 'bg-green-900 text-green-400 border border-green-700'
+        : 'bg-red-900 text-red-400 border border-red-700'
+    }`}
+  >
+    {toast.message}
+  </div>
+)}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
 
-      <div style={{ marginBottom: 20 }}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+    <Truck size={28} />
+    <div>
+      <h1 style={{ margin: 0 }}>Proveedores</h1>
+      <p style={{ margin: 0, fontSize: 12, opacity: 0.6 }}>
+        Gestioná tus compras y proveedores
+      </p>
+    </div>
+  </div>
+
+  <button onClick={() => setIsOpen(true)}>
+    ➕ Nuevo proveedor
+  </button>
+
+</div>
+
+      {isOpen && (
+  <div style={{
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(0,0,0,0.6)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 50,
+    padding: 16
+  }}>
+    <div style={{
+      background: '#14141A',
+      border: '1px solid #1F1F24',
+      borderRadius: 20,
+      padding: 24,
+      width: '100%',
+      maxWidth: 420
+    }}>
+      <h2 style={{ color: 'white', marginBottom: 20 }}>
+        Nuevo proveedor
+      </h2>
+
+      <div style={{ display: 'grid', gap: 12 }}>
         <input placeholder="Nombre" value={name} onChange={(e) => setName(e.target.value)} />
         <input placeholder="Teléfono" value={phone} onChange={(e) => setPhone(e.target.value)} />
         <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
         <input placeholder="Dirección" value={address} onChange={(e) => setAddress(e.target.value)} />
-        <button onClick={createSupplier}>Crear</button>
       </div>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
+        <button onClick={() => setIsOpen(false)}>
+          Cancelar
+        </button>
+
+        <button onClick={createSupplier}>
+          Guardar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       <ul>
         {suppliers.map((s) => (
