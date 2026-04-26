@@ -123,26 +123,35 @@ export default function DashboardLayout({
     }
   }, [accessState, router])
 
-  if (accessState === 'loading') {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0B0B0F] text-white">
-        Verificando acceso...
+if (accessState === 'loading') {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-transparent px-6 text-center">
+      <div className="rounded-2xl border border-white/10 bg-white/5 px-8 py-6 text-white shadow-[0_0_40px_rgba(79,124,255,0.08)] backdrop-blur-xl">
+        <p className="text-sm uppercase tracking-[0.24em] text-blue-300/80">
+          Arcana
+        </p>
+        <p className="mt-3 text-base text-white/90">
+          Verificando acceso...
+        </p>
       </div>
-    )
-  }
+    </div>
+  )
+}
 
-  if (accessState === 'error') {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0B0B0F] text-red-500">
+if (accessState === 'error') {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-transparent px-6 text-center">
+      <div className="rounded-2xl border border-red-400/20 bg-red-500/10 px-8 py-6 text-red-300 shadow-[0_0_40px_rgba(255,92,122,0.08)] backdrop-blur-xl">
         Error verificando acceso. Intentá nuevamente.
       </div>
-    )
-  }
+    </div>
+  )
+}
 
   if (accessState !== 'authorized') return null
 
  return (
-  <div className="min-h-screen bg-transparent md:flex">
+  <div className="min-h-screen md:flex bg-gradient-to-br from-[#080F1A] via-[#05070D] to-[#020617]">
     <aside className="hidden md:flex md:h-screen md:sticky md:top-0 md:shrink-0">
       <Sidebar />
     </aside>
