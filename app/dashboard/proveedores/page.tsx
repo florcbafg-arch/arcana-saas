@@ -111,8 +111,8 @@ setIsOpen(false)
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
 
   <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-  <div className="flex items-center justify-center drop-shadow-[0_0_18px_rgba(96,165,250,0.65)]">
-  <Truck size={48} className="text-blue-300" strokeWidth={2.4} />
+  <div className="text-5xl drop-shadow-[0_0_18px_rgba(59,130,246,0.75)]">
+  🚚
 </div>
     <div>
       <h1 style={{ margin: 0 }}>Proveedores</h1>
