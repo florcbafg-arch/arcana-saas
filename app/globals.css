@@ -239,10 +239,12 @@ p, span, label {
 
 .arcana-page {
   min-height: 100vh;
+
   background:
-    radial-gradient(circle at 20% 10%, rgba(31, 107, 255, 0.12), transparent 28%),
-    radial-gradient(circle at 80% 0%, rgba(108, 92, 231, 0.14), transparent 30%),
-    linear-gradient(135deg, #080f1a 0%, #05070d 45%, #020617 100%);
+    radial-gradient(circle at 15% 20%, rgba(31, 107, 255, 0.18), transparent 30%),
+    radial-gradient(circle at 85% 0%, rgba(108, 92, 231, 0.22), transparent 32%),
+    radial-gradient(circle at 50% 100%, rgba(139, 92, 246, 0.10), transparent 40%),
+    linear-gradient(135deg, #060a18 0%, #04070f 40%, #020617 100%);
 }
 
 .arcana-card {
@@ -294,4 +296,11 @@ p, span, label {
 .arcana-icon-title {
   color: #60a5fa;
   filter: drop-shadow(0 0 14px rgba(96, 165, 250, 0.8));
+}
+.arcana-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255,255,255,0.02), transparent 60%);
+  pointer-events: none;
 }
