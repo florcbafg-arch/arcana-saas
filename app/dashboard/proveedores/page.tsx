@@ -146,7 +146,7 @@ const handleDelete = async (id: string) => {
 }, [toast])
 
   return (
-    <div className="arcana-page p-4 md:p-6 space-y-6 md:space-y-8">
+    <div className="p-4 md:p-6 space-y-6 md:space-y-8">
 {toast && (
   <div
     className={`mb-4 p-4 rounded-xl text-sm font-medium ${
@@ -174,7 +174,7 @@ const handleDelete = async (id: string) => {
 
   <button
   onClick={() => setIsOpen(true)}
-  className="arcana-btn-primary px-5 py-3 flex items-center gap-2"
+  className="bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-5 py-3 font-semibold flex items-center gap-2"
 >
   ➕ Nuevo proveedor
 </button>

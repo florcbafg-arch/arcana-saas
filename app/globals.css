@@ -258,12 +258,10 @@ p, span, label {
   color: white;
   border-radius: 0.75rem;
   font-weight: 600;
-  box-shadow: 0 0 24px rgba(31, 107, 255, 0.22);
 }
 
 .arcana-btn-primary:hover {
-  box-shadow: 0 0 32px rgba(31, 107, 255, 0.36);
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, #1f6bff, #2e7bff);
 }
 
 .arcana-btn-secondary {
