@@ -210,13 +210,76 @@ setIsOpen(false)
   </div>
 )}
 
-      <ul>
-        {suppliers.map((s) => (
-          <li key={s.id}>
-            {s.name} - {s.phone} - {s.email}
-          </li>
-        ))}
-      </ul>
+      <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl overflow-hidden mt-6">
+
+  <div className="divide-y divide-[#1F1F24]">
+
+    {suppliers.map((s) => (
+      <div
+        key={s.id}
+        className="flex items-center justify-between px-5 py-4 hover:bg-[#101018] transition"
+      >
+
+        {/* INFO */}
+        <div className="space-y-1">
+          <p className="text-white font-medium">
+            {s.name}
+          </p>
+
+          <div className="flex flex-wrap gap-4 text-sm text-gray-400">
+
+            {s.phone && (
+              <span className="flex items-center gap-1">
+                <Phone size={14} /> {s.phone}
+              </span>
+            )}
+
+            {s.email && (
+              <span className="flex items-center gap-1">
+                <Mail size={14} /> {s.email}
+              </span>
+            )}
+
+            {s.address && (
+              <span className="flex items-center gap-1">
+                <MapPin size={14} /> {s.address}
+              </span>
+            )}
+
+          </div>
+        </div>
+
+        {/* ACCIONES */}
+        <div className="flex gap-3">
+
+          <button
+            onClick={() => console.log("editar", s.id)}
+            className="text-blue-400 hover:text-blue-300 text-sm"
+          >
+            ✏️ Editar
+          </button>
+
+          <button
+            onClick={() => console.log("eliminar", s.id)}
+            className="text-red-400 hover:text-red-300 text-sm"
+          >
+            🗑 Eliminar
+          </button>
+
+        </div>
+
+      </div>
+    ))}
+
+  </div>
+
+  {suppliers.length === 0 && (
+    <div className="p-6 text-center text-gray-500">
+      No hay proveedores cargados
+    </div>
+  )}
+
+</div>
     </div>
   )
 }
