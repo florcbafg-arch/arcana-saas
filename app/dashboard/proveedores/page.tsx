@@ -111,9 +111,9 @@ setIsOpen(false)
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
 
   <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500/20 to-violet-600/20 border border-blue-400/30 flex items-center justify-center shadow-[0_0_28px_rgba(79,124,255,0.25)]">
-    <Truck size={32} className="text-blue-300" />
-  </div>
+  <div className="flex items-center justify-center drop-shadow-[0_0_18px_rgba(96,165,250,0.65)]">
+  <Truck size={48} className="text-blue-300" strokeWidth={2.4} />
+</div>
     <div>
       <h1 style={{ margin: 0 }}>Proveedores</h1>
       <p style={{ margin: 0, fontSize: 12, opacity: 0.6 }}>
@@ -153,12 +153,49 @@ setIsOpen(false)
         Nuevo proveedor
       </h2>
 
-      <div style={{ display: 'grid', gap: 12 }}>
-        <input placeholder="Nombre" value={name} onChange={(e) => setName(e.target.value)} />
-        <input placeholder="Teléfono" value={phone} onChange={(e) => setPhone(e.target.value)} />
-        <input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input placeholder="Dirección" value={address} onChange={(e) => setAddress(e.target.value)} />
-      </div>
+     <div className="space-y-4">
+
+  <div className="space-y-1">
+    <label className="text-sm text-gray-400">Nombre del proveedor</label>
+    <input
+      placeholder="Ej: Textiles del Centro"
+      value={name}
+      onChange={(e) => setName(e.target.value)}
+      className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
+    />
+  </div>
+
+  <div className="space-y-1">
+    <label className="text-sm text-gray-400">Teléfono</label>
+    <input
+      placeholder="Ej: 0354 941 8987"
+      value={phone}
+      onChange={(e) => setPhone(e.target.value)}
+      className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
+    />
+  </div>
+
+  <div className="space-y-1">
+    <label className="text-sm text-gray-400">Email</label>
+    <input
+      placeholder="Ej: proveedor@email.com"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
+    />
+  </div>
+
+  <div className="space-y-1">
+    <label className="text-sm text-gray-400">Dirección</label>
+    <input
+      placeholder="Ej: Córdoba, Argentina"
+      value={address}
+      onChange={(e) => setAddress(e.target.value)}
+      className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
+    />
+  </div>
+
+</div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
         <button onClick={() => setIsOpen(false)}>
