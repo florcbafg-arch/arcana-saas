@@ -110,8 +110,10 @@ setIsOpen(false)
 )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
 
-  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-    <Truck size={28} />
+  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+  <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-blue-500/20 to-violet-600/20 border border-blue-400/30 flex items-center justify-center shadow-[0_0_28px_rgba(79,124,255,0.25)]">
+    <Truck size={32} className="text-blue-300" />
+  </div>
     <div>
       <h1 style={{ margin: 0 }}>Proveedores</h1>
       <p style={{ margin: 0, fontSize: 12, opacity: 0.6 }}>
@@ -120,10 +122,12 @@ setIsOpen(false)
     </div>
   </div>
 
-  <button onClick={() => setIsOpen(true)}>
-    ➕ Nuevo proveedor
-  </button>
-
+  <button
+  onClick={() => setIsOpen(true)}
+  className="bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-5 py-3 font-semibold flex items-center gap-2"
+>
+  ➕ Nuevo proveedor
+</button>
 </div>
 
       {isOpen && (
