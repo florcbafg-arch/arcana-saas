@@ -152,9 +152,7 @@ if (accessState === 'error') {
 
  return (
   <div className="min-h-screen md:flex bg-gradient-to-br from-[#080F1A] via-[#05070D] to-[#020617]">
-    <aside className="hidden md:flex md:h-screen md:sticky md:top-0 md:shrink-0">
-      <Sidebar />
-    </aside>
+  <Sidebar />
 
     <main className="relative flex-1 min-w-0 w-full px-4 py-4 md:px-8 md:py-7 pb-24 md:pb-8">
       {children}
