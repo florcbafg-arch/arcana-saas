@@ -146,7 +146,7 @@ const handleDelete = async (id: string) => {
 }, [toast])
 
   return (
-    <div style={{ padding: 20 }}>
+    <div className="arcana-page p-4 md:p-6 space-y-6 md:space-y-8">
 {toast && (
   <div
     className={`mb-4 p-4 rounded-xl text-sm font-medium ${
@@ -174,7 +174,7 @@ const handleDelete = async (id: string) => {
 
   <button
   onClick={() => setIsOpen(true)}
-  className="bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-5 py-3 font-semibold flex items-center gap-2"
+  className="arcana-btn-primary px-5 py-3 flex items-center gap-2"
 >
   ➕ Nuevo proveedor
 </button>
@@ -253,14 +253,14 @@ const handleDelete = async (id: string) => {
       setIsOpen(false)
       setEditingId(null)
     }}
-    className="w-full sm:w-auto px-4 py-2 rounded-xl border border-[#2A2A32] bg-[#1A1A22] text-white hover:bg-[#22222B] hover:border-[#3A3A48] transition"
+   className="w-full sm:w-auto arcana-btn-neutral px-4 py-2"
   >
     Cancelar
   </button>
 
   <button
     onClick={createSupplier}
-    className="w-full sm:w-auto bg-[#1F6BFF] hover:bg-[#2E7BFF] transition px-5 py-2 rounded-xl font-semibold text-white"
+   className="w-full sm:w-auto arcana-btn-primary px-5 py-2"
   >
     Guardar
   </button>
@@ -269,7 +269,7 @@ const handleDelete = async (id: string) => {
   </div>
 )}
 
-      <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl overflow-hidden mt-6">
+      <div className="arcana-card overflow-hidden mt-6">
   <div className="max-h-[520px] overflow-y-auto">
 
   <div className="divide-y divide-[#1F1F24]">
