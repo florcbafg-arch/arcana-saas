@@ -154,7 +154,7 @@ if (accessState === 'error') {
   <div className="min-h-screen md:flex bg-gradient-to-br from-[#080F1A] via-[#05070D] to-[#020617]">
   <Sidebar />
 
-    <main className="relative flex-1 min-w-0 w-full px-4 py-4 md:px-8 md:py-7 pb-24 md:pb-8">
+    <main className="relative flex-1 min-w-0 w-full md:ml-64 px-4 py-4 md:px-8 md:py-7 pb-24 md:pb-8">
       {children}
     </main>
 
