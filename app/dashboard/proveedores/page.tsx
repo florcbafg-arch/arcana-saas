@@ -21,8 +21,9 @@ export default function ProveedoresPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
 
- const fetchSuppliers = async () => {
+  const fetchSuppliers = async () => {
   const activeBusinessId = localStorage.getItem('activeBusinessId')
 
   if (!activeBusinessId) return
@@ -54,7 +55,22 @@ if (!name.trim()) {
   return
 }
 
-  const { error } = await supabase.from('suppliers').insert([
+ let error
+
+if (editingId) {
+  const result = await supabase
+    .from('suppliers')
+    .update({
+      name,
+      phone,
+      email,
+      address,
+    })
+    .eq('id', editingId)
+
+  error = result.error
+} else {
+  const result = await supabase.from('suppliers').insert([
     {
       name,
       phone,
@@ -64,13 +80,20 @@ if (!name.trim()) {
     },
   ])
 
+  error = result.error
+}
   if (error) {
   console.error('Error creando proveedor:', error)
   setToast({ type: 'error', message: 'No se pudo crear el proveedor' })
   return
 }
 
-setToast({ type: 'success', message: 'Proveedor creado correctamente' })
+setToast({
+  type: 'success',
+  message: editingId ? 'Proveedor actualizado correctamente' : 'Proveedor creado correctamente',
+})
+
+setEditingId(null)
 setIsOpen(false)
 
   setName('')
@@ -78,6 +101,33 @@ setIsOpen(false)
   setEmail('')
   setAddress('')
 
+  fetchSuppliers()
+}
+
+const handleEdit = (supplier: Supplier) => {
+  setEditingId(supplier.id)
+  setName(supplier.name || '')
+  setPhone(supplier.phone || '')
+  setEmail(supplier.email || '')
+  setAddress(supplier.address || '')
+  setIsOpen(true)
+}
+
+const handleDelete = async (id: string) => {
+  if (!confirm('¿Eliminar proveedor?')) return
+
+  const { error } = await supabase
+    .from('suppliers')
+    .delete()
+    .eq('id', id)
+
+  if (error) {
+    console.error('Error eliminando proveedor:', error)
+    setToast({ type: 'error', message: 'No se pudo eliminar el proveedor' })
+    return
+  }
+
+  setToast({ type: 'success', message: 'Proveedor eliminado correctamente' })
   fetchSuppliers()
 }
 
@@ -150,8 +200,8 @@ setIsOpen(false)
       maxWidth: 420
     }}>
       <h2 style={{ color: 'white', marginBottom: 20 }}>
-        Nuevo proveedor
-      </h2>
+  {editingId ? 'Editar proveedor' : 'Nuevo proveedor'}
+</h2>
 
      <div className="space-y-4">
 
@@ -197,23 +247,32 @@ setIsOpen(false)
 
 </div>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, marginTop: 20 }}>
-        <button onClick={() => setIsOpen(false)}>
-          Cancelar
-        </button>
+     <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
+  <button
+    onClick={() => {
+      setIsOpen(false)
+      setEditingId(null)
+    }}
+    className="w-full sm:w-auto px-4 py-2 rounded-xl border border-[#2A2A32] bg-[#1A1A22] text-white hover:bg-[#22222B] hover:border-[#3A3A48] transition"
+  >
+    Cancelar
+  </button>
 
-        <button onClick={createSupplier}>
-          Guardar
-        </button>
-      </div>
+  <button
+    onClick={createSupplier}
+    className="w-full sm:w-auto bg-[#1F6BFF] hover:bg-[#2E7BFF] transition px-5 py-2 rounded-xl font-semibold text-white"
+  >
+    Guardar
+  </button>
+</div>
     </div>
   </div>
 )}
 
       <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl overflow-hidden mt-6">
+  <div className="max-h-[520px] overflow-y-auto">
 
   <div className="divide-y divide-[#1F1F24]">
-
     {suppliers.map((s) => (
       <div
         key={s.id}
@@ -253,14 +312,14 @@ setIsOpen(false)
         <div className="flex gap-3">
 
           <button
-            onClick={() => console.log("editar", s.id)}
+            onClick={() => handleEdit(s)}
             className="text-blue-400 hover:text-blue-300 text-sm"
           >
             ✏️ Editar
           </button>
 
           <button
-            onClick={() => console.log("eliminar", s.id)}
+            onClick={() => handleDelete(s.id)}
             className="text-red-400 hover:text-red-300 text-sm"
           >
             🗑 Eliminar
@@ -270,7 +329,7 @@ setIsOpen(false)
 
       </div>
     ))}
-
+</div>
   </div>
 
   {suppliers.length === 0 && (
