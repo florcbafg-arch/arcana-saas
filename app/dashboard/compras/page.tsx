@@ -133,6 +133,28 @@ const savePurchase = async () => {
   fetchPurchases()
 }
 
+const receivePurchase = async (purchaseId: string) => {
+  const res = await fetch('/api/purchases/receive', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ purchase_id: purchaseId })
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    alert(data.error || 'Error al recibir compra')
+    return
+  }
+
+  alert('Stock actualizado ✅')
+
+  fetchPurchases()
+  fetchProducts()
+}
+
   return (
     <div className="p-8 text-white">
       <div className="flex items-center justify-between mb-8">
@@ -229,9 +251,16 @@ const savePurchase = async () => {
           </span>
         </td>
 
-        <td className="p-4 text-slate-400">
-          —
-        </td>
+       <td className="p-4 text-slate-400">
+  {purchase.status === "pending" && (
+    <button
+      onClick={() => receivePurchase(purchase.id)}
+      className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-xs"
+    >
+      Recibir
+    </button>
+  )}
+</td>
       </tr>
     ))
   )}
