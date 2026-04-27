@@ -1,11 +1,45 @@
 'use client'
 
-import { useState } from 'react'
-
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 
 
 export default function ComprasPage() {
     const [isOpen, setIsOpen] = useState(false)
+const [suppliers, setSuppliers] = useState<any[]>([])
+const [products, setProducts] = useState<any[]>([])
+const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
+
+
+useEffect(() => {
+  const id = localStorage.getItem('activeBusinessId')
+  setSelectedBusinessId(id)
+}, [])
+
+useEffect(() => {
+  if (!selectedBusinessId) return
+
+  fetchSuppliers()
+  fetchProducts()
+}, [selectedBusinessId])
+
+const fetchSuppliers = async () => {
+  const { data } = await supabase
+    .from('suppliers')
+    .select('*')
+    .eq('business_id', selectedBusinessId)
+
+  setSuppliers(data || [])
+}
+
+const fetchProducts = async () => {
+  const { data } = await supabase
+    .from('products')
+    .select('*')
+    .eq('business_id', selectedBusinessId)
+
+  setProducts(data || [])
+}
 
   return (
     <div className="p-8 text-white">
@@ -102,9 +136,14 @@ export default function ComprasPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
         <div>
           <label className="text-sm text-slate-300">Proveedor</label>
-          <select className="mt-2 w-full bg-[#0B0D13] border border-[#242838] rounded-xl px-4 py-3 outline-none">
-            <option>Seleccionar proveedor</option>
-          </select>
+         <select className="mt-2 w-full bg-[#0B0D13] border border-[#242838] rounded-xl px-4 py-3 outline-none">
+  <option value="">Seleccionar proveedor</option>
+  {suppliers.map((supplier) => (
+    <option key={supplier.id} value={supplier.id}>
+      {supplier.name}
+    </option>
+  ))}
+</select>
         </div>
 
         <div>
@@ -120,9 +159,14 @@ export default function ComprasPage() {
         <h3 className="font-semibold mb-4">Productos comprados</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          <select className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none">
-            <option>Producto</option>
-          </select>
+         <select className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none">
+  <option value="">Producto</option>
+  {products.map((product) => (
+    <option key={product.id} value={product.id}>
+      {product.name} - Stock: {product.stock_quantity}
+    </option>
+  ))}
+</select>
 
           <input
             type="number"
