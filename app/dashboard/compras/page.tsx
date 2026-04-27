@@ -14,6 +14,7 @@ const [selectedProductId, setSelectedProductId] = useState('')
 const [quantity, setQuantity] = useState(1)
 const [unitCost, setUnitCost] = useState(0)
 const [purchaseItems, setPurchaseItems] = useState<any[]>([])
+const [purchases, setPurchases] = useState<any[]>([])
 
 useEffect(() => {
   const id = localStorage.getItem('activeBusinessId')
@@ -25,6 +26,7 @@ useEffect(() => {
 
   fetchSuppliers()
   fetchProducts()
+  fetchPurchases()
 }, [selectedBusinessId])
 
 const fetchSuppliers = async () => {
@@ -43,6 +45,25 @@ const fetchProducts = async () => {
     .eq('business_id', selectedBusinessId)
 
   setProducts(data || [])
+}
+
+const fetchPurchases = async () => {
+  const { data } = await supabase
+    .from('purchases')
+    .select(`
+      *,
+      suppliers ( name ),
+      purchase_items (
+        quantity,
+        unit_cost,
+        subtotal,
+        products ( name )
+      )
+    `)
+    .eq('business_id', selectedBusinessId)
+    .order('created_at', { ascending: false })
+
+  setPurchases(data || [])
 }
 
 const addPurchaseItem = () => {
@@ -99,7 +120,7 @@ const savePurchase = async () => {
     return
   }
 
-  alert('Compra guardada y stock actualizado ✅')
+ alert('Pedido de compra guardado ✅')
 
   setPurchaseItems([])
   setSelectedSupplierId('')
@@ -109,6 +130,7 @@ const savePurchase = async () => {
   setIsOpen(false)
 
   fetchProducts()
+  fetchPurchases()
 }
 
   return (
@@ -169,19 +191,51 @@ const savePurchase = async () => {
           </thead>
 
           <tbody>
-            <tr className="border-t border-[#242838]">
-              <td className="p-4 text-slate-400">—</td>
-              <td className="p-4 text-slate-400">Sin compras registradas</td>
-              <td className="p-4 text-slate-400">—</td>
-              <td className="p-4 text-slate-400">$0</td>
-              <td className="p-4">
-                <span className="bg-slate-800 text-slate-300 px-3 py-1 rounded-full text-xs">
-                  Pendiente
-                </span>
-              </td>
-              <td className="p-4 text-slate-500">—</td>
-            </tr>
-          </tbody>
+  {purchases.length === 0 ? (
+    <tr className="border-t border-[#242838]">
+      <td className="p-4 text-slate-400">—</td>
+      <td className="p-4 text-slate-400">Sin compras registradas</td>
+      <td className="p-4 text-slate-400">—</td>
+      <td className="p-4 text-slate-400">$0</td>
+      <td className="p-4">
+        <span className="bg-slate-800 text-slate-300 px-3 py-1 rounded-full text-xs">
+          Pendiente
+        </span>
+      </td>
+      <td className="p-4 text-slate-500">—</td>
+    </tr>
+  ) : (
+    purchases.map((purchase) => (
+      <tr key={purchase.id} className="border-t border-[#242838]">
+        <td className="p-4 text-slate-400">
+          {new Date(purchase.created_at).toLocaleDateString('es-AR')}
+        </td>
+
+        <td className="p-4">
+          {purchase.suppliers?.name || 'Sin proveedor'}
+        </td>
+
+        <td className="p-4 text-slate-400">
+          {purchase.purchase_items?.length || 0} producto/s
+        </td>
+
+        <td className="p-4">
+          ${purchase.total || 0}
+        </td>
+
+        <td className="p-4">
+          <span className="bg-yellow-900 text-yellow-300 px-3 py-1 rounded-full text-xs">
+            {purchase.status || 'pending'}
+          </span>
+        </td>
+
+        <td className="p-4 text-slate-400">
+          —
+        </td>
+      </tr>
+    ))
+  )}
+</tbody>
         </table>
 
 {isOpen && (
