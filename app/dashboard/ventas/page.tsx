@@ -325,7 +325,7 @@ const createCartSale = async () => {
       p_items: cart,
       p_customer_id: salePaid ? null : selectedCustomer?.id,
       p_payment_method: salePaid ? "paid" : "debt",
-      paymentType: salePaid ? paymentType : null
+      p_payment_type: salePaid ? paymentType : null
     }
   )
 
