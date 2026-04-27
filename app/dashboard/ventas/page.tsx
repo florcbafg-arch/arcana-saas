@@ -152,7 +152,19 @@ const calculateSummary = (salesData: any[]) => {
   let units = 0
   let debt = 0
 
-  salesData.forEach(sale => {
+  const today = new Date().toLocaleDateString('en-CA', {
+  timeZone: 'America/Argentina/Buenos_Aires'
+})
+
+const todaySales = salesData.filter((sale) => {
+  const saleDate = new Date(sale.created_at).toLocaleDateString('en-CA', {
+    timeZone: 'America/Argentina/Buenos_Aires'
+  })
+
+  return saleDate === today
+})
+
+todaySales.forEach(sale => {
     total += sale.total_amount
     count += 1
 
