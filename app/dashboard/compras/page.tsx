@@ -194,44 +194,93 @@ const purchaseTotal = purchaseItems.reduce(
         <h3 className="font-semibold mb-4">Productos comprados</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-        <select
-  value={selectedProductId}
-  onChange={(e) => setSelectedProductId(e.target.value)}
-  className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none"
->
-  <option value="">Producto</option>
-  {products.map((product) => (
-    <option key={product.id} value={product.id}>
-      {product.name} - Stock: {product.stock_quantity}
-    </option>
-  ))}
-</select>
+  <div>
+    <label className="text-xs text-slate-400 mb-1 block">Producto</label>
+    <select
+      value={selectedProductId}
+      onChange={(e) => setSelectedProductId(e.target.value)}
+      className="w-full bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none"
+    >
+      <option value="">Seleccionar</option>
+      {products.map((product) => (
+        <option key={product.id} value={product.id}>
+          {product.name} - Stock: {product.stock_quantity}
+        </option>
+      ))}
+    </select>
+  </div>
 
-          <input
-  type="number"
-  min={1}
-  value={quantity}
-  onChange={(e) => setQuantity(Number(e.target.value))}
-  placeholder="Cantidad"
-  className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none"
-/>
+  <div>
+    <label className="text-xs text-slate-400 mb-1 block">Cantidad</label>
+    <input
+      type="number"
+      min={1}
+      value={quantity}
+      onChange={(e) => setQuantity(Number(e.target.value))}
+      placeholder="Ej: 3"
+      className="w-full bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none"
+    />
+  </div>
 
-          <input
-  type="number"
-  min={0}
-  value={unitCost}
-  onChange={(e) => setUnitCost(Number(e.target.value))}
-  placeholder="Costo unitario"
-  className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none"
-/>
+  <div>
+    <label className="text-xs text-slate-400 mb-1 block">Costo unitario</label>
+    <input
+      type="number"
+      min={0}
+      value={unitCost}
+      onChange={(e) => setUnitCost(Number(e.target.value))}
+      placeholder="Ej: 12000"
+      className="w-full bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none"
+    />
+  </div>
+
+  <div className="flex items-end">
+    <button
+      type="button"
+      onClick={addPurchaseItem}
+      className="w-full bg-[#1F6BFF] hover:bg-[#2E7BFF] rounded-xl px-3 py-3 font-semibold"
+    >
+      + Agregar
+    </button>
+  </div>
+</div>
+      </div>
+
+{purchaseItems.length > 0 && (
+  <div className="mt-5 space-y-2">
+    <h4 className="text-sm font-semibold text-slate-300">
+      Productos agregados
+    </h4>
+
+    {purchaseItems.map((item, index) => (
+      <div
+        key={index}
+        className="flex justify-between items-center bg-[#0B0D13] border border-[#242838] rounded-xl px-4 py-3 text-sm"
+      >
+        <div>
+          <p className="font-medium">{item.name}</p>
+          <p className="text-slate-400 text-xs">
+            {item.quantity} unidades · ${item.unit_cost} c/u
+          </p>
+        </div>
+
+        <div className="flex items-center gap-4">
+          <span className="font-semibold">${item.subtotal}</span>
 
           <button
-  type="button"
-  onClick={addPurchaseItem}
-  className="bg-[#242838] hover:bg-[#30364A] rounded-xl px-3 py-3 font-semibold"
-></button>
+            type="button"
+            onClick={() =>
+              setPurchaseItems((prev) => prev.filter((_, i) => i !== index))
+            }
+            className="text-red-400 hover:text-red-300"
+          >
+            ✕
+          </button>
         </div>
       </div>
+    ))}
+  </div>
+)}
 
       <div className="flex justify-between items-center">
         <p className="text-lg font-bold">Total: ${purchaseTotal}</p>
@@ -244,9 +293,13 @@ const purchaseTotal = purchaseItems.reduce(
             Cancelar
           </button>
 
-          <button className="bg-[#1F6BFF] hover:bg-[#2E7BFF] rounded-xl px-5 py-3 font-semibold">
-            Guardar compra
-          </button>
+        <button
+  type="button"
+  disabled={purchaseItems.length === 0}
+  className="bg-[#1F6BFF] hover:bg-[#2E7BFF] disabled:bg-slate-700 disabled:cursor-not-allowed rounded-xl px-5 py-3 font-semibold"
+>
+  Guardar compra
+</button>
         </div>
       </div>
     </div>
