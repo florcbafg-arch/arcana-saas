@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 
-const [isOpen, setIsOpen] = useState(false)
+
 
 export default function ComprasPage() {
+    const [isOpen, setIsOpen] = useState(false)
+
   return (
     <div className="p-8 text-white">
       <div className="flex items-center justify-between mb-8">
@@ -77,6 +79,89 @@ export default function ComprasPage() {
             </tr>
           </tbody>
         </table>
+
+{isOpen && (
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div className="bg-[#11131A] border border-[#242838] rounded-2xl w-full max-w-2xl p-6 text-white shadow-xl">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold">Nueva compra</h2>
+          <p className="text-sm text-slate-400">
+            Registra productos comprados y actualiza stock.
+          </p>
+        </div>
+
+        <button
+          onClick={() => setIsOpen(false)}
+          className="text-slate-400 hover:text-white"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+        <div>
+          <label className="text-sm text-slate-300">Proveedor</label>
+          <select className="mt-2 w-full bg-[#0B0D13] border border-[#242838] rounded-xl px-4 py-3 outline-none">
+            <option>Seleccionar proveedor</option>
+          </select>
+        </div>
+
+        <div>
+          <label className="text-sm text-slate-300">Fecha</label>
+          <input
+            type="date"
+            className="mt-2 w-full bg-[#0B0D13] border border-[#242838] rounded-xl px-4 py-3 outline-none"
+          />
+        </div>
+      </div>
+
+      <div className="border border-[#242838] rounded-2xl p-4 mb-5">
+        <h3 className="font-semibold mb-4">Productos comprados</h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <select className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none">
+            <option>Producto</option>
+          </select>
+
+          <input
+            type="number"
+            placeholder="Cantidad"
+            className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none"
+          />
+
+          <input
+            type="number"
+            placeholder="Costo unitario"
+            className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none"
+          />
+
+          <button className="bg-[#242838] hover:bg-[#30364A] rounded-xl px-3 py-3 font-semibold">
+            + Agregar
+          </button>
+        </div>
+      </div>
+
+      <div className="flex justify-between items-center">
+        <p className="text-lg font-bold">Total: $0</p>
+
+        <div className="flex gap-3">
+          <button
+            onClick={() => setIsOpen(false)}
+            className="bg-[#242838] hover:bg-[#30364A] rounded-xl px-5 py-3 font-semibold"
+          >
+            Cancelar
+          </button>
+
+          <button className="bg-[#1F6BFF] hover:bg-[#2E7BFF] rounded-xl px-5 py-3 font-semibold">
+            Guardar compra
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
       </div>
     </div>
   )
