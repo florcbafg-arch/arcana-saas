@@ -22,6 +22,7 @@ const menuItems = [
   { name: 'Ventas', href: '/dashboard/ventas', icon: ShoppingCart },
   { name: 'Clientes', href: '/dashboard/clientes', icon: Users },
   { name: 'Proveedores', href: '/dashboard/proveedores', icon: Truck },
+  { name: 'Compras', href: '/dashboard/compras', icon: ShoppingCart },
   { name: 'Configuración', href: '/dashboard/configuracion', icon: Settings },
 ]
 
