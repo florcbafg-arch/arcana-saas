@@ -1,5 +1,9 @@
 'use client'
 
+import { useState } from 'react'
+
+const [isOpen, setIsOpen] = useState(false)
+
 export default function ComprasPage() {
   return (
     <div className="p-8 text-white">
@@ -11,9 +15,12 @@ export default function ComprasPage() {
           </p>
         </div>
 
-        <button className="bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-5 py-3 font-semibold">
-          + Nueva compra
-        </button>
+        <button
+  onClick={() => setIsOpen(true)}
+  className="bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-5 py-3 font-semibold"
+>
+  + Nueva compra
+</button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
