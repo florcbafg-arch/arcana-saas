@@ -5,11 +5,15 @@ import { supabase } from '@/lib/supabase'
 
 
 export default function ComprasPage() {
-    const [isOpen, setIsOpen] = useState(false)
+const [isOpen, setIsOpen] = useState(false)
 const [suppliers, setSuppliers] = useState<any[]>([])
 const [products, setProducts] = useState<any[]>([])
 const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
-
+const [selectedSupplierId, setSelectedSupplierId] = useState('')
+const [selectedProductId, setSelectedProductId] = useState('')
+const [quantity, setQuantity] = useState(1)
+const [unitCost, setUnitCost] = useState(0)
+const [purchaseItems, setPurchaseItems] = useState<any[]>([])
 
 useEffect(() => {
   const id = localStorage.getItem('activeBusinessId')
@@ -40,6 +44,33 @@ const fetchProducts = async () => {
 
   setProducts(data || [])
 }
+
+const addPurchaseItem = () => {
+  if (!selectedProductId || quantity <= 0 || unitCost < 0) return
+
+  const product = products.find((p) => p.id === selectedProductId)
+  if (!product) return
+
+  setPurchaseItems((prev) => [
+    ...prev,
+    {
+      product_id: product.id,
+      name: product.name,
+      quantity,
+      unit_cost: unitCost,
+      subtotal: quantity * unitCost,
+    },
+  ])
+
+  setSelectedProductId('')
+  setQuantity(1)
+  setUnitCost(0)
+}
+
+const purchaseTotal = purchaseItems.reduce(
+  (acc, item) => acc + item.subtotal,
+  0
+)
 
   return (
     <div className="p-8 text-white">
@@ -136,7 +167,11 @@ const fetchProducts = async () => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
         <div>
           <label className="text-sm text-slate-300">Proveedor</label>
-         <select className="mt-2 w-full bg-[#0B0D13] border border-[#242838] rounded-xl px-4 py-3 outline-none">
+        <select
+  value={selectedSupplierId}
+  onChange={(e) => setSelectedSupplierId(e.target.value)}
+  className="mt-2 w-full bg-[#0B0D13] border border-[#242838] rounded-xl px-4 py-3 outline-none"
+>
   <option value="">Seleccionar proveedor</option>
   {suppliers.map((supplier) => (
     <option key={supplier.id} value={supplier.id}>
@@ -159,7 +194,11 @@ const fetchProducts = async () => {
         <h3 className="font-semibold mb-4">Productos comprados</h3>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-         <select className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none">
+        <select
+  value={selectedProductId}
+  onChange={(e) => setSelectedProductId(e.target.value)}
+  className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none"
+>
   <option value="">Producto</option>
   {products.map((product) => (
     <option key={product.id} value={product.id}>
@@ -169,25 +208,33 @@ const fetchProducts = async () => {
 </select>
 
           <input
-            type="number"
-            placeholder="Cantidad"
-            className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none"
-          />
+  type="number"
+  min={1}
+  value={quantity}
+  onChange={(e) => setQuantity(Number(e.target.value))}
+  placeholder="Cantidad"
+  className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none"
+/>
 
           <input
-            type="number"
-            placeholder="Costo unitario"
-            className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none"
-          />
+  type="number"
+  min={0}
+  value={unitCost}
+  onChange={(e) => setUnitCost(Number(e.target.value))}
+  placeholder="Costo unitario"
+  className="bg-[#0B0D13] border border-[#242838] rounded-xl px-3 py-3 outline-none"
+/>
 
-          <button className="bg-[#242838] hover:bg-[#30364A] rounded-xl px-3 py-3 font-semibold">
-            + Agregar
-          </button>
+          <button
+  type="button"
+  onClick={addPurchaseItem}
+  className="bg-[#242838] hover:bg-[#30364A] rounded-xl px-3 py-3 font-semibold"
+></button>
         </div>
       </div>
 
       <div className="flex justify-between items-center">
-        <p className="text-lg font-bold">Total: $0</p>
+        <p className="text-lg font-bold">Total: ${purchaseTotal}</p>
 
         <div className="flex gap-3">
           <button
