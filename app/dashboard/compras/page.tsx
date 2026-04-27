@@ -72,6 +72,45 @@ const purchaseTotal = purchaseItems.reduce(
   0
 )
 
+const savePurchase = async () => {
+  if (!selectedBusinessId || purchaseItems.length === 0) return
+
+  const res = await fetch('/api/purchases', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      business_id: selectedBusinessId,
+      supplier_id: selectedSupplierId || null,
+      notes: 'Compra registrada desde Arcana',
+      items: purchaseItems.map((item) => ({
+        product_id: item.product_id,
+        quantity: item.quantity,
+        unit_cost: item.unit_cost
+      }))
+    })
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    alert(data.error || 'Error al guardar compra')
+    return
+  }
+
+  alert('Compra guardada y stock actualizado ✅')
+
+  setPurchaseItems([])
+  setSelectedSupplierId('')
+  setSelectedProductId('')
+  setQuantity(1)
+  setUnitCost(0)
+  setIsOpen(false)
+
+  fetchProducts()
+}
+
   return (
     <div className="p-8 text-white">
       <div className="flex items-center justify-between mb-8">
@@ -293,8 +332,9 @@ const purchaseTotal = purchaseItems.reduce(
             Cancelar
           </button>
 
-        <button
+    <button
   type="button"
+  onClick={savePurchase}
   disabled={purchaseItems.length === 0}
   className="bg-[#1F6BFF] hover:bg-[#2E7BFF] disabled:bg-slate-700 disabled:cursor-not-allowed rounded-xl px-5 py-3 font-semibold"
 >
