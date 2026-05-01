@@ -238,11 +238,17 @@ const receivePurchase = async (purchaseId: string) => {
         </td>
 
         <td className="p-4 text-slate-400">
-          {purchase.purchase_items?.length || 0} producto/s
+          {purchase.purchase_items?.reduce(
+  (acc: number, item: any) => acc + item.quantity,
+  0
+) || 0} unidades
         </td>
 
         <td className="p-4">
-          ${purchase.total || 0}
+          ${purchase.purchase_items?.reduce(
+  (acc: number, item: any) => acc + Number(item.subtotal || 0),
+  0
+) || 0}
         </td>
 
         <td className="p-4">
