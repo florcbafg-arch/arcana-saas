@@ -194,6 +194,39 @@ const getPurchaseStatusBadge = (status: string) => {
   )
 }
 
+const currentMonthPurchases = purchases.filter((purchase) => {
+  const purchaseDate = new Date(purchase.created_at)
+  const now = new Date()
+
+  return (
+    purchaseDate.getMonth() === now.getMonth() &&
+    purchaseDate.getFullYear() === now.getFullYear()
+  )
+})
+
+const totalInvested = currentMonthPurchases.reduce((acc, purchase) => {
+  const total =
+    purchase.purchase_items?.reduce(
+      (sum: number, item: any) => sum + Number(item.subtotal || 0),
+      0
+    ) || 0
+
+  return acc + total
+}, 0)
+
+const productsReceived = currentMonthPurchases.reduce((acc, purchase) => {
+  const totalReceived =
+    purchase.purchase_items?.reduce(
+      (sum: number, item: any) =>
+        sum + Number(item.received_quantity || 0),
+      0
+    ) || 0
+
+  return acc + totalReceived
+}, 0)
+
+const lastPurchase = purchases[0]
+
 const handleReceivePartial = async () => {
   if (!receivingPurchase) return
 
@@ -245,22 +278,32 @@ const handleReceivePartial = async () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-[#11131A] border border-[#242838] rounded-2xl p-5">
           <p className="text-slate-400 text-sm">Compras del mes</p>
-          <h2 className="text-2xl font-bold mt-2">0</h2>
+          <h2 className="text-2xl font-bold mt-2">
+  {currentMonthPurchases.length}
+</h2>
         </div>
 
         <div className="bg-[#11131A] border border-[#242838] rounded-2xl p-5">
           <p className="text-slate-400 text-sm">Total invertido</p>
-          <h2 className="text-2xl font-bold mt-2">$0</h2>
+          <h2 className="text-2xl font-bold mt-2">
+  {formatARS(totalInvested)}
+</h2>
         </div>
 
         <div className="bg-[#11131A] border border-[#242838] rounded-2xl p-5">
           <p className="text-slate-400 text-sm">Productos ingresados</p>
-          <h2 className="text-2xl font-bold mt-2">0</h2>
+          <h2 className="text-2xl font-bold mt-2">
+  {productsReceived}
+</h2>
         </div>
 
         <div className="bg-[#11131A] border border-[#242838] rounded-2xl p-5">
           <p className="text-slate-400 text-sm">Última compra</p>
-          <h2 className="text-lg font-bold mt-2">Sin registros</h2>
+          <h2 className="text-lg font-bold mt-2">
+  {lastPurchase
+    ? lastPurchase.suppliers?.name || 'Sin proveedor'
+    : 'Sin registros'}
+</h2>
         </div>
       </div>
 
