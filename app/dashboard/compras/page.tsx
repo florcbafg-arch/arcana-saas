@@ -171,11 +171,11 @@ const formatARS = (value: number) =>
 const getPurchaseStatusBadge = (status: string) => {
   const normalizedStatus = status || 'pending'
 
-  const styles: Record<string, string> = {
-    pending: 'bg-yellow-900/40 text-yellow-300 border border-yellow-700/40',
-    partial: 'bg-blue-900/40 text-blue-300 border border-blue-700/40',
-    received: 'bg-green-900/40 text-green-300 border border-green-700/40',
-  }
+ const styles: Record<string, string> = {
+ pending: 'bg-yellow-500/10 text-yellow-400',
+ partial: 'bg-blue-500/10 text-blue-400',
+ received: 'bg-green-500/10 text-green-400',
+}
 
   const labels: Record<string, string> = {
     pending: 'Pedido pendiente',
@@ -185,12 +185,12 @@ const getPurchaseStatusBadge = (status: string) => {
 
   return (
     <span
-      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-        styles[normalizedStatus] || 'bg-slate-800 text-slate-300 border border-slate-700'
-      }`}
-    >
-      {labels[normalizedStatus] || normalizedStatus}
-    </span>
+  className={`px-3 py-1 rounded-full text-xs font-semibold ${
+    styles[normalizedStatus] || 'bg-slate-700 text-slate-300'
+  }`}
+>
+  {labels[normalizedStatus] || normalizedStatus}
+</span>
   )
 }
 
