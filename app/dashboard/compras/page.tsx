@@ -161,6 +161,39 @@ const receivePurchase = async (purchaseId: string) => {
   fetchProducts()
 }
 
+const formatARS = (value: number) =>
+  new Intl.NumberFormat('es-AR', {
+    style: 'currency',
+    currency: 'ARS',
+    maximumFractionDigits: 0,
+  }).format(value)
+
+const getPurchaseStatusBadge = (status: string) => {
+  const normalizedStatus = status || 'pending'
+
+  const styles: Record<string, string> = {
+    pending: 'bg-yellow-900/40 text-yellow-300 border border-yellow-700/40',
+    partial: 'bg-blue-900/40 text-blue-300 border border-blue-700/40',
+    received: 'bg-green-900/40 text-green-300 border border-green-700/40',
+  }
+
+  const labels: Record<string, string> = {
+    pending: 'Pedido pendiente',
+    partial: 'Parcial',
+    received: 'Recibido',
+  }
+
+  return (
+    <span
+      className={`px-3 py-1 rounded-full text-xs font-semibold ${
+        styles[normalizedStatus] || 'bg-slate-800 text-slate-300 border border-slate-700'
+      }`}
+    >
+      {labels[normalizedStatus] || normalizedStatus}
+    </span>
+  )
+}
+
 const handleReceivePartial = async () => {
   if (!receivingPurchase) return
 
@@ -281,15 +314,17 @@ const handleReceivePartial = async () => {
         </td>
 
         <td className="p-4">
-          ${purchase.purchase_items?.reduce(
-  (acc: number, item: any) => acc + Number(item.subtotal || 0),
-  0
-) || 0}
+   {formatARS(
+  purchase.purchase_items?.reduce(
+    (acc: number, item: any) => acc + Number(item.subtotal || 0),
+    0
+  ) || 0
+)}
         </td>
 
         <td className="p-4">
           <span className="bg-yellow-900 text-yellow-300 px-3 py-1 rounded-full text-xs">
-            {purchase.status || 'pending'}
+            {getPurchaseStatusBadge(purchase.status)}
           </span>
         </td>
 
@@ -449,7 +484,7 @@ const handleReceivePartial = async () => {
         <div>
           <p className="font-medium">{item.name}</p>
           <p className="text-slate-400 text-xs">
-            {item.quantity} unidades · ${item.unit_cost} c/u
+            {item.quantity} unidades · {formatARS(Number(item.unit_cost || 0))} c/u
           </p>
         </div>
 
@@ -472,7 +507,7 @@ const handleReceivePartial = async () => {
 )}
 
       <div className="flex justify-between items-center">
-        <p className="text-lg font-bold">Total: ${purchaseTotal}</p>
+        <p className="text-lg font-bold">Total: {formatARS(purchaseTotal)}</p>
 
         <div className="flex gap-3">
           <button
@@ -532,7 +567,7 @@ const handleReceivePartial = async () => {
             </div>
 
             <span className="font-semibold">
-              ${Number(item.subtotal || 0)}
+              {formatARS(Number(item.subtotal || 0))}
             </span>
           </div>
         ))}
