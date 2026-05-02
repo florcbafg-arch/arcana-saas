@@ -9,6 +9,8 @@ type Customer = {
   business_id: string
   debt_amount: number
   credit_limit?: number
+  phone?: string
+  address?: string
 
 }
 
@@ -37,9 +39,10 @@ export default function ClientesPage() {
   type: 'success' | 'error'
   message: string
 } | null>(null)
-
   // ⚠️ por ahora hardcodeado (después lo conectamos bien)
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
+  const [phone, setPhone] = useState('')
+  const [address, setAddress] = useState('')
 
 useEffect(() => {
   const id = localStorage.getItem('activeBusinessId')
@@ -157,7 +160,9 @@ const createCustomer = async () => {
       .from('customers')
       .update({
         name: newCustomerName,
-        credit_limit: newLimit
+        credit_limit: newLimit,
+        phone,
+        address,
       })
       .eq('id', selectedCustomer.id)
       .eq('business_id', selectedBusinessId)
@@ -178,6 +183,8 @@ const createCustomer = async () => {
         business_id: selectedBusinessId,
         credit_limit: newLimit || 0,
         debt_amount: 0,
+        phone,
+        address,
       })
 
     if (error) {
@@ -191,6 +198,8 @@ const createCustomer = async () => {
   setNewCustomerName('')
   setNewLimit(0)
   fetchCustomers()
+  setPhone('')
+  setAddress('')
 }
 
   
@@ -222,6 +231,8 @@ const handleEdit = (customer: Customer) => {
   setSelectedCustomer(customer)
   setNewCustomerName(customer.name)
   setNewLimit(customer.credit_limit || 0)
+  setPhone(customer.phone || '')
+  setAddress(customer.address || '')
 }
 
 const handleDelete = async (id: string) => {
@@ -347,6 +358,20 @@ const getRiskStatus = (debt: number, limit: number) => {
       className="bg-[#101018] border border-[#1F1F24] rounded-xl p-3 text-white"
     />
 
+<input
+  placeholder="Teléfono"
+  value={phone}
+  onChange={(e) => setPhone(e.target.value)}
+  className="bg-[#101018] border border-[#1F1F24] rounded-xl p-3 text-white"
+/>
+
+<input
+  placeholder="Dirección"
+  value={address}
+  onChange={(e) => setAddress(e.target.value)}
+  className="bg-[#101018] border border-[#1F1F24] rounded-xl p-3 text-white"
+/>
+
     <button
   onClick={createCustomer}
   className="bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl p-3 font-medium"
@@ -404,6 +429,20 @@ const getRiskStatus = (debt: number, limit: number) => {
               </td>
 
 <td className="p-4 text-center">
+  <span
+    className={`px-3 py-1 rounded-full text-xs ${
+      risk.color === 'red'
+        ? 'bg-red-500/10 text-red-400'
+        : risk.color === 'yellow'
+        ? 'bg-yellow-500/10 text-yellow-400'
+        : 'bg-green-500/10 text-green-400'
+    }`}
+  >
+    {risk.label}
+  </span>
+</td>
+
+<td className="p-4 text-center">
   <div className="flex gap-3 justify-center">
 
     <button
@@ -428,20 +467,6 @@ const getRiskStatus = (debt: number, limit: number) => {
 
   </div>
 </td>
-
-              <td className="p-4 text-center">
-                <span
-                  className={`px-3 py-1 rounded-full text-xs ${
-                    risk.color === 'red'
-                      ? 'bg-red-500/10 text-red-400'
-                      : risk.color === 'yellow'
-                      ? 'bg-yellow-500/10 text-yellow-400'
-                      : 'bg-green-500/10 text-green-400'
-                  }`}
-                >
-                  {risk.label}
-                </span>
-              </td>
             </tr>
           )
         })}
