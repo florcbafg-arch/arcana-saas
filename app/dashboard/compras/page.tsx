@@ -424,6 +424,31 @@ const receivePurchase = async (purchaseId: string) => {
   </div>
 )}
 
+      <div className="flex justify-between items-center">
+        <p className="text-lg font-bold">Total: ${purchaseTotal}</p>
+
+        <div className="flex gap-3">
+          <button
+            onClick={() => setIsOpen(false)}
+            className="bg-[#242838] hover:bg-[#30364A] rounded-xl px-5 py-3 font-semibold"
+          >
+            Cancelar
+          </button>
+
+    <button
+  type="button"
+  onClick={savePurchase}
+  disabled={purchaseItems.length === 0}
+  className="bg-[#1F6BFF] hover:bg-[#2E7BFF] disabled:bg-slate-700 disabled:cursor-not-allowed rounded-xl px-5 py-3 font-semibold"
+>
+  Guardar compra
+</button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
 {selectedPurchase && (
   <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
     <div className="bg-[#11131A] border border-[#242838] rounded-2xl w-full max-w-2xl p-6 text-white shadow-xl">
@@ -474,31 +499,6 @@ const receivePurchase = async (purchaseId: string) => {
             0
           ) || 0}
         </span>
-      </div>
-    </div>
-  </div>
-)}
-
-      <div className="flex justify-between items-center">
-        <p className="text-lg font-bold">Total: ${purchaseTotal}</p>
-
-        <div className="flex gap-3">
-          <button
-            onClick={() => setIsOpen(false)}
-            className="bg-[#242838] hover:bg-[#30364A] rounded-xl px-5 py-3 font-semibold"
-          >
-            Cancelar
-          </button>
-
-    <button
-  type="button"
-  onClick={savePurchase}
-  disabled={purchaseItems.length === 0}
-  className="bg-[#1F6BFF] hover:bg-[#2E7BFF] disabled:bg-slate-700 disabled:cursor-not-allowed rounded-xl px-5 py-3 font-semibold"
->
-  Guardar compra
-</button>
-        </div>
       </div>
     </div>
   </div>
