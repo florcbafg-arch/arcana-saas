@@ -182,7 +182,9 @@ const handleReceivePartial = async () => {
     return
   }
 
-  alert('Recepción registrada ✅')
+  alert(
+  'Recepción guardada correctamente ✅\nStock actualizado automáticamente 📦'
+)
 
   setReceivingPurchase(null)
   fetchPurchases()
