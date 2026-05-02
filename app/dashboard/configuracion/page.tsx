@@ -13,12 +13,24 @@ export default function ConfiguracionPage() {
   const [activeBusinessId, setActiveBusinessId] = useState<string | null>(null)
   const [newBusinessName, setNewBusinessName] = useState('')
   const [toast, setToast] = useState<string | null>(null)
+const [businessData, setBusinessData] = useState({
+  name: '',
+  email: '',
+  phone: '',
+  address: '',
+  logo_url: ''
+})
 
   useEffect(() => {
     const id = localStorage.getItem('activeBusinessId')
     if (id) setActiveBusinessId(id)
     fetchBusinesses()
   }, [])
+
+  useEffect(() => {
+  if (!activeBusinessId) return
+  fetchBusiness()
+}, [activeBusinessId])
 
   const fetchBusinesses = async () => {
     const { data } = await supabase
@@ -91,6 +103,46 @@ export default function ConfiguracionPage() {
   setToast('Negocio eliminado correctamente')
 }
 
+const fetchBusiness = async () => {
+  if (!activeBusinessId) return
+
+  const { data } = await supabase
+    .from('businesses')
+    .select('*')
+    .eq('id', activeBusinessId)
+    .single()
+
+  if (data) {
+    setBusinessData({
+      name: data.name || '',
+      email: data.email || '',
+      phone: data.phone || '',
+      address: data.address || '',
+      logo_url: data.logo_url || '',
+    })
+  }
+}
+
+const updateBusiness = async () => {
+  const { error } = await supabase
+    .from('businesses')
+    .update({
+      name: businessData.name,
+      email: businessData.email,
+      phone: businessData.phone,
+      address: businessData.address,
+      logo_url: businessData.logo_url
+    })
+    .eq('id', activeBusinessId)
+
+  if (error) {
+    alert('Error al guardar')
+    return
+  }
+
+  alert('Datos actualizados ✅')
+}
+
   return (
     <div className="space-y-8">
 
@@ -108,6 +160,50 @@ export default function ConfiguracionPage() {
         <h2 className="text-white font-medium mb-4">
           Negocio activo
         </h2>
+
+<input
+  value={businessData.name}
+  onChange={(e) =>
+    setBusinessData({ ...businessData, name: e.target.value })
+  }
+  placeholder="Nombre del negocio"
+/>
+
+<input
+  value={businessData.email}
+  onChange={(e) =>
+    setBusinessData({ ...businessData, email: e.target.value })
+  }
+  placeholder="Email"
+/>
+
+<input
+  value={businessData.phone}
+  onChange={(e) =>
+    setBusinessData({ ...businessData, phone: e.target.value })
+  }
+  placeholder="Teléfono"
+/>
+
+<input
+  value={businessData.address}
+  onChange={(e) =>
+    setBusinessData({ ...businessData, address: e.target.value })
+  }
+  placeholder="Dirección"
+/>
+
+<input
+  value={businessData.logo_url}
+  onChange={(e) =>
+    setBusinessData({ ...businessData, logo_url: e.target.value })
+  }
+  placeholder="URL del logo"
+/>
+
+<button onClick={updateBusiness}>
+  Guardar cambios
+</button>
 
         {businesses
           .filter(b => b.id === activeBusinessId)
