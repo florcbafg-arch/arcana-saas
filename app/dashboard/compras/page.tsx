@@ -310,7 +310,7 @@ const handleReceivePartial = async () => {
   setReceivedItems(
     purchase.purchase_items.map((item: any) => ({
       id: item.id,
-       product_id: item.product_id, 
+      product_id: item.product_id, 
       product_name: item.products?.name,
       quantity: item.quantity,
       received: item.received_quantity || 0
@@ -597,7 +597,7 @@ const handleReceivePartial = async () => {
       </div>
 
       <button
-        
+        onClick={handleReceivePartial}
         className="mt-5 bg-green-600 px-4 py-2 rounded w-full"
       >
         Confirmar recepción
