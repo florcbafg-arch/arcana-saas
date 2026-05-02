@@ -15,6 +15,7 @@ const [quantity, setQuantity] = useState(1)
 const [unitCost, setUnitCost] = useState(0)
 const [purchaseItems, setPurchaseItems] = useState<any[]>([])
 const [purchases, setPurchases] = useState<any[]>([])
+const [selectedPurchase, setSelectedPurchase] = useState<any | null>(null)
 
 useEffect(() => {
   const id = localStorage.getItem('activeBusinessId')
@@ -257,15 +258,28 @@ const receivePurchase = async (purchaseId: string) => {
           </span>
         </td>
 
-       <td className="p-4 text-slate-400">
-  {purchase.status === "pending" && (
+   <td className="p-4">
+  <div className="flex gap-2">
+
     <button
-      onClick={() => receivePurchase(purchase.id)}
-      className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-xs"
+      type="button"
+      onClick={() => setSelectedPurchase(purchase)}
+      className="bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded text-xs"
     >
-      Recibir
+      Ver detalle
     </button>
-  )}
+
+    {purchase.status === "pending" && (
+      <button
+        type="button"
+        onClick={() => receivePurchase(purchase.id)}
+        className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-xs"
+      >
+        Recibir
+      </button>
+    )}
+
+  </div>
 </td>
       </tr>
     ))
@@ -407,6 +421,61 @@ const receivePurchase = async (purchaseId: string) => {
         </div>
       </div>
     ))}
+  </div>
+)}
+
+{selectedPurchase && (
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div className="bg-[#11131A] border border-[#242838] rounded-2xl w-full max-w-2xl p-6 text-white shadow-xl">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold">Detalle de compra</h2>
+          <p className="text-sm text-slate-400">
+            {selectedPurchase.suppliers?.name || 'Sin proveedor'} ·{' '}
+            {new Date(selectedPurchase.created_at).toLocaleDateString('es-AR')}
+          </p>
+        </div>
+
+        <button
+          onClick={() => setSelectedPurchase(null)}
+          className="text-slate-400 hover:text-white"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        {selectedPurchase.purchase_items?.map((item: any, index: number) => (
+          <div
+            key={index}
+            className="flex justify-between items-center bg-[#0B0D13] border border-[#242838] rounded-xl px-4 py-3 text-sm"
+          >
+            <div>
+              <p className="font-medium">
+                {item.products?.name || 'Producto sin nombre'}
+              </p>
+              <p className="text-slate-400 text-xs">
+                {item.quantity} unidades · ${item.unit_cost} c/u
+              </p>
+            </div>
+
+            <span className="font-semibold">
+              ${Number(item.subtotal || 0)}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="border-t border-[#242838] mt-5 pt-4 flex justify-between font-bold">
+        <span>Total</span>
+        <span>
+          ${selectedPurchase.purchase_items?.reduce(
+            (acc: number, item: any) => acc + Number(item.subtotal || 0),
+            0
+          ) || 0}
+        </span>
+      </div>
+    </div>
   </div>
 )}
 
