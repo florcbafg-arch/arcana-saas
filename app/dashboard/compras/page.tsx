@@ -18,6 +18,7 @@ const [purchases, setPurchases] = useState<any[]>([])
 const [selectedPurchase, setSelectedPurchase] = useState<any | null>(null)
 const [receivingPurchase, setReceivingPurchase] = useState<any | null>(null)
 const [receivedItems, setReceivedItems] = useState<any[]>([])
+const [businessName, setBusinessName] = useState('')
 
 useEffect(() => {
   const id = localStorage.getItem('activeBusinessId')
@@ -30,6 +31,7 @@ useEffect(() => {
   fetchSuppliers()
   fetchProducts()
   fetchPurchases()
+  fetchBusiness()
 }, [selectedBusinessId])
 
 const fetchSuppliers = async () => {
@@ -271,24 +273,61 @@ const openSupplierWhatsApp = (purchase: any) => {
       const received = Number(item.received_quantity || 0)
       const pending = ordered - received
 
-      return `• ${item.products?.name || 'Producto'}: pedido ${ordered}, recibido ${received}, pendiente ${pending}`
+      if (purchase.status === 'pending') {
+        return `• ${item.products?.name}: ${ordered} unidades`
+      }
+
+      if (purchase.status === 'partial') {
+        return `• ${item.products?.name}: pendiente ${pending}`
+      }
+
+      return `• ${item.products?.name}: recibido ${received}`
     })
     .join('\n')
 
-  const message = `Hola, te escribo por el pedido de compra registrado en Arcana.
+  let message = ''
 
-Proveedor: ${purchase.suppliers?.name || 'Sin proveedor'}
-Fecha: ${new Date(purchase.created_at).toLocaleDateString('es-AR')}
+  if (purchase.status === 'pending') {
+    message = `Hola, somos de ${businessName}.
+Te escribimos para realizar el siguiente pedido:
 
-Productos:
 ${itemsText}
 
 Gracias.`
+  }
+
+  if (purchase.status === 'partial') {
+    message = `Hola, somos de ${businessName}.
+Te escribimos por los productos pendientes del pedido:
+
+${itemsText}
+
+Quedamos atentos.`
+  }
+
+  if (purchase.status === 'received') {
+    message = `Hola, somos de ${businessName}.
+Confirmamos la recepción del pedido:
+
+${itemsText}
+
+Muchas gracias.`
+  }
 
   const cleanPhone = supplierPhone.replace(/\D/g, '')
   const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
 
   window.open(url, '_blank')
+}
+
+const fetchBusiness = async () => {
+  const { data } = await supabase
+    .from('businesses')
+    .select('name')
+    .eq('id', selectedBusinessId)
+    .single()
+
+  if (data) setBusinessName(data.name)
 }
 
   return (
