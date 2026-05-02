@@ -160,6 +160,34 @@ const receivePurchase = async (purchaseId: string) => {
   fetchProducts()
 }
 
+const handleReceivePartial = async () => {
+  if (!receivingPurchase) return
+
+  const res = await fetch('/api/purchases/receive-partial', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      purchase_id: receivingPurchase.id,
+      items: receivedItems
+    })
+  })
+
+  const data = await res.json()
+
+  if (!res.ok) {
+    alert(data.error || 'Error al recibir compra')
+    return
+  }
+
+  alert('Recepción registrada ✅')
+
+  setReceivingPurchase(null)
+  fetchPurchases()
+  fetchProducts()
+}
+
   return (
     <div className="p-8 text-white">
       <div className="flex items-center justify-between mb-8">
@@ -282,6 +310,7 @@ const receivePurchase = async (purchaseId: string) => {
   setReceivedItems(
     purchase.purchase_items.map((item: any) => ({
       id: item.id,
+       product_id: item.product_id, 
       product_name: item.products?.name,
       quantity: item.quantity,
       received: item.received_quantity || 0
@@ -568,7 +597,7 @@ const receivePurchase = async (purchaseId: string) => {
       </div>
 
       <button
-        onClick={() => console.log(receivedItems)}
+        
         className="mt-5 bg-green-600 px-4 py-2 rounded w-full"
       >
         Confirmar recepción
