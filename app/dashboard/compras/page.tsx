@@ -638,9 +638,14 @@ Gracias.`
       </div>
 
       <div className="space-y-3">
-        {selectedPurchase.purchase_items?.map((item: any, index: number) => (
-          <div
-            key={index}
+        {selectedPurchase.purchase_items?.map((item: any, index: number) => {
+          const ordered = Number(item.quantity || 0)
+          const received = Number(item.received_quantity || 0)
+          const pending = ordered - received
+
+           return (
+            <div
+              key={index}
             className="flex justify-between items-center bg-[#0B0D13] border border-[#242838] rounded-xl px-4 py-3 text-sm"
           >
             <div>
@@ -648,24 +653,29 @@ Gracias.`
                 {item.products?.name || 'Producto sin nombre'}
               </p>
               <p className="text-slate-400 text-xs">
-                {item.quantity} unidades · ${item.unit_cost} c/u
-              </p>
+  Pedido: {ordered} · Recibido: {received} · Pendiente: {pending}
+</p>
+
+<p className="text-slate-500 text-xs">
+  {formatARS(Number(item.unit_cost || 0))} c/u
+</p>
             </div>
 
             <span className="font-semibold">
               {formatARS(Number(item.subtotal || 0))}
             </span>
-          </div>
-        ))}
+                     </div>
+          )
+        })}
       </div>
 
       <div className="border-t border-[#242838] mt-5 pt-4 flex justify-between font-bold">
         <span>Total</span>
         <span>
-          ${selectedPurchase.purchase_items?.reduce(
+         {formatARS(selectedPurchase.purchase_items?.reduce(
             (acc: number, item: any) => acc + Number(item.subtotal || 0),
             0
-          ) || 0}
+         ) || 0)}
         </span>
       </div>
     </div>
