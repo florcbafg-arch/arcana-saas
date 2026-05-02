@@ -57,12 +57,13 @@ const fetchPurchases = async () => {
       *,
       suppliers ( name ),
       purchase_items (
-  id,
-  quantity,
-  received_quantity,
-  unit_cost,
-  subtotal,
-  products ( name )
+      id,
+      product_id,
+      quantity,
+      received_quantity,
+      unit_cost,
+      subtotal,
+      products ( name )
 )
     `)
     .eq('business_id', selectedBusinessId)
