@@ -55,7 +55,7 @@ const fetchPurchases = async () => {
     .from('purchases')
     .select(`
       *,
-      suppliers ( name ),
+      suppliers ( name, phone ),
       purchase_items (
       id,
       product_id,
@@ -257,6 +257,40 @@ const handleReceivePartial = async () => {
   fetchProducts()
 }
 
+const openSupplierWhatsApp = (purchase: any) => {
+  const supplierPhone = purchase.suppliers?.phone
+
+  if (!supplierPhone) {
+    alert('Este proveedor no tiene teléfono cargado')
+    return
+  }
+
+  const itemsText = purchase.purchase_items
+    ?.map((item: any) => {
+      const ordered = Number(item.quantity || 0)
+      const received = Number(item.received_quantity || 0)
+      const pending = ordered - received
+
+      return `• ${item.products?.name || 'Producto'}: pedido ${ordered}, recibido ${received}, pendiente ${pending}`
+    })
+    .join('\n')
+
+  const message = `Hola, te escribo por el pedido de compra registrado en Arcana.
+
+Proveedor: ${purchase.suppliers?.name || 'Sin proveedor'}
+Fecha: ${new Date(purchase.created_at).toLocaleDateString('es-AR')}
+
+Productos:
+${itemsText}
+
+Gracias.`
+
+  const cleanPhone = supplierPhone.replace(/\D/g, '')
+  const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
+
+  window.open(url, '_blank')
+}
+
   return (
     <div className="p-8 text-white">
       <div className="flex items-center justify-between mb-8">
@@ -304,6 +338,7 @@ const handleReceivePartial = async () => {
     ? lastPurchase.suppliers?.name || 'Sin proveedor'
     : 'Sin registros'}
 </h2>
+
         </div>
       </div>
 
@@ -381,6 +416,14 @@ const handleReceivePartial = async () => {
     >
       Ver detalle
     </button>
+
+<button
+  type="button"
+  onClick={() => openSupplierWhatsApp(purchase)}
+  className="bg-emerald-700 hover:bg-emerald-600 px-3 py-1 rounded text-xs"
+>
+  WhatsApp
+</button>
 
     {purchase.status === "pending" && (
       <button
