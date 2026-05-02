@@ -16,6 +16,8 @@ const [unitCost, setUnitCost] = useState(0)
 const [purchaseItems, setPurchaseItems] = useState<any[]>([])
 const [purchases, setPurchases] = useState<any[]>([])
 const [selectedPurchase, setSelectedPurchase] = useState<any | null>(null)
+const [receivingPurchase, setReceivingPurchase] = useState<any | null>(null)
+const [receivedItems, setReceivedItems] = useState<any[]>([])
 
 useEffect(() => {
   const id = localStorage.getItem('activeBusinessId')
@@ -55,11 +57,13 @@ const fetchPurchases = async () => {
       *,
       suppliers ( name ),
       purchase_items (
-        quantity,
-        unit_cost,
-        subtotal,
-        products ( name )
-      )
+  id,
+  quantity,
+  received_quantity,
+  unit_cost,
+  subtotal,
+  products ( name )
+)
     `)
     .eq('business_id', selectedBusinessId)
     .order('created_at', { ascending: false })
@@ -272,7 +276,18 @@ const receivePurchase = async (purchaseId: string) => {
     {purchase.status === "pending" && (
       <button
         type="button"
-        onClick={() => receivePurchase(purchase.id)}
+        onClick={() => {
+  setReceivingPurchase(purchase)
+
+  setReceivedItems(
+    purchase.purchase_items.map((item: any) => ({
+      id: item.id,
+      product_name: item.products?.name,
+      quantity: item.quantity,
+      received: item.received_quantity || 0
+    }))
+  )
+}}
         className="bg-green-600 hover:bg-green-700 px-3 py-1 rounded text-xs"
       >
         Recibir
@@ -500,6 +515,65 @@ const receivePurchase = async (purchaseId: string) => {
           ) || 0}
         </span>
       </div>
+    </div>
+  </div>
+)}
+
+{receivingPurchase && (
+  <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div className="bg-[#11131A] border border-[#242838] rounded-2xl w-full max-w-2xl p-6 text-white shadow-xl">
+
+      <div className="flex justify-between items-center mb-5">
+        <h2 className="text-xl font-bold">Recepción de compra</h2>
+
+        <button
+          onClick={() => setReceivingPurchase(null)}
+          className="text-slate-400 hover:text-white"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="space-y-3">
+        {receivedItems.map((item, index) => (
+          <div
+            key={index}
+            className="flex justify-between items-center bg-[#0B0D13] border border-[#242838] rounded-xl px-4 py-3"
+          >
+            <div>
+              <p className="font-medium">{item.product_name}</p>
+              <p className="text-xs text-slate-400">
+                Pedido: {item.quantity}
+              </p>
+            </div>
+
+            <input
+              type="number"
+              min={0}
+              max={item.quantity}
+              value={item.received}
+              onChange={(e) => {
+                const value = Number(e.target.value)
+
+                setReceivedItems((prev) =>
+                  prev.map((i, idx) =>
+                    idx === index ? { ...i, received: value } : i
+                  )
+                )
+              }}
+              className="w-20 bg-[#0B0D13] border border-[#242838] rounded px-2 py-1"
+            />
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={() => console.log(receivedItems)}
+        className="mt-5 bg-green-600 px-4 py-2 rounded w-full"
+      >
+        Confirmar recepción
+      </button>
+
     </div>
   </div>
 )}
