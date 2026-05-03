@@ -170,10 +170,16 @@ const filePath = `business-${activeBusinessId}/logo-${Date.now()}.${fileExt}`
   const publicUrl = data.publicUrl
 
   // guardar en DB
-  await supabase
-    .from('businesses')
-    .update({ logo_url: publicUrl })
-    .eq('id', activeBusinessId)
+  const { error: updateError } = await supabase
+  .from('businesses')
+  .update({ logo_url: publicUrl })
+  .eq('id', activeBusinessId)
+
+if (updateError) {
+  console.error('ERROR GUARDANDO LOGO EN DB:', updateError)
+  alert('La imagen subió, pero no se pudo guardar en el negocio')
+  return
+}
 
   setBusinessData((prev) => ({
     ...prev,
