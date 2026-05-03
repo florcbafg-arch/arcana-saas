@@ -95,25 +95,6 @@ useEffect(() => {
   scannerRef.current?.focus()
 }, [])
 
-useEffect(() => {
-  const fetchBusiness = async () => {
-    const id = localStorage.getItem('activeBusinessId')
-    if (!id) return
-
-    const { data } = await supabase
-      .from('businesses')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-      console.log("DATA BUSINESS:", data)
-
-    setBusiness(data)
-  }
-
-  fetchBusiness()
-}, [])
-
   const fetchProducts = async () => {
     const { data } = await supabase
       .from('products')
@@ -158,7 +139,7 @@ const fetchBusiness = async () => {
 
   const { data } = await supabase
     .from('businesses')
-    .select('name')
+    .select('name, logo_url')
     .eq('id', selectedBusinessId)
     .single()
 
