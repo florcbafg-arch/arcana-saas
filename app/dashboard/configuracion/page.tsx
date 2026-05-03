@@ -143,6 +143,45 @@ const updateBusiness = async () => {
   alert('Datos actualizados ✅')
 }
 
+const handleUpload = async (e: any) => {
+  const file = e.target.files[0]
+  if (!file || !activeBusinessId) return
+
+  const filePath = `business-${activeBusinessId}`
+
+  // subir imagen
+  const { error } = await supabase.storage
+    .from('logos')
+    .upload(filePath, file, {
+      upsert: true,
+    })
+
+  if (error) {
+    alert('Error subiendo imagen')
+    return
+  }
+
+  // obtener URL pública
+  const { data } = supabase.storage
+    .from('logos')
+    .getPublicUrl(filePath)
+
+  const publicUrl = data.publicUrl
+
+  // guardar en DB
+  await supabase
+    .from('businesses')
+    .update({ logo_url: publicUrl })
+    .eq('id', activeBusinessId)
+
+  setBusinessData((prev) => ({
+    ...prev,
+    logo_url: publicUrl,
+  }))
+
+  alert('Logo actualizado ✅')
+}
+
   return (
     <div className="space-y-8">
 
@@ -194,12 +233,19 @@ const updateBusiness = async () => {
 />
 
 <input
-  value={businessData.logo_url}
-  onChange={(e) =>
-    setBusinessData({ ...businessData, logo_url: e.target.value })
-  }
-  placeholder="URL del logo"
+  type="file"
+  accept="image/*"
+  onChange={handleUpload}
+  className="mt-2 text-sm text-white"
 />
+
+{businessData.logo_url && (
+  <img
+    src={businessData.logo_url}
+    alt="Logo"
+    className="h-16 object-contain mt-3"
+  />
+)}
 
 <button onClick={updateBusiness}>
   Guardar cambios
