@@ -95,6 +95,23 @@ useEffect(() => {
   scannerRef.current?.focus()
 }, [])
 
+useEffect(() => {
+  const fetchBusiness = async () => {
+    const id = localStorage.getItem('activeBusinessId')
+    if (!id) return
+
+    const { data } = await supabase
+      .from('businesses')
+      .select('*')
+      .eq('id', id)
+      .single()
+
+    setBusiness(data)
+  }
+
+  fetchBusiness()
+}, [])
+
   const fetchProducts = async () => {
     const { data } = await supabase
       .from('products')
@@ -930,6 +947,13 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
     <div className="ticket-print bg-white text-black rounded-xl w-full max-w-sm p-5 font-mono shadow-2xl">
       
       <div className="text-center mb-4">
+          {business?.logo_url && (
+    <img
+      src={business.logo_url}
+      alt="Logo"
+      className="h-12 max-w-[140px] mx-auto mb-2 object-contain"
+    />
+  )}
         <h2 className="text-lg font-bold uppercase">
           {lastSaleTicket.businessName}
         </h2>
