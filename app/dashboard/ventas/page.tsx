@@ -106,6 +106,8 @@ useEffect(() => {
       .eq('id', id)
       .single()
 
+      console.log("DATA BUSINESS:", data)
+
     setBusiness(data)
   }
 
