@@ -195,73 +195,78 @@ const handleUpload = async (e: any) => {
       </div>
 
       {/* Negocio Activo */}
-      <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-6">
-        <h2 className="text-white font-medium mb-4">
-          Negocio activo
-        </h2>
+     <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-6 space-y-5">
+  <div>
+    <h2 className="text-white font-medium">Negocio activo</h2>
+    <p className="text-gray-400 text-sm">
+      Datos que se usarán en tickets, mensajes y configuración del sistema.
+    </p>
+  </div>
 
-<input
-  value={businessData.name}
-  onChange={(e) =>
-    setBusinessData({ ...businessData, name: e.target.value })
-  }
-  placeholder="Nombre del negocio"
-/>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <input
+      value={businessData.name}
+      onChange={(e) =>
+        setBusinessData({ ...businessData, name: e.target.value })
+      }
+      placeholder="Nombre del negocio"
+      className="bg-[#101018] border border-[#1F1F24] rounded-xl p-3 text-white"
+    />
 
-<input
-  value={businessData.email}
-  onChange={(e) =>
-    setBusinessData({ ...businessData, email: e.target.value })
-  }
-  placeholder="Email"
-/>
+    <input
+      value={businessData.email}
+      onChange={(e) =>
+        setBusinessData({ ...businessData, email: e.target.value })
+      }
+      placeholder="Email"
+      className="bg-[#101018] border border-[#1F1F24] rounded-xl p-3 text-white"
+    />
 
-<input
-  value={businessData.phone}
-  onChange={(e) =>
-    setBusinessData({ ...businessData, phone: e.target.value })
-  }
-  placeholder="Teléfono"
-/>
+    <input
+      value={businessData.phone}
+      onChange={(e) =>
+        setBusinessData({ ...businessData, phone: e.target.value })
+      }
+      placeholder="Teléfono"
+      className="bg-[#101018] border border-[#1F1F24] rounded-xl p-3 text-white"
+    />
 
-<input
-  value={businessData.address}
-  onChange={(e) =>
-    setBusinessData({ ...businessData, address: e.target.value })
-  }
-  placeholder="Dirección"
-/>
+    <input
+      value={businessData.address}
+      onChange={(e) =>
+        setBusinessData({ ...businessData, address: e.target.value })
+      }
+      placeholder="Dirección"
+      className="bg-[#101018] border border-[#1F1F24] rounded-xl p-3 text-white"
+    />
+  </div>
 
-<input
-  type="file"
-  accept="image/*"
-  onChange={handleUpload}
-  className="mt-2 text-sm text-white"
-/>
+  <div className="space-y-3">
+    <label className="text-sm text-gray-300">Logo del negocio</label>
 
-{businessData.logo_url && (
-  <img
-    src={businessData.logo_url}
-    alt="Logo"
-    className="h-16 object-contain mt-3"
-  />
-)}
+    <input
+      type="file"
+      accept="image/*"
+      onChange={handleUpload}
+      className="block w-full text-sm text-gray-300 file:mr-4 file:rounded-xl file:border-0 file:bg-[#1F6BFF] file:px-4 file:py-2 file:text-white hover:file:bg-[#2E7BFF]"
+    />
 
-<button onClick={updateBusiness}>
-  Guardar cambios
-</button>
+    {businessData.logo_url && (
+      <img
+        src={businessData.logo_url}
+        alt="Logo del negocio"
+        className="h-16 object-contain rounded-lg bg-white p-2"
+      />
+    )}
+  </div>
 
-        {businesses
-          .filter(b => b.id === activeBusinessId)
-          .map(b => (
-            <div
-              key={b.id}
-              className="px-4 py-3 rounded-xl bg-green-500/10 text-green-400 border border-green-500/30"
-            >
-              {b.name}
-            </div>
-          ))}
-      </div>
+  <button
+    onClick={updateBusiness}
+    className="bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-6 py-3 font-medium text-white"
+  >
+    Guardar cambios
+  </button>
+</div>
 
       {/* Lista de negocios */}
       <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-6 space-y-4">
