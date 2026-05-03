@@ -244,6 +244,27 @@ const handleUpload = async (e: any) => {
   <div className="space-y-3">
     <label className="text-sm text-gray-300">Logo del negocio</label>
 
+{businessData.logo_url && (
+  <div className="flex items-center gap-3 bg-[#101018] border border-[#1F1F24] rounded-xl p-3">
+    <img
+      src={businessData.logo_url}
+      alt="Logo del negocio"
+      className="h-12 w-12 rounded-full object-cover bg-white p-1"
+    />
+
+    <div>
+      <p className="text-white text-sm font-medium">Logo cargado</p>
+      <p className="text-gray-400 text-xs">
+        Se usará en tickets y personalización del negocio.
+      </p>
+    </div>
+  </div>
+)}
+
+<p className="text-xs text-gray-500">
+  Recomendado: logo simple, fondo blanco o transparente.
+</p>
+
     <input
       type="file"
       accept="image/*"
@@ -251,13 +272,6 @@ const handleUpload = async (e: any) => {
       className="block w-full text-sm text-gray-300 file:mr-4 file:rounded-xl file:border-0 file:bg-[#1F6BFF] file:px-4 file:py-2 file:text-white hover:file:bg-[#2E7BFF]"
     />
 
-    {businessData.logo_url && (
-      <img
-        src={businessData.logo_url}
-        alt="Logo del negocio"
-        className="h-16 object-contain rounded-lg bg-white p-2"
-      />
-    )}
   </div>
 
   <button

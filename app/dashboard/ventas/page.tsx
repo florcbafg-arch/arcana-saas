@@ -953,7 +953,7 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
     <img
       src={business.logo_url}
       alt="Logo"
-      className="h-12 max-w-[140px] mx-auto mb-2 object-contain"
+      className="h-10 max-w-[120px] mx-auto object-contain"
     />
   )}
         <h2 className="text-lg font-bold uppercase">
