@@ -147,7 +147,8 @@ const handleUpload = async (e: any) => {
   const file = e.target.files[0]
   if (!file || !activeBusinessId) return
 
-  const filePath = `business-${activeBusinessId}`
+  const fileExt = file.name.split('.').pop()
+const filePath = `business-${activeBusinessId}/logo-${Date.now()}.${fileExt}`
 
   // subir imagen
   const { error } = await supabase.storage
