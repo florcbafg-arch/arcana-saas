@@ -33,6 +33,7 @@ export default function VentasPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [customers, setCustomers] = useState<Customer[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
+  const [productSearch, setProductSearch] = useState('')
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [successFlash, setSuccessFlash] = useState(false)
   const [cart, setCart] = useState<any[]>([])
@@ -312,6 +313,7 @@ const addToCart = () => {
 
   setSelectedProduct(null)
   setSaleQuantity(1)
+  setProductSearch('')
 }
 
 const cartTotal = cart.reduce(
@@ -451,6 +453,18 @@ const formatCurrency = (value: number) => {
 const printTicket = () => {
   window.print()
 }
+
+const filteredProducts = products.filter((product) => {
+  const search = productSearch.trim().toLowerCase()
+
+  if (!search) return false
+
+  return (
+    product.name.toLowerCase().includes(search) ||
+    (product.code || '').toLowerCase().includes(search) ||
+    (product.barcode || '').toLowerCase().includes(search)
+  )
+})
 
   return (
      <div
@@ -643,22 +657,45 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
           {/* Producto */}
           <div className="space-y-2">
             <label className="text-sm text-gray-400">Producto</label>
-            <select
-              className="w-full bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white"
-              value={selectedProduct?.id || ''}
-              onChange={(e) =>
-                setSelectedProduct(
-                  products.find((p) => p.id === e.target.value) || null
-                )
-              }
-            >
-              <option value="">Seleccioná producto</option>
-              {products.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name} (stock: {p.stock_quantity} {p.unit})
-                </option>
-              ))}
-            </select>
+            <input
+  type="text"
+  value={productSearch}
+  onChange={(e) => {
+    setProductSearch(e.target.value)
+    setSelectedProduct(null)
+  }}
+  placeholder="Buscar producto..."
+  className="w-full bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white"
+/>
+
+{productSearch && !selectedProduct && (
+  <div className="bg-[#0F0F14] border border-[#2A2A32] rounded-xl overflow-hidden max-h-56 overflow-y-auto">
+    {filteredProducts.length === 0 ? (
+      <p className="p-3 text-sm text-gray-400">
+        No se encontraron productos
+      </p>
+    ) : (
+      filteredProducts.map((product) => (
+        <button
+          key={product.id}
+          type="button"
+          onClick={() => {
+            setSelectedProduct(product)
+            setProductSearch(product.name)
+          }}
+          className="w-full text-left p-3 hover:bg-[#1A1A22] transition border-b border-[#2A2A32] last:border-b-0"
+        >
+          <p className="text-sm font-medium text-white">
+            {product.name}
+          </p>
+          <p className="text-xs text-gray-400">
+            Stock: {product.stock_quantity} {product.unit} · {formatCurrency(product.price)}
+          </p>
+        </button>
+      ))
+    )}
+  </div>
+)}
           </div>
 
           {/* Cantidad */}
