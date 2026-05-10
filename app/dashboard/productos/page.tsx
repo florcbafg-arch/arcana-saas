@@ -124,6 +124,10 @@ useEffect(() => {
   setSuppliers(data || [])
 }
 
+const parseMoney = (value: string) => {
+  return Number(value.replace(/\./g, '').replace(',', '.')) || 0
+}
+
 const createProduct = async () => {
   if (!newProductName.trim()) {
     setToast({ type: "error", message: "Ingresá un nombre válido" })
@@ -144,12 +148,12 @@ const createProduct = async () => {
       stock_quantity: Number(newStock || 0),
       min_stock_yellow: Number(newMinStock || 1),
       min_stock_red: Math.max(1, Math.floor(Number(newMinStock || 1) / 2)),
-      price: Number(newPrice || 0),
+      price: parseMoney(newPrice),
       active: newActive,
       code: newCode || null,
       barcode: barcodeToUse,
       supplier_id: newSupplierId || null,
-      cost_price: Number(newCostPrice || 0),
+      cost_price: parseMoney(newCostPrice),
       sale_type: newSaleType,
       unit_base: newSaleType === 'weight' ? 'kg' : 'unit',
       price_by: newSaleType === 'weight' ? newPriceBy : 'unit',
@@ -183,12 +187,12 @@ setEditingId(null)
   stock_quantity: Number(newStock || 0),
   min_stock_yellow: newMinStock,
   min_stock_red: Math.max(1, Math.floor(Number(newMinStock || 1) / 2)),
-  price: Number(newPrice || 0),
+  price: parseMoney(newPrice),
   active: newActive,
   code: newCode || null,
   barcode: barcodeToUse,
   supplier_id: newSupplierId || null,
-  cost_price: Number(newCostPrice || 0),
+  cost_price: parseMoney(newCostPrice),
   sale_type: newSaleType,
   unit_base: newSaleType === 'weight' ? 'kg' : 'unit',
   price_by: newSaleType === 'weight' ? newPriceBy : 'unit',
@@ -943,10 +947,10 @@ const downloadTemplate = () => {
     />
   </div>
 
- {Number(newPrice) > 0 && Number(newCostPrice) > 0 && (
+ {parseMoney(newPrice) > 0 && parseMoney(newCostPrice) > 0 && (
   <p className="text-xs text-green-400">
     Margen estimado: $
-    {(Number(newPrice) - Number(newCostPrice)).toLocaleString()}
+    {(parseMoney(newPrice) - parseMoney(newCostPrice)).toLocaleString()}
   </p>
 )}
 </div>
