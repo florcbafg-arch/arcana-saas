@@ -1113,7 +1113,11 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
     </>
   ) : (
     <>
-      {item.quantity} x {formatCurrency(item.price)}
+     {item.sale_type === 'weight'
+  ? `${item.quantity_label || `${Math.round(item.quantity * 1000)}g`} x ${formatCurrency(
+      item.price_by === '100g' ? item.price / 10 : item.price
+    )}/${item.price_by === '100g' ? '100g' : 'kg'}`
+  : `${item.quantity} x ${formatCurrency(item.price)}`}
     </>
   )}
 </span>
@@ -1129,7 +1133,11 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
 
       <div className="text-sm space-y-1">
         <div className="flex justify-between">
-          <span>Unidades</span>
+          <span>
+  {lastSaleTicket.items.some((item: any) => item.sale_type === 'weight')
+    ? 'Cantidad'
+    : 'Unidades'}
+</span>
           <span>
   {Number(lastSaleTicket.units).toFixed(2)}
 </span>
