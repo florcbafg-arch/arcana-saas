@@ -32,13 +32,14 @@ type Supplier = {
 export default function ProductosPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [newProductName, setNewProductName] = useState('')
-  const [newStock, setNewStock] = useState(0)
   const [newMinStock, setNewMinStock] = useState(1)
   const [loading, setLoading] = useState(false)
   const [newUnit, setNewUnit] = useState('unidad')
-
+  const [newStock, setNewStock] = useState('')
+  const [newPrice, setNewPrice] = useState('')
+  const [newCostPrice, setNewCostPrice] = useState('')
   const [isOpen, setIsOpen] = useState(false)
-  const [newPrice, setNewPrice] = useState(0)
+  
   const [newActive, setNewActive] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
@@ -48,7 +49,6 @@ export default function ProductosPage() {
   const [newCode, setNewCode] = useState('')
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [newSupplierId, setNewSupplierId] = useState('')
-  const [newCostPrice, setNewCostPrice] = useState(0)
   const [newSaleType, setNewSaleType] = useState<'unit' | 'weight'>('unit')
   const [newUnitBase, setNewUnitBase] = useState('unidad')
   const [toast, setToast] = useState<{
@@ -137,15 +137,15 @@ const createProduct = async () => {
     .update({
       name: newProductName,
       unit: newUnit,
-      stock_quantity: newStock,
+      stock_quantity: Number(newStock || 0),
       min_stock_yellow: newMinStock,
       min_stock_red: Math.max(1, Math.floor(newMinStock / 2)),
-      price: newPrice,
+      price: Number(newPrice || 0),
       active: newActive,
       code: newCode || null,
       barcode: barcodeToUse,
       supplier_id: newSupplierId || null,
-      cost_price: newCostPrice,
+      cost_price: Number(newCostPrice || 0),
     })
     .eq('id', editingId)
 
@@ -173,15 +173,15 @@ setEditingId(null)
   name: newProductName,
   business_id: selectedBusinessId,
   unit: newUnit,
-  stock_quantity: newStock,
+  stock_quantity: Number(newStock || 0),
   min_stock_yellow: newMinStock,
   min_stock_red: Math.max(1, Math.floor(newMinStock / 2)),
-  price: newPrice,
+  price: Number(newPrice || 0),
   active: newActive,
   code: newCode || null,
   barcode: barcodeToUse,
   supplier_id: newSupplierId || null,
-  cost_price: newCostPrice,
+  cost_price: Number(newCostPrice || 0),
 })
 
       if (error) throw error
@@ -191,15 +191,15 @@ setEditingId(null)
 
     setNewProductName('')
     setNewUnit('unidad')
-    setNewStock(0)
+    setNewStock('')
     setNewMinStock(1)
-    setNewPrice(0)
+    setNewPrice('')
     setNewActive(true)
     setIsOpen(false)
     setNewCode('')
     setNewBarcode('')
     setNewSupplierId('')
-    setNewCostPrice(0)
+    setNewCostPrice('')
     fetchProducts()
 
   } catch (err: any) {
@@ -237,15 +237,15 @@ const handleDelete = async (id: string) => {
 const handleEdit = (product: Product) => {
   setEditingId(product.id)
   setNewProductName(product.name)
-  setNewPrice(product.price)
-  setNewStock(product.stock_quantity)
+  setNewPrice(String(product.price || ''))
+  setNewStock(String(product.stock_quantity || ''))
   setNewMinStock(product.min_stock_yellow)
   setNewUnit(product.unit)
   setNewActive(product.active)
   setNewCode(product.code || '')
   setNewBarcode(product.barcode || '')
   setNewSupplierId(product.supplier_id || '')
-  setNewCostPrice(Number(product.cost_price || 0))
+  setNewCostPrice(String(product.cost_price || ''))
   setIsOpen(true)
 }
 
@@ -839,7 +839,7 @@ const downloadTemplate = () => {
               type="number"
               placeholder="Ej: 15000"
               value={newPrice}
-              onChange={(e) => setNewPrice(Number(e.target.value))}
+              onChange={(e) => setNewPrice(e.target.value)}
               className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl 
               p-3 pl-8 text-white
               focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
@@ -883,18 +883,19 @@ const downloadTemplate = () => {
       type="number"
       placeholder="Ej: 9000"
       value={newCostPrice}
-      onChange={(e) => setNewCostPrice(Number(e.target.value))}
+      onChange={(e) => setNewCostPrice(e.target.value)}
       className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl 
       p-3 pl-8 text-white
       focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
     />
   </div>
 
-  {newPrice > 0 && newCostPrice > 0 && (
-    <p className="text-xs text-green-400">
-      Margen estimado: ${(newPrice - newCostPrice).toLocaleString()}
-    </p>
-  )}
+ {Number(newPrice) > 0 && Number(newCostPrice) > 0 && (
+  <p className="text-xs text-green-400">
+    Margen estimado: $
+    {(Number(newPrice) - Number(newCostPrice)).toLocaleString()}
+  </p>
+)}
 </div>
 
         {/* Stock inicial */}
@@ -906,7 +907,7 @@ const downloadTemplate = () => {
             type="number"
             placeholder="Cantidad disponible al cargar"
             value={newStock}
-            onChange={(e) => setNewStock(Number(e.target.value))}
+            onChange={(e) => setNewStock(e.target.value)}
             className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
             focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
           />
