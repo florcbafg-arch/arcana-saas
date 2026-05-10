@@ -49,7 +49,7 @@ export default function VentasPage() {
   const [showTicket, setShowTicket] = useState(false)
   const [weightGrams, setWeightGrams] = useState('')
 
-  const [saleQuantity, setSaleQuantity] = useState(1)
+  const [saleQuantity, setSaleQuantity] = useState('')
   const [creating, setCreating] = useState(false)
   const [salePaid, setSalePaid] = useState(true)
   const [paymentType, setPaymentType] = useState("cash")
@@ -211,7 +211,9 @@ if (!product) {
     return
   }
 
-  if (!saleQuantity || saleQuantity <= 0) {
+  const quantity = Number(saleQuantity)
+
+if (!quantity || quantity <= 0) {
     setToast({ type: "error", message: "Cantidad inválida" })
     return
   }
@@ -250,7 +252,7 @@ if (!product) {
   })
 }
 
-  setSaleQuantity(1)
+  setSaleQuantity('')
   setSelectedProduct(null)
   setSelectedCustomer(null)
   setSalePaid(true)
@@ -360,26 +362,28 @@ const addToCart = () => {
   )
 
   setSelectedProduct(null)
-  setSaleQuantity(1)
+  setSaleQuantity('')
   setWeightGrams('')
   setProductSearch('')
   return
 }
 
-  if (saleQuantity <= 0) {
+  const quantity = Number(saleQuantity)
+
+if (!quantity || quantity <= 0) {
     setToast({ type: "error", message: "Cantidad inválida" })
     return
   }
 
-  if (selectedProduct.stock_quantity < saleQuantity) {
+ if (selectedProduct.stock_quantity < quantity) {
     setToast({ type: "error", message: "Stock insuficiente" })
     return
   }
 
-  addProductToCart(selectedProduct, saleQuantity)
+ addProductToCart(selectedProduct, quantity)
 
   setSelectedProduct(null)
-  setSaleQuantity(1)
+  setSaleQuantity('')
   setWeightGrams('')
   setProductSearch('')
 }
@@ -815,7 +819,8 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
         type="number"
         min={1}
         value={saleQuantity}
-        onChange={(e) => setSaleQuantity(Number(e.target.value))}
+onChange={(e) => setSaleQuantity(e.target.value)}
+placeholder="Ej: 1"
         className="w-full bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white"
       />
     </>
