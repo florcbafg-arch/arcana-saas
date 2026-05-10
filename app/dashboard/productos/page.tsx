@@ -752,14 +752,15 @@ const downloadTemplate = () => {
 
     </div>
 {isOpen && (
-  <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-  <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-5 md:p-8 w-full max-w-md max-h-[90vh] overflow-y-auto space-y-6">
+<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="p-5 md:p-8 border-b border-[#1F1F24]">
+  <h2 className="text-2xl font-semibold text-white">
+    Nuevo producto
+  </h2>
+</div>
 
-      <h2 className="text-2xl font-semibold text-white">
-        Nuevo producto
-      </h2>
-
-      <div className="space-y-5">
+<div className="p-5 md:p-8 space-y-5 overflow-y-auto">
 
         {/* Nombre */}
 <div className="space-y-1">
@@ -1118,7 +1119,7 @@ const downloadTemplate = () => {
       </div>
 
       {/* Botones */}
-      <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4">
+      <div className="p-5 md:p-6 border-t border-[#1F1F24] bg-[#14141A] flex flex-col-reverse sm:flex-row justify-end gap-3">
         <button
           onClick={() => setIsOpen(false)}
           className="w-full sm:w-auto px-4 py-2 rounded-xl border border-[#2A2A32] bg-[#1A1A22] text-white hover:bg-[#22222B] hover:border-[#3A3A48] transition"
