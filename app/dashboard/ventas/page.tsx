@@ -1017,10 +1017,14 @@ placeholder="Ej: 1"
 
     <AnimatePresence>
       {sales.map((sale) => {
-  const totalItems = sale.sale_items?.reduce(
-    (acc: number, item: any) => acc + item.quantity,
-    0
-  )
+  const hasWeightItems = sale.sale_items?.some(
+  (item: any) => item.products?.sale_type === 'weight'
+)
+
+const totalQuantity = sale.sale_items?.reduce(
+  (acc: number, item: any) => acc + Number(item.quantity || 0),
+  0
+)
 
   return (
     <motion.div
@@ -1043,7 +1047,9 @@ placeholder="Ej: 1"
 
         <div className="text-right">
           <p className="text-sm text-gray-300">
-            {totalItems} unidad/es · {formatCurrency(sale.total_amount)}
+            {hasWeightItems
+  ? `${Math.round(totalQuantity * 1000)}g`
+  : `${totalQuantity} unidad/es`} · {formatCurrency(sale.total_amount)}
           </p>
 
           <span
@@ -1077,7 +1083,9 @@ placeholder="Ej: 1"
             </span>
 
             <span>
-              {item.quantity} {item.products?.unit} · {formatCurrency(item.price_unit)}
+              {item.products?.sale_type === 'weight'
+  ? `${Math.round(Number(item.quantity || 0) * 1000)}g · ${formatCurrency(item.price_unit)}`
+  : `${item.quantity} ${item.products?.unit} · ${formatCurrency(item.price_unit)}`}
             </span>
 
           </div>
