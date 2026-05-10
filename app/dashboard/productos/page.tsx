@@ -35,7 +35,7 @@ type Supplier = {
 export default function ProductosPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [newProductName, setNewProductName] = useState('')
-  const [newMinStock, setNewMinStock] = useState(1)
+  const [newMinStock, setNewMinStock] = useState('')
   const [loading, setLoading] = useState(false)
   const [newUnit, setNewUnit] = useState('unidad')
   const [newStock, setNewStock] = useState('')
@@ -54,6 +54,7 @@ export default function ProductosPage() {
   const [newSupplierId, setNewSupplierId] = useState('')
   const [newSaleType, setNewSaleType] = useState<'unit' | 'weight'>('unit')
   const [newUnitBase, setNewUnitBase] = useState('unidad')
+  const [newPriceBy, setNewPriceBy] = useState<'kg' | '100g'>('kg')
   const [toast, setToast] = useState<{
   type: "success" | "error"
   message: string
@@ -141,8 +142,8 @@ const createProduct = async () => {
       name: newProductName,
       unit: newUnit,
       stock_quantity: Number(newStock || 0),
-      min_stock_yellow: newMinStock,
-      min_stock_red: Math.max(1, Math.floor(newMinStock / 2)),
+      min_stock_yellow: Number(newMinStock || 1),
+      min_stock_red: Math.max(1, Math.floor(Number(newMinStock || 1) / 2)),
       price: Number(newPrice || 0),
       active: newActive,
       code: newCode || null,
@@ -151,7 +152,7 @@ const createProduct = async () => {
       cost_price: Number(newCostPrice || 0),
       sale_type: newSaleType,
       unit_base: newSaleType === 'weight' ? 'kg' : 'unit',
-      price_by: newSaleType === 'weight' ? 'kg' : 'unit',
+      price_by: newSaleType === 'weight' ? newPriceBy : 'unit',
     })
     .eq('id', editingId)
 
@@ -181,7 +182,7 @@ setEditingId(null)
   unit: newUnit,
   stock_quantity: Number(newStock || 0),
   min_stock_yellow: newMinStock,
-  min_stock_red: Math.max(1, Math.floor(newMinStock / 2)),
+  min_stock_red: Math.max(1, Math.floor(Number(newMinStock || 1) / 2)),
   price: Number(newPrice || 0),
   active: newActive,
   code: newCode || null,
@@ -190,7 +191,7 @@ setEditingId(null)
   cost_price: Number(newCostPrice || 0),
   sale_type: newSaleType,
   unit_base: newSaleType === 'weight' ? 'kg' : 'unit',
-  price_by: newSaleType === 'weight' ? 'kg' : 'unit',
+  price_by: newSaleType === 'weight' ? newPriceBy : 'unit',
 })
 
       if (error) throw error
@@ -201,7 +202,7 @@ setEditingId(null)
     setNewProductName('')
     setNewUnit('unidad')
     setNewStock('')
-    setNewMinStock(1)
+    setNewMinStock('')
     setNewPrice('')
     setNewActive(true)
     setIsOpen(false)
@@ -248,7 +249,7 @@ const handleEdit = (product: Product) => {
   setNewProductName(product.name)
   setNewPrice(String(product.price || ''))
   setNewStock(String(product.stock_quantity || ''))
-  setNewMinStock(product.min_stock_yellow)
+  setNewMinStock(String(product.min_stock_yellow || ''))
   setNewUnit(product.unit)
   setNewActive(product.active)
   setNewCode(product.code || '')
@@ -258,6 +259,9 @@ const handleEdit = (product: Product) => {
   setNewSaleType(product.sale_type || 'unit')
   setNewUnitBase(product.unit_base || 'unidad')
   setIsOpen(true)
+  setNewPriceBy(
+  product.price_by === '100g' ? '100g' : 'kg'
+)
 }
 
 useEffect(() => {
@@ -799,6 +803,8 @@ const downloadTemplate = () => {
         onChange={() => {
           setNewSaleType('weight')
           setNewUnitBase('kg')
+          setNewUnit('kg')
+          setNewPriceBy('kg')
         }}
       />
 
@@ -816,6 +822,38 @@ const downloadTemplate = () => {
   </div>
 
 </div>
+
+{newSaleType === 'weight' && (
+  <div className="space-y-2">
+    <label className="text-sm text-gray-400">
+      Precio cargado por
+    </label>
+
+    <div className="grid grid-cols-2 gap-2">
+      <label className="flex items-center gap-2 bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 cursor-pointer">
+        <input
+          type="radio"
+          checked={newPriceBy === 'kg'}
+          onChange={() => setNewPriceBy('kg')}
+        />
+        <span className="text-sm text-white">Kilo</span>
+      </label>
+
+      <label className="flex items-center gap-2 bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 cursor-pointer">
+        <input
+          type="radio"
+          checked={newPriceBy === '100g'}
+          onChange={() => setNewPriceBy('100g')}
+        />
+        <span className="text-sm text-white">100 gramos</span>
+      </label>
+    </div>
+
+    <p className="text-xs text-gray-500">
+      Ej: si el queso vale $1.300 cada 100g, elegí “100 gramos”.
+    </p>
+  </div>
+)}
 
         {/* Unidad */}
         <div className="space-y-1">
@@ -837,9 +875,11 @@ const downloadTemplate = () => {
 
         {/* Precio */}
         <div className="space-y-1">
-          <label className="text-sm text-gray-400">
-            Precio de venta
-          </label>
+         <label className="text-sm text-gray-400">
+  {newSaleType === 'weight'
+    ? `Precio de venta por ${newPriceBy === '100g' ? '100g' : 'kg'}`
+    : 'Precio de venta'}
+</label>
 
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -882,7 +922,9 @@ const downloadTemplate = () => {
 {/* Costo real */}
 <div className="space-y-1">
   <label className="text-sm text-gray-400">
-    Costo de compra
+    {newSaleType === 'weight'
+  ? `Costo de compra por ${newPriceBy === '100g' ? '100g' : 'kg'}`
+  : 'Costo de compra'}
   </label>
 
   <div className="relative">
@@ -912,11 +954,13 @@ const downloadTemplate = () => {
         {/* Stock inicial */}
         <div className="space-y-1">
           <label className="text-sm text-gray-400">
-            Stock inicial
+            {newSaleType === 'weight'
+  ? 'Stock inicial (kg disponibles)'
+  : 'Stock inicial (unidades)'}
           </label>
           <input
             type="number"
-            placeholder="Cantidad disponible al cargar"
+            placeholder={newSaleType === 'weight' ? 'Ej: 5' : 'Ej: 24'}
             value={newStock}
             onChange={(e) => setNewStock(e.target.value)}
             className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
@@ -927,16 +971,17 @@ const downloadTemplate = () => {
         {/* Stock mínimo */}
         <div className="space-y-1">
           <label className="text-sm text-gray-400">
-            Stock mínimo (alerta)
+            {newSaleType === 'weight'
+  ? 'Stock mínimo (kg para alerta)'
+  : 'Stock mínimo (unidades para alerta)'}
           </label>
           <input
             type="number"
             min={1}
-            placeholder="Ej: 5"
+            placeholder={newSaleType === 'weight' ? 'Ej: 2' : 'Ej: 5'}
             value={newMinStock}
-            onChange={(e) =>
-              setNewMinStock(Math.max(1, Number(e.target.value)))
-            }
+            onChange={(e) => setNewMinStock(e.target.value)}
+          
             className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
             focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
           />
