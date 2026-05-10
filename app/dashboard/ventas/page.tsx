@@ -16,6 +16,12 @@ type Product = {
   unit: string
   code?: string
   barcode?: string
+  sale_type?: 'unit' | 'weight'
+  unit_base?: 'unit' | 'kg' | 'g'
+  price_by?: 'unit' | 'kg' | '100g'
+  quantity_label?: string
+  sale_quantity_kg?: number
+  final_price?: number
 }
 
 
@@ -41,7 +47,8 @@ export default function VentasPage() {
   const [business, setBusiness] = useState<any | null>(null)
   const [lastSaleTicket, setLastSaleTicket] = useState<any | null>(null)
   const [showTicket, setShowTicket] = useState(false)
-  
+  const [weightGrams, setWeightGrams] = useState('')
+
   const [saleQuantity, setSaleQuantity] = useState(1)
   const [creating, setCreating] = useState(false)
   const [salePaid, setSalePaid] = useState(true)
@@ -262,6 +269,8 @@ const addProductToCart = (product: Product, quantity = 1) => {
     return
   }
 
+  const isWeightProduct = product.sale_type === 'weight'
+
   setCart(prev => {
     const existing = prev.find(p => p.product_id === product.id)
     const currentQty = existing?.quantity || 0
@@ -275,13 +284,19 @@ const addProductToCart = (product: Product, quantity = 1) => {
     if (existing) {
       return prev.map(p =>
         p.product_id === product.id
-          ? { ...p, quantity: newQty }
+          ? {
+              ...p,
+              quantity: newQty,
+              quantity_label: isWeightProduct
+                ? `${Math.round(newQty * 1000)}g`
+                : undefined
+            }
           : p
       )
     }
 
     setLastAddedId(product.id)
-setTimeout(() => setLastAddedId(null), 600)
+    setTimeout(() => setLastAddedId(null), 600)
 
     return [
       ...prev,
@@ -290,7 +305,13 @@ setTimeout(() => setLastAddedId(null), 600)
         name: product.name,
         quantity,
         price: product.price,
-        unit: product.unit
+        unit: product.unit,
+        sale_type: product.sale_type,
+        unit_base: product.unit_base,
+        price_by: product.price_by,
+        quantity_label: isWeightProduct
+          ? product.quantity_label || `${Math.round(quantity * 1000)}g`
+          : undefined
       }
     ]
   })
@@ -298,6 +319,39 @@ setTimeout(() => setLastAddedId(null), 600)
 
 const addToCart = () => {
   if (!selectedProduct) return
+
+  const isWeightProduct = selectedProduct.sale_type === 'weight'
+
+  if (isWeightProduct) {
+    const grams = Number(weightGrams)
+    const quantityKg = grams / 1000
+
+    if (!grams || grams <= 0) {
+      setToast({ type: "error", message: "Ingresá los gramos a vender" })
+      return
+    }
+
+    if (selectedProduct.stock_quantity < quantityKg) {
+      setToast({ type: "error", message: "Stock insuficiente" })
+      return
+    }
+
+    addProductToCart(
+      {
+        ...selectedProduct,
+        quantity_label: `${grams}g`,
+        sale_quantity_kg: quantityKg,
+        final_price: selectedProduct.price * quantityKg
+      },
+      quantityKg
+    )
+
+    setSelectedProduct(null)
+    setSaleQuantity(1)
+    setWeightGrams('')
+    setProductSearch('')
+    return
+  }
 
   if (saleQuantity <= 0) {
     setToast({ type: "error", message: "Cantidad inválida" })
@@ -313,6 +367,7 @@ const addToCart = () => {
 
   setSelectedProduct(null)
   setSaleQuantity(1)
+  setWeightGrams('')
   setProductSearch('')
 }
 
@@ -698,17 +753,49 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
 )}
           </div>
 
-          {/* Cantidad */}
-          <div className="space-y-2">
-            <label className="text-sm text-gray-400">Cantidad</label>
-            <input
-              type="number"
-              min={1}
-              value={saleQuantity}
-              onChange={(e) => setSaleQuantity(Number(e.target.value))}
-              className="w-full bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white"
-            />
-          </div>
+         {/* Cantidad */}
+<div className="space-y-2">
+
+  {selectedProduct?.sale_type === 'weight' ? (
+    <>
+      <label className="text-sm text-gray-400">
+        Cantidad en gramos
+      </label>
+
+      <input
+        type="number"
+        min={1}
+        value={weightGrams}
+        onChange={(e) => setWeightGrams(e.target.value)}
+        placeholder="Ej: 100"
+        className="w-full bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white"
+      />
+
+      {weightGrams && (
+        <p className="text-xs text-green-400">
+          Total aprox: {formatCurrency(
+            selectedProduct.price * (Number(weightGrams) / 1000)
+          )}
+        </p>
+      )}
+    </>
+  ) : (
+    <>
+      <label className="text-sm text-gray-400">
+        Cantidad
+      </label>
+
+      <input
+        type="number"
+        min={1}
+        value={saleQuantity}
+        onChange={(e) => setSaleQuantity(Number(e.target.value))}
+        className="w-full bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white"
+      />
+    </>
+  )}
+
+</div>
 
           {/* Tipo venta */}
           <div className="flex gap-6">
