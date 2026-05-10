@@ -19,6 +19,9 @@ type Product = {
   code?: string
   supplier_id?: string | null
   cost_price?: number
+  sale_type?: 'unit' | 'weight'
+  unit_base?: string
+  price_by?: string
   suppliers?: {
    name: string
 } | null
@@ -146,6 +149,9 @@ const createProduct = async () => {
       barcode: barcodeToUse,
       supplier_id: newSupplierId || null,
       cost_price: Number(newCostPrice || 0),
+      sale_type: newSaleType,
+      unit_base: newSaleType === 'weight' ? 'kg' : 'unit',
+      price_by: newSaleType === 'weight' ? 'kg' : 'unit',
     })
     .eq('id', editingId)
 
@@ -182,6 +188,9 @@ setEditingId(null)
   barcode: barcodeToUse,
   supplier_id: newSupplierId || null,
   cost_price: Number(newCostPrice || 0),
+  sale_type: newSaleType,
+  unit_base: newSaleType === 'weight' ? 'kg' : 'unit',
+  price_by: newSaleType === 'weight' ? 'kg' : 'unit',
 })
 
       if (error) throw error
@@ -246,6 +255,8 @@ const handleEdit = (product: Product) => {
   setNewBarcode(product.barcode || '')
   setNewSupplierId(product.supplier_id || '')
   setNewCostPrice(String(product.cost_price || ''))
+  setNewSaleType(product.sale_type || 'unit')
+  setNewUnitBase(product.unit_base || 'unidad')
   setIsOpen(true)
 }
 
