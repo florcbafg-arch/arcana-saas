@@ -128,6 +128,14 @@ const parseMoney = (value: string) => {
   return Number(value.replace(/\./g, '').replace(',', '.')) || 0
 }
 
+const formatMoneyInput = (value: string) => {
+  const onlyNumbers = value.replace(/\D/g, '')
+
+  if (!onlyNumbers) return ''
+
+  return Number(onlyNumbers).toLocaleString('es-AR')
+}
+
 const createProduct = async () => {
   if (!newProductName.trim()) {
     setToast({ type: "error", message: "Ingresá un nombre válido" })
@@ -891,10 +899,10 @@ const downloadTemplate = () => {
             </span>
 
             <input
-              type="number"
+              type="text"
               placeholder="Ej: 15000"
               value={newPrice}
-              onChange={(e) => setNewPrice(e.target.value)}
+              onChange={(e) => setNewPrice(formatMoneyInput(e.target.value))}
               className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl 
               p-3 pl-8 text-white
               focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
@@ -937,10 +945,10 @@ const downloadTemplate = () => {
     </span>
 
     <input
-      type="number"
+      type="text"
       placeholder="Ej: 9000"
       value={newCostPrice}
-      onChange={(e) => setNewCostPrice(e.target.value)}
+      onChange={(e) => setNewCostPrice(formatMoneyInput(e.target.value))}
       className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl 
       p-3 pl-8 text-white
       focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
