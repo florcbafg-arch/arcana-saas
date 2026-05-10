@@ -323,35 +323,41 @@ const addToCart = () => {
   const isWeightProduct = selectedProduct.sale_type === 'weight'
 
   if (isWeightProduct) {
-    const grams = Number(weightGrams)
-    const quantityKg = grams / 1000
+  const grams = Number(weightGrams)
+  const quantityKg = grams / 1000
 
-    if (!grams || grams <= 0) {
-      setToast({ type: "error", message: "Ingresá los gramos a vender" })
-      return
-    }
-
-    if (selectedProduct.stock_quantity < quantityKg) {
-      setToast({ type: "error", message: "Stock insuficiente" })
-      return
-    }
-
-    addProductToCart(
-      {
-        ...selectedProduct,
-        quantity_label: `${grams}g`,
-        sale_quantity_kg: quantityKg,
-        final_price: selectedProduct.price * quantityKg
-      },
-      quantityKg
-    )
-
-    setSelectedProduct(null)
-    setSaleQuantity(1)
-    setWeightGrams('')
-    setProductSearch('')
+  if (!grams || grams <= 0) {
+    setToast({ type: "error", message: "Ingresá los gramos a vender" })
     return
   }
+
+  if (selectedProduct.stock_quantity < quantityKg) {
+    setToast({ type: "error", message: "Stock insuficiente" })
+    return
+  }
+
+  const pricePerKg =
+    selectedProduct.price_by === '100g'
+      ? selectedProduct.price * 10
+      : selectedProduct.price
+
+  addProductToCart(
+    {
+      ...selectedProduct,
+      price: pricePerKg,
+      quantity_label: `${grams}g`,
+      sale_quantity_kg: quantityKg,
+      final_price: pricePerKg * quantityKg
+    },
+    quantityKg
+  )
+
+  setSelectedProduct(null)
+  setSaleQuantity(1)
+  setWeightGrams('')
+  setProductSearch('')
+  return
+}
 
   if (saleQuantity <= 0) {
     setToast({ type: "error", message: "Cantidad inválida" })
