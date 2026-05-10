@@ -55,6 +55,8 @@ export default function ProductosPage() {
   const [newSaleType, setNewSaleType] = useState<'unit' | 'weight'>('unit')
   const [newUnitBase, setNewUnitBase] = useState('unidad')
   const [newPriceBy, setNewPriceBy] = useState<'kg' | '100g'>('kg')
+  const [newPackageWeightKg, setNewPackageWeightKg] = useState('')
+  const [newPackageCost, setNewPackageCost] = useState('')
   const [toast, setToast] = useState<{
   type: "success" | "error"
   message: string
@@ -867,6 +869,64 @@ const downloadTemplate = () => {
   </div>
 )}
 
+{newSaleType === 'weight' && (
+  <div className="bg-[#0B0B10] border border-[#2A2A32] rounded-2xl p-4 space-y-4">
+
+    <div>
+      <p className="text-sm text-white font-semibold">
+        Compra del producto
+      </p>
+      <p className="text-xs text-gray-500">
+        Arcana usa estos datos para calcular el costo real y el margen.
+      </p>
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-sm text-gray-400">
+        Peso del paquete comprado
+      </label>
+
+      <input
+        type="text"
+        value={newPackageWeightKg}
+        onChange={(e) => setNewPackageWeightKg(e.target.value)}
+        placeholder="Ej: 5"
+        className="w-full bg-[#101018] border border-[#2A2A32] rounded-xl p-3 text-white"
+      />
+
+      <p className="text-xs text-gray-500">
+        Ej: si compraste una horma de 5kg, escribí 5.
+      </p>
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-sm text-gray-400">
+        Costo total del paquete
+      </label>
+
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+          $
+        </span>
+
+        <input
+          type="text"
+          value={newPackageCost}
+          onChange={(e) => setNewPackageCost(formatMoneyInput(e.target.value))}
+          placeholder="Ej: 12.000"
+          className="w-full bg-[#101018] border border-[#2A2A32] rounded-xl p-3 pl-8 text-white"
+        />
+      </div>
+
+      <p className="text-xs text-gray-500">
+        Es lo que pagaste por el paquete completo.
+      </p>
+    </div>
+
+  </div>
+)}
+
+
         {/* Unidad */}
         <div className="space-y-1">
           <label className="text-sm text-gray-400">
@@ -932,12 +992,11 @@ const downloadTemplate = () => {
 </div>
 
 {/* Costo real */}
-<div className="space-y-1">
-  <label className="text-sm text-gray-400">
-    {newSaleType === 'weight'
-  ? `Costo de compra por ${newPriceBy === '100g' ? '100g' : 'kg'}`
-  : 'Costo de compra'}
-  </label>
+{newSaleType !== 'weight' && (
+  <div className="space-y-1">
+    <label className="text-sm text-gray-400">
+      Costo de compra
+    </label>
 
   <div className="relative">
     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -954,6 +1013,8 @@ const downloadTemplate = () => {
       focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
     />
   </div>
+    </div>
+)}
 
  {parseMoney(newPrice) > 0 && parseMoney(newCostPrice) > 0 && (
   <p className="text-xs text-green-400">
@@ -1073,7 +1134,7 @@ const downloadTemplate = () => {
         </button>
             </div>
     </div>
-  </div>
+  
 )}
   </div>
 
