@@ -71,6 +71,7 @@ const [salesSummary, setSalesSummary] = useState({
   total: 0,
   count: 0,
   units: 0,
+  weightKg: 0,
   debt: 0
 })
 
@@ -132,7 +133,7 @@ useEffect(() => {
       sale_items (
         quantity,
         price_unit,
-        products ( name, unit )
+        products ( name, unit, sale_type )
       )
     `)
     .eq('business_id', selectedBusinessId)
@@ -158,6 +159,7 @@ const calculateSummary = (salesData: any[]) => {
   let total = 0
   let count = 0
   let units = 0
+  let weightKg = 0
   let debt = 0
 
   const today = new Date().toLocaleDateString('en-CA', {
@@ -181,14 +183,19 @@ todaySales.forEach(sale => {
     }
 
     sale.sale_items?.forEach((item: any) => {
-      units += item.quantity
-    })
+  if (item.products?.sale_type === 'weight') {
+    weightKg += Number(item.quantity || 0)
+  } else {
+    units += Number(item.quantity || 0)
+  }
+})
   })
 
   setSalesSummary({
     total,
     count,
     units,
+    weightKg,
     debt
   })
 }
@@ -626,15 +633,23 @@ const filteredProducts = products.filter((product) => {
 
   <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
     <p className="text-xs text-gray-400">Unidades</p>
-   <motion.p
-  key={salesSummary.units}
+  <motion.div
+  key={`${salesSummary.units}-${salesSummary.weightKg}`}
   initial={{ opacity: 0, y: 10 }}
   animate={{ opacity: 1, y: 0 }}
   transition={{ duration: 0.3 }}
-  className="text-lg font-semibold"
+  className="space-y-1"
 >
-  {salesSummary.units}
-</motion.p>
+  <p className="text-lg font-semibold">
+    {salesSummary.units} un
+  </p>
+
+  {salesSummary.weightKg > 0 && (
+    <p className="text-xs text-cyan-400">
+      {salesSummary.weightKg.toFixed(2)} kg vendidos
+    </p>
+  )}
+</motion.div>
   </div>
 
   <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
