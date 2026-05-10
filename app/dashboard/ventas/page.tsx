@@ -420,6 +420,11 @@ const createCartSale = async () => {
   items: cart,
   total: cartTotal,
   units: cart.reduce((acc, item) => acc + item.quantity, 0),
+quantityLabel: cart.some((item) => item.sale_type === 'weight')
+  ? `${Math.round(
+      cart.reduce((acc, item) => acc + item.quantity, 0) * 1000
+    )}g`
+  : cart.reduce((acc, item) => acc + item.quantity, 0),
   customer: salePaid ? "Consumidor final" : selectedCustomer?.name || "Cliente",
   paymentMethod: salePaid ? "Pago" : "Fiado",
   paymentType: paymentType
@@ -1138,9 +1143,7 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
     ? 'Cantidad'
     : 'Unidades'}
 </span>
-          <span>
-  {Number(lastSaleTicket.units).toFixed(2)}
-</span>
+    <span>{lastSaleTicket.quantityLabel}</span>
         </div>
 
         <div className="flex justify-between font-bold text-base">
