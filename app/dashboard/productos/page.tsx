@@ -18,9 +18,9 @@ type Product = {
   barcode?: string
   code?: string
   supplier_id?: string | null
-cost_price?: number
-suppliers?: {
-  name: string
+  cost_price?: number
+  suppliers?: {
+   name: string
 } | null
 }
 
@@ -49,6 +49,8 @@ export default function ProductosPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [newSupplierId, setNewSupplierId] = useState('')
   const [newCostPrice, setNewCostPrice] = useState(0)
+  const [newSaleType, setNewSaleType] = useState<'unit' | 'weight'>('unit')
+  const [newUnitBase, setNewUnitBase] = useState('unidad')
   const [toast, setToast] = useState<{
   type: "success" | "error"
   message: string
@@ -731,17 +733,78 @@ const downloadTemplate = () => {
       <div className="space-y-5">
 
         {/* Nombre */}
-        <div className="space-y-1">
-          <label className="text-sm text-gray-400">
-            Nombre del producto
-          </label>
-          <input
-            value={newProductName}
-            onChange={(e) => setNewProductName(e.target.value)}
-            className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
-            focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
-          />
-        </div>
+<div className="space-y-1">
+  <label className="text-sm text-gray-400">
+    Nombre del producto
+  </label>
+
+  <input
+    value={newProductName}
+    onChange={(e) => setNewProductName(e.target.value)}
+    placeholder="Ej: Coca Cola 500cc"
+    className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
+    focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
+  />
+
+  <p className="text-xs text-gray-500">
+    Ej: Coca Cola 500cc, Yerba 1kg, Papas fritas
+  </p>
+</div>
+
+{/* Tipo de venta */}
+<div className="space-y-2">
+
+  <label className="text-sm text-gray-400">
+    Tipo de venta
+  </label>
+
+  <div className="grid grid-cols-1 gap-2">
+
+    <label className="flex items-center gap-3 bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 cursor-pointer">
+      <input
+        type="radio"
+        checked={newSaleType === 'unit'}
+        onChange={() => {
+          setNewSaleType('unit')
+          setNewUnitBase('unidad')
+        }}
+      />
+
+      <div>
+        <p className="text-sm text-white font-medium">
+          Unidad / paquete
+        </p>
+
+        <p className="text-xs text-gray-500">
+          Ej: Coca Cola 500cc, Galletas 600g, Yerba 1kg
+        </p>
+      </div>
+    </label>
+
+    <label className="flex items-center gap-3 bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 cursor-pointer">
+      <input
+        type="radio"
+        checked={newSaleType === 'weight'}
+        onChange={() => {
+          setNewSaleType('weight')
+          setNewUnitBase('kg')
+        }}
+      />
+
+      <div>
+        <p className="text-sm text-white font-medium">
+          Peso fraccionado
+        </p>
+
+        <p className="text-xs text-gray-500">
+          Ej: Queso, Papas fritas, Caramelos, Frutos secos
+        </p>
+      </div>
+    </label>
+
+  </div>
+
+</div>
 
         {/* Unidad */}
         <div className="space-y-1">
