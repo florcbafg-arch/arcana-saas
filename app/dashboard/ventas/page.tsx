@@ -936,8 +936,20 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
     <div>
       <p className="text-sm font-medium">{item.name}</p>
       <p className="text-xs text-gray-400">
-        {item.quantity} {item.unit} · {formatCurrency(item.price)}
-      </p>
+  {item.sale_type === 'weight' ? (
+    <>
+      {item.quantity_label || `${Math.round(item.quantity * 1000)}g`} ·{' '}
+      {formatCurrency(
+        item.price_by === '100g' ? item.price / 10 : item.price
+      )}
+      /{item.price_by === '100g' ? '100g' : 'kg'}
+    </>
+  ) : (
+    <>
+      {item.quantity} {item.unit} · {formatCurrency(item.price)}
+    </>
+  )}
+</p>
     </div>
 
     <button
@@ -1089,8 +1101,22 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
             <p className="font-bold">{item.name}</p>
             <div className="flex justify-between">
               <span>
-                {item.quantity} x {formatCurrency(item.price)}
-              </span>
+  {item.sale_type === 'weight' ? (
+    <>
+      {item.quantity_label || `${Math.round(item.quantity * 1000)}g`} x{' '}
+      {formatCurrency(
+        item.price_by === '100g'
+          ? item.price / 10
+          : item.price
+      )}
+      /{item.price_by === '100g' ? '100g' : 'kg'}
+    </>
+  ) : (
+    <>
+      {item.quantity} x {formatCurrency(item.price)}
+    </>
+  )}
+</span>
               <span>
                 {formatCurrency(item.quantity * item.price)}
               </span>
@@ -1104,7 +1130,9 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
       <div className="text-sm space-y-1">
         <div className="flex justify-between">
           <span>Unidades</span>
-          <span>{lastSaleTicket.units}</span>
+          <span>
+  {Number(lastSaleTicket.units).toFixed(2)}
+</span>
         </div>
 
         <div className="flex justify-between font-bold text-base">
