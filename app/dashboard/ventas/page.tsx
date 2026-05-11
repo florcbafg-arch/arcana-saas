@@ -430,12 +430,17 @@ const createCartSale = async () => {
   date: new Date(),
   items: cart,
   total: cartTotal,
-  units: cart.reduce((acc, item) => acc + item.quantity, 0),
-quantityLabel: cart.some((item) => item.sale_type === 'weight')
+  units: cart
+  .filter((item) => item.sale_type !== 'weight')
+  .reduce((acc, item) => acc + Number(item.quantity || 0), 0),
+
+weightLabel: cart.some((item) => item.sale_type === 'weight')
   ? `${Math.round(
-      cart.reduce((acc, item) => acc + item.quantity, 0) * 1000
+      cart
+        .filter((item) => item.sale_type === 'weight')
+        .reduce((acc, item) => acc + Number(item.quantity || 0), 0) * 1000
     )}g`
-  : cart.reduce((acc, item) => acc + item.quantity, 0),
+  : null,
   customer: salePaid ? "Consumidor final" : selectedCustomer?.name || "Cliente",
   paymentMethod: salePaid ? "Pago" : "Fiado",
   paymentType: paymentType
@@ -1017,9 +1022,6 @@ placeholder="Ej: 1"
 
     <AnimatePresence>
       {sales.map((sale) => {
-  const hasWeightItems = sale.sale_items?.some(
-  (item: any) => item.products?.sale_type === 'weight'
-)
 
 const hasWeightItems = sale.sale_items?.some(
   (item: any) => item.products?.sale_type === 'weight'
@@ -1180,14 +1182,19 @@ const totalWeightKg = sale.sale_items?.reduce(
       <hr className="border-black my-3" />
 
       <div className="text-sm space-y-1">
-        <div className="flex justify-between">
-          <span>
-  {lastSaleTicket.items.some((item: any) => item.sale_type === 'weight')
-    ? 'Cantidad'
-    : 'Unidades'}
-</span>
-    <span>{lastSaleTicket.quantityLabel}</span>
-        </div>
+       {lastSaleTicket.units > 0 && (
+  <div className="flex justify-between">
+    <span>Unidades</span>
+    <span>{lastSaleTicket.units}</span>
+  </div>
+)}
+
+{lastSaleTicket.weightLabel && (
+  <div className="flex justify-between">
+    <span>Peso vendido</span>
+    <span>{lastSaleTicket.weightLabel}</span>
+  </div>
+)}
 
         <div className="flex justify-between font-bold text-base">
           <span>TOTAL</span>
