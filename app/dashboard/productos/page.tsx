@@ -22,6 +22,8 @@ type Product = {
   sale_type?: 'unit' | 'weight'
   unit_base?: string
   price_by?: string
+  package_weight_kg?: number | null
+  package_cost?: number | null
   suppliers?: {
    name: string
 } | null
@@ -194,6 +196,12 @@ const createProduct = async () => {
       sale_type: newSaleType,
       unit_base: newSaleType === 'weight' ? 'kg' : 'unit',
       price_by: newSaleType === 'weight' ? newPriceBy : 'unit',
+      package_weight_kg: newSaleType === 'weight'
+  ? parseMoney(newPackageWeightKg)
+  : null,
+  package_cost: newSaleType === 'weight'
+  ? parseMoney(newPackageCost)
+  : null,
     })
     .eq('id', editingId)
 
@@ -237,6 +245,12 @@ setEditingId(null)
   sale_type: newSaleType,
   unit_base: newSaleType === 'weight' ? 'kg' : 'unit',
   price_by: newSaleType === 'weight' ? newPriceBy : 'unit',
+  package_weight_kg: newSaleType === 'weight'
+  ? parseMoney(newPackageWeightKg)
+  : null,
+  package_cost: newSaleType === 'weight'
+  ? parseMoney(newPackageCost)
+  : null,
 })
 
       if (error) throw error
@@ -304,6 +318,12 @@ const handleEdit = (product: Product) => {
   setNewSaleType(product.sale_type || 'unit')
   setNewUnitBase(product.unit_base || 'unidad')
   setIsOpen(true)
+  setNewPackageWeightKg(String(product.package_weight_kg || ''))
+  setNewPackageCost(
+  product.package_cost
+    ? Number(product.package_cost).toLocaleString('es-AR')
+    : ''
+)
   setNewPriceBy(
   product.price_by === '100g' ? '100g' : 'kg'
 )
