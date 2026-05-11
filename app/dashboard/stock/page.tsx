@@ -12,6 +12,11 @@ type Product = {
   unit: string
   price: number
   code?: string
+  cost_price?: number
+  sale_type?: 'unit' | 'weight'
+  price_by?: string
+  package_weight_kg?: number | null
+  package_cost?: number | null
 }
 
 type StockMovement = {
@@ -58,6 +63,25 @@ useEffect(() => {
   }
 }, [selectedBusinessId])
 
+const getProfitStatus = (product: Product) => {
+  const margin = (product.price || 0) - (product.cost_price || 0)
+
+  if (margin < 0) return 'loss'
+  if (margin === 0) return 'zero'
+  if (margin <= product.price * 0.2) return 'low'
+
+  return 'good'
+}
+
+const getProfitLabel = (product: Product) => {
+  const status = getProfitStatus(product)
+
+  if (status === 'loss') return '💀 Con pérdida'
+  if (status === 'zero') return '⚠️ Sin margen'
+  if (status === 'low') return '⚠️ Margen bajo'
+
+  return '🔥 Muy rentable'
+}
 
   const fetchProducts = async () => {
     if (!selectedBusinessId) return
@@ -357,6 +381,58 @@ const color =
 </div>
 
       </div>
+
+{/* Rentabilidad */}
+<div className="mt-3 bg-gray-800/70 border border-gray-700 rounded-xl p-4">
+  <p className="text-gray-400 text-sm mb-2">
+    Rentabilidad
+  </p>
+
+  <p
+    className={`text-lg font-bold ${
+      getProfitStatus(selectedProduct) === 'loss'
+        ? 'text-red-400'
+        : getProfitStatus(selectedProduct) === 'low' ||
+          getProfitStatus(selectedProduct) === 'zero'
+        ? 'text-yellow-400'
+        : 'text-green-400'
+    }`}
+  >
+    {getProfitLabel(selectedProduct)}
+  </p>
+
+  <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+    <div>
+      <p className="text-gray-500">
+        Costo real
+      </p>
+      <p className="text-white font-semibold">
+        ${(selectedProduct.cost_price || 0).toLocaleString()}
+      </p>
+    </div>
+
+    <div>
+      <p className="text-gray-500">
+        Margen
+      </p>
+      <p
+        className={`font-semibold ${
+          (selectedProduct.price || 0) - (selectedProduct.cost_price || 0) < 0
+            ? 'text-red-400'
+            : 'text-green-400'
+        }`}
+      >
+        ${((selectedProduct.price || 0) - (selectedProduct.cost_price || 0)).toLocaleString()}
+      </p>
+    </div>
+  </div>
+
+  <p className="text-xs text-gray-500 mt-3">
+    {selectedProduct.sale_type === 'weight'
+      ? 'Valores calculados por 100g.'
+      : 'Valores calculados por unidad.'}
+  </p>
+</div>
 
       {/* Estado */}
       <div>
