@@ -270,6 +270,11 @@ setEditingId(null)
     setNewSupplierId('')
     setNewCostPrice('')
     fetchProducts()
+    setNewPackageWeightKg('')
+    setNewPackageCost('')
+    setNewSaleType('unit')
+    setNewUnitBase('unidad')
+    setNewPriceBy('kg')
 
   } catch (err: any) {
     setToast({ type: "error", message: err.message || "Error al guardar producto" })
@@ -1068,11 +1073,35 @@ const downloadTemplate = () => {
     </div>
 )}
 
- {parseMoney(newPrice) > 0 && parseMoney(newCostPrice) > 0 && (
-  <p className="text-xs text-green-400">
-    Margen estimado: $
-    {(parseMoney(newPrice) - parseMoney(newCostPrice)).toLocaleString()}
-  </p>
+ {newSaleType === 'weight' ? (
+
+  (() => {
+    const numbers = getWeightProductNumbers()
+
+    return (
+      <p
+        className={`text-xs font-semibold ${
+          numbers.marginPer100g >= 0
+            ? 'text-green-400'
+            : 'text-red-400'
+        }`}
+      >
+        Margen estimado por 100g: $
+        {numbers.marginPer100g.toLocaleString('es-AR')}
+      </p>
+    )
+  })()
+
+) : (
+
+  parseMoney(newPrice) > 0 &&
+  parseMoney(newCostPrice) > 0 && (
+    <p className="text-xs text-green-400">
+      Margen estimado: $
+      {(parseMoney(newPrice) - parseMoney(newCostPrice)).toLocaleString('es-AR')}
+    </p>
+  )
+
 )}
 
         {/* Stock inicial */}
