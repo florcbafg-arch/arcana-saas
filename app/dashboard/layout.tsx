@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import Sidebar from './components/Sidebar'
 import SupportButton from './components/SupportButton'
@@ -22,6 +22,7 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const router = useRouter()
+  const pathname = usePathname()
   const [accessState, setAccessState] =
     useState<AccessState>('loading')
 
@@ -123,7 +124,28 @@ export default function DashboardLayout({
     }
   }, [accessState, router])
 
+   const mobileNavItems = [
+  { label: 'Inicio', href: '/dashboard' },
+  { label: 'Productos', href: '/dashboard/productos' },
+  { label: 'Stock', href: '/dashboard/stock' },
+  { label: 'Ventas', href: '/dashboard/ventas' },
+]
+
+const getMobileNavClass = (href: string) => {
+  const isActive =
+    href === '/dashboard'
+      ? pathname === '/dashboard'
+      : pathname.startsWith(href)
+
+  return `rounded-xl px-2 py-3 transition ${
+    isActive
+      ? 'text-white bg-[#1F6BFF]/20 border border-[#1F6BFF]/40 shadow-[0_0_18px_rgba(31,107,255,0.18)]'
+      : 'text-gray-300 bg-[#14141A] border border-[#1F1F24]'
+  }`
+}
+
 if (accessState === 'loading') {
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-transparent px-6 text-center">
       <div className="rounded-2xl border border-white/10 bg-white/5 px-8 py-6 text-white shadow-[0_0_40px_rgba(79,124,255,0.08)] backdrop-blur-xl">
@@ -165,36 +187,18 @@ if (accessState === 'error') {
     <ErrorDetector />
 
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#0B0F1A]/92 backdrop-blur-xl px-2 py-2">
-      <div className="grid grid-cols-4 gap-2 text-center text-xs">
-        <Link
-          href="/dashboard"
-          className="rounded-xl px-2 py-3 text-white bg-[#1F6BFF]/15 border border-[#1F6BFF]/30"
-        >
-          Inicio
-        </Link>
-
-        <Link
-          href="/dashboard/productos"
-          className="rounded-xl px-2 py-3 text-gray-300 bg-[#14141A] border border-[#1F1F24]"
-        >
-          Productos
-        </Link>
-
-        <Link
-          href="/dashboard/stock"
-          className="rounded-xl px-2 py-3 text-gray-300 bg-[#14141A] border border-[#1F1F24]"
-        >
-          Stock
-        </Link>
-
-        <Link
-          href="/dashboard/ventas"
-          className="rounded-xl px-2 py-3 text-gray-300 bg-[#14141A] border border-[#1F1F24]"
-        >
-          Ventas
-        </Link>
-      </div>
-    </nav>
+  <div className="grid grid-cols-4 gap-2 text-center text-xs">
+    {mobileNavItems.map((item) => (
+      <Link
+        key={item.href}
+        href={item.href}
+        className={getMobileNavClass(item.href)}
+      >
+        {item.label}
+      </Link>
+    ))}
+  </div>
+</nav>
   </div>
 )
 }
