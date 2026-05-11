@@ -234,24 +234,40 @@ useEffect(() => {
         {/* ===== IZQUIERDA PRODUCTOS ===== */}
         <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-2xl p-6 space-y-4">
 
-          <div className="flex justify-between items-center">
-            <h2 className="text-white font-medium">Productos</h2>
-            
-  <input
-  type="text"
-  placeholder="Buscar producto..."
-  value={search}
-  onChange={(e) => setSearch(e.target.value)}
-  onKeyDown={(e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-    }
-  }}
-  className="bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-/>
-          </div>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
-<div className="flex gap-2 mt-3">
+  <h2 className="text-white font-semibold text-xl">
+    Productos
+  </h2>
+
+  <input
+    type="text"
+    placeholder="🔎 Buscar producto..."
+    value={search}
+    onChange={(e) => setSearch(e.target.value)}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+      }
+    }}
+    className="
+      w-full md:w-[280px]
+      bg-[#111827]
+      border border-[#1F2937]
+      rounded-xl
+      px-4 py-3
+      text-sm text-white
+      placeholder-gray-500
+      focus:outline-none
+      focus:ring-2
+      focus:ring-blue-500/50
+      transition
+    "
+  />
+
+</div>
+
+<div className="flex gap-2 mt-2 overflow-x-auto pb-1 scrollbar-hide">
   {[
     { label: 'Todos', value: 'all' },
     { label: 'En alerta', value: 'alert' },
@@ -310,14 +326,25 @@ const color =
     setSelectedProduct(product)
     fetchMovements(product.id)
   }}
-  className={`flex justify-between items-center bg-gray-800 rounded-xl px-4 py-3 cursor-pointer transition ${
+  className={`
+  flex items-center justify-between
+  bg-[#111827]
+  border border-[#1F2937]
+  rounded-2xl
+  px-4 py-4
+  cursor-pointer
+  transition-all
+  ${
     selectedProduct?.id === product.id
-      ? 'ring-2 ring-blue-500'
-      : 'hover:bg-gray-700'
-  }`}
+      ? 'ring-2 ring-blue-500 border-blue-500'
+      : 'hover:bg-[#1A2233]'
+  }
+`}
 >
           <div>
-            <p className="text-white">{product.name}</p>
+            <p className="text-white font-medium leading-tight">
+  {product.name}
+</p>
             <p className="text-gray-400 text-sm">
               Stock: {product.stock_quantity}
             </p>
