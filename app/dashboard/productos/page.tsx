@@ -138,11 +138,34 @@ const formatMoneyInput = (value: string) => {
   return Number(onlyNumbers).toLocaleString('es-AR')
 }
 
+const getWeightProductNumbers = () => {
+  const packageWeightKg = parseMoney(newPackageWeightKg)
+  const packageCost = parseMoney(newPackageCost)
+  const salePriceInput = parseMoney(newPrice)
+
+  const salePricePer100g =
+    newPriceBy === 'kg' ? salePriceInput / 10 : salePriceInput
+
+  const costPerKg =
+    packageWeightKg > 0 ? packageCost / packageWeightKg : 0
+
+  const costPer100g = costPerKg / 10
+  const marginPer100g = salePricePer100g - costPer100g
+
+  return {
+    salePricePer100g,
+    costPer100g,
+    marginPer100g,
+  }
+}
+
 const createProduct = async () => {
   if (!newProductName.trim()) {
     setToast({ type: "error", message: "Ingresá un nombre válido" })
     return
   }
+
+  const weightNumbers = getWeightProductNumbers()
 
   try {
 
@@ -158,12 +181,16 @@ const createProduct = async () => {
       stock_quantity: Number(newStock || 0),
       min_stock_yellow: Number(newMinStock || 1),
       min_stock_red: Math.max(1, Math.floor(Number(newMinStock || 1) / 2)),
-      price: parseMoney(newPrice),
+      price: newSaleType === 'weight'
+  ? weightNumbers.salePricePer100g
+  : parseMoney(newPrice),
       active: newActive,
       code: newCode || null,
       barcode: barcodeToUse,
       supplier_id: newSupplierId || null,
-      cost_price: parseMoney(newCostPrice),
+      cost_price: newSaleType === 'weight'
+  ? weightNumbers.costPer100g
+  : parseMoney(newCostPrice),
       sale_type: newSaleType,
       unit_base: newSaleType === 'weight' ? 'kg' : 'unit',
       price_by: newSaleType === 'weight' ? newPriceBy : 'unit',
@@ -197,12 +224,16 @@ setEditingId(null)
   stock_quantity: Number(newStock || 0),
   min_stock_yellow: newMinStock,
   min_stock_red: Math.max(1, Math.floor(Number(newMinStock || 1) / 2)),
-  price: parseMoney(newPrice),
+  price: newSaleType === 'weight'
+  ? weightNumbers.salePricePer100g
+  : parseMoney(newPrice),
   active: newActive,
   code: newCode || null,
   barcode: barcodeToUse,
   supplier_id: newSupplierId || null,
-  cost_price: parseMoney(newCostPrice),
+ cost_price: newSaleType === 'weight'
+  ? weightNumbers.costPer100g
+  : parseMoney(newCostPrice),
   sale_type: newSaleType,
   unit_base: newSaleType === 'weight' ? 'kg' : 'unit',
   price_by: newSaleType === 'weight' ? newPriceBy : 'unit',
