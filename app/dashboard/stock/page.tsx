@@ -434,6 +434,28 @@ const color =
   </p>
 </div>
 
+{/* Ganancia potencial */}
+<div className="mt-4 bg-[#0F172A] border border-[#1E293B] rounded-xl p-4">
+
+  <p className="text-gray-400 text-sm mb-2">
+    Ganancia potencial
+  </p>
+
+  <p className="text-2xl font-bold text-green-400">
+    $
+    {(
+      ((selectedProduct.price || 0) -
+        (selectedProduct.cost_price || 0)) *
+      selectedProduct.stock_quantity
+    ).toLocaleString('es-AR')}
+  </p>
+
+  <p className="text-xs text-gray-500 mt-2">
+    Ganancia estimada si vendés todo el stock actual.
+  </p>
+
+</div>
+
       {/* Estado */}
       <div>
         {(() => {
