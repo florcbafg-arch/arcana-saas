@@ -1023,7 +1023,6 @@ const downloadTemplate = () => {
     {(parseMoney(newPrice) - parseMoney(newCostPrice)).toLocaleString()}
   </p>
 )}
-</div>
 
         {/* Stock inicial */}
         <div className="space-y-1">
@@ -1135,7 +1134,7 @@ const downloadTemplate = () => {
         </button>
             </div>
     </div>
-  
+  </div>
 )}
   </div>
 
