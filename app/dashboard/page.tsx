@@ -29,6 +29,8 @@ export default function DashboardHome() {
   const [topRevenueProduct, setTopRevenueProduct] = useState<string | null>(null)
   const [topRevenueAmount, setTopRevenueAmount] = useState(0)
   const [topRevenueShare, setTopRevenueShare] = useState(0)
+  const [topProfitProduct, setTopProfitProduct] = useState<string | null>(null)
+  const [topProfitAmount, setTopProfitAmount] = useState(0)
 
   const [recentActivity, setRecentActivity] = useState<any[]>([])
   const [activeProductsCount, setActiveProductsCount] = useState(0)
@@ -217,6 +219,85 @@ if (totalToday > 0) {
     }
   }
 
+  // ================= PRODUCTO MÁS RENTABLE =================
+const fetchTopProfitProduct = async () => {
+  const businessId = localStorage.getItem('activeBusinessId')
+  if (!businessId) return
+
+  const startOfToday = new Date()
+  startOfToday.setHours(0, 0, 0, 0)
+
+  const { data: salesToday } = await supabase
+    .from('sales')
+    .select('id')
+    .eq('business_id', businessId)
+    .gte('created_at', startOfToday.toISOString())
+
+  if (!salesToday?.length) {
+    setTopProfitProduct(null)
+    setTopProfitAmount(0)
+    return
+  }
+
+  const saleIds = salesToday.map(s => s.id)
+
+  const { data: items } = await supabase
+    .from('sale_items')
+    .select('product_id, quantity, price_unit')
+    .in('sale_id', saleIds)
+
+  if (!items?.length) {
+    setTopProfitProduct(null)
+    setTopProfitAmount(0)
+    return
+  }
+
+  const productIds = [...new Set(items.map(item => item.product_id))]
+
+  const { data: products } = await supabase
+    .from('products')
+    .select('id, name, cost_price')
+    .in('id', productIds)
+
+  if (!products?.length) return
+
+  const productMap = Object.fromEntries(
+    products.map(product => [product.id, product])
+  )
+
+  const profitMap: Record<string, number> = {}
+
+  items.forEach(item => {
+    const product = productMap[item.product_id]
+    if (!product) return
+
+    const margin = Number(item.price_unit || 0) - Number(product.cost_price || 0)
+    const profit = margin * Number(item.quantity || 0)
+
+    profitMap[item.product_id] =
+      (profitMap[item.product_id] || 0) + profit
+  })
+
+  let maxProductId: string | null = null
+  let maxProfit = -Infinity
+
+  for (const productId in profitMap) {
+    if (profitMap[productId] > maxProfit) {
+      maxProfit = profitMap[productId]
+      maxProductId = productId
+    }
+  }
+
+  if (!maxProductId) {
+    setTopProfitProduct(null)
+    setTopProfitAmount(0)
+    return
+  }
+
+  setTopProfitProduct(productMap[maxProductId].name)
+  setTopProfitAmount(maxProfit)
+}
+
   // ================= ACTIVIDAD RECIENTE =================
   const fetchRecentActivity = async () => {
   const businessId = localStorage.getItem('activeBusinessId')
@@ -366,6 +447,7 @@ const fetchSalesTrend = async (days: 7 | 30 | 90) => {
     await fetchSalesStats()
     await fetchTopProduct()
     await fetchTopRevenueProduct()
+    await fetchTopProfitProduct()
     await fetchRecentActivity()
     await fetchProductsStats()
 
@@ -658,6 +740,39 @@ useEffect(() => {
       )}
     </div>
   </div>
+
+{/* PRODUCTO MÁS RENTABLE */}
+<div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-6">
+  <h2 className="text-white font-medium mb-4">
+    💎 Producto más rentable hoy
+  </h2>
+
+  <div className="bg-[#0F0F14] p-4 rounded-xl">
+    {topProfitProduct ? (
+      <>
+        <p className="text-white font-medium">
+          {topProfitProduct}
+        </p>
+
+        <p className={`text-sm mt-1 ${
+          topProfitAmount < 0 ? 'text-red-400' : 'text-green-400'
+        }`}>
+          ${topProfitAmount.toLocaleString('es-AR')} de ganancia estimada hoy.
+        </p>
+
+        {topProfitAmount < 0 && (
+          <p className="text-xs text-red-400 mt-2">
+            ⚠️ Este producto vendió, pero dejó pérdida.
+          </p>
+        )}
+      </>
+    ) : (
+      <p className="text-gray-400 text-sm">
+        Sin rentabilidad registrada hoy.
+      </p>
+    )}
+  </div>
+</div>
 
 </div>
 
