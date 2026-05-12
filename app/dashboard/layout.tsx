@@ -25,6 +25,14 @@ export default function DashboardLayout({
   const pathname = usePathname()
   const [accessState, setAccessState] =
     useState<AccessState>('loading')
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const handleLogout = async () => {
+  localStorage.removeItem('activeBusinessId')
+
+  await supabase.auth.signOut()
+
+  router.replace('/login')
+}
 
   useEffect(() => {
     const validateAccess = async () => {
@@ -175,6 +183,57 @@ if (accessState === 'error') {
  return (
   <div className="min-h-screen md:flex bg-gradient-to-br from-[#080F1A] via-[#05070D] to-[#020617]">
   <Sidebar />
+
+{/* ===== HEADER MOBILE ===== */}
+<div className="md:hidden sticky top-0 z-40 mb-4 flex items-center justify-between rounded-2xl border border-white/10 bg-[#0B0F1A]/90 px-4 py-3 backdrop-blur-xl">
+
+  <div>
+    <p className="text-sm text-gray-400">
+      Arcana POS
+    </p>
+
+    <p className="text-white font-semibold">
+      Panel principal
+    </p>
+  </div>
+
+  <button
+    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+    className="rounded-xl border border-white/10 bg-[#14141A] px-3 py-2 text-white"
+  >
+    ☰
+  </button>
+
+</div>
+
+{mobileMenuOpen && (
+  <div className="md:hidden mb-4 rounded-2xl border border-white/10 bg-[#0B0F1A]/95 p-3 backdrop-blur-xl space-y-2">
+
+    <Link
+      href="/dashboard/configuracion"
+      className="flex items-center gap-2 rounded-xl bg-[#14141A] px-4 py-3 text-sm text-white"
+    >
+      ⚙️ Configuración
+    </Link>
+
+    <button
+      onClick={() => {
+        window.open('https://t.me/arcana_soporte', '_blank')
+      }}
+      className="flex w-full items-center gap-2 rounded-xl bg-[#14141A] px-4 py-3 text-sm text-white"
+    >
+      💬 Soporte
+    </button>
+
+    <button
+      onClick={handleLogout}
+      className="flex w-full items-center gap-2 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-300"
+    >
+      🚪 Cerrar sesión
+    </button>
+
+  </div>
+)}
 
     <main className="relative flex-1 min-w-0 w-full md:ml-64 px-4 py-4 md:px-8 md:py-7 pb-24 md:pb-8">
       {children}
