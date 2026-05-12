@@ -59,6 +59,7 @@ export default function ProductosPage() {
   const [newPriceBy, setNewPriceBy] = useState<'kg' | '100g'>('kg')
   const [newPackageWeightKg, setNewPackageWeightKg] = useState('')
   const [newPackageCost, setNewPackageCost] = useState('')
+  const [showMobileTable, setShowMobileTable] = useState(false);
   const [toast, setToast] = useState<{
   type: "success" | "error"
   message: string
@@ -533,10 +534,18 @@ const downloadTemplate = () => {
 
 </div>
 
-    
+    {/* MOBILE ACTIONS */}
+<div className="md:hidden mb-4">
+  <button
+    onClick={() => setShowMobileTable(true)}
+    className="w-full bg-[#1F6BFF] hover:bg-[#1557D6] transition rounded-xl py-3 font-semibold text-white"
+  >
+    📋 Ver tabla compacta
+  </button>
+</div>
 
     {/* TABLA */}
-    <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl overflow-hidden">
+    <div className="hidden md:block bg-[#14141A] border border-[#1F1F24] rounded-2xl overflow-hidden">
   <div className="overflow-x-auto">
     <div className="max-h-[500px] overflow-y-auto min-w-[720px]">
       <table className="w-full text-sm">
@@ -1213,6 +1222,82 @@ const downloadTemplate = () => {
           Guardar
         </button>
             </div>
+    </div>
+  </div>
+)}
+{showMobileTable && (
+  <div className="fixed inset-0 z-[999] bg-[#08080D] flex flex-col">
+
+    <div className="flex items-center justify-between p-4 border-b border-[#1F1F24]">
+      <div>
+        <h2 className="text-lg font-bold text-white">
+          Tabla compacta
+        </h2>
+
+        <p className="text-xs text-gray-400">
+          Vista rápida mobile
+        </p>
+      </div>
+
+      <button
+        onClick={() => setShowMobileTable(false)}
+        className="text-white text-2xl"
+      >
+        ✕
+      </button>
+    </div>
+
+    <div className="flex-1 overflow-auto p-3">
+
+      <table className="w-full text-sm">
+        <thead className="text-gray-400 border-b border-[#1F1F24]">
+          <tr>
+            <th className="text-left py-3">Producto</th>
+            <th className="text-center py-3">Stock</th>
+            <th className="text-right py-3">Precio</th>
+            <th className="text-right py-3">Margen</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {products
+            .filter((p) =>
+              p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              (p.barcode && p.barcode.includes(searchTerm)) ||
+              (p.code && p.code.includes(searchTerm))
+            )
+            .map((p) => {
+
+              const margin =
+                Number(p.price || 0) -
+                Number(p.cost_price || 0)
+
+              return (
+                <tr
+                  key={p.id}
+                  className="border-b border-[#1A1A22]"
+                >
+                  <td className="py-3 text-white">
+                    {p.name}
+                  </td>
+
+                  <td className="py-3 text-center text-white">
+                    {p.stock_quantity}
+                  </td>
+
+                  <td className="py-3 text-right text-[#1F6BFF] font-semibold">
+                    ${Number(p.price).toLocaleString()}
+                  </td>
+
+                  <td className="py-3 text-right text-green-400 font-semibold">
+                    ${margin.toLocaleString()}
+                  </td>
+                </tr>
+              )
+            })}
+        </tbody>
+      </table>
+
     </div>
   </div>
 )}
