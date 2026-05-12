@@ -1256,6 +1256,7 @@ const downloadTemplate = () => {
             <th className="text-center py-3">Stock</th>
             <th className="text-right py-3">Precio</th>
             <th className="text-right py-3">Margen</th>
+            <th className="text-right py-3"></th>
           </tr>
         </thead>
 
@@ -1268,9 +1269,11 @@ const downloadTemplate = () => {
             )
             .map((p) => {
 
-              const margin =
-                Number(p.price || 0) -
-                Number(p.cost_price || 0)
+              const hasCost = Number(p.cost_price || 0) > 0
+
+const margin = hasCost
+  ? Number(p.price || 0) - Number(p.cost_price || 0)
+  : null
 
               return (
                 <tr
@@ -1290,8 +1293,23 @@ const downloadTemplate = () => {
                   </td>
 
                   <td className="py-3 text-right text-green-400 font-semibold">
-                    ${margin.toLocaleString()}
-                  </td>
+  {margin !== null
+    ? `$${margin.toLocaleString()}`
+    : "—"}
+</td>
+
+<td className="py-3 text-right">
+  <button
+    onClick={() => {
+      setShowMobileTable(false)
+      handleEdit(p)
+    }}
+    className="text-gray-400 hover:text-white text-2xl px-2"
+  >
+    ⋮
+  </button>
+</td>
+
                 </tr>
               )
             })}
