@@ -15,15 +15,59 @@ import {
    Truck,
 } from 'lucide-react'
 
+const isPro = false
+
 const menuItems = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Productos', href: '/dashboard/productos', icon: Package },
-  { name: 'Stock', href: '/dashboard/stock', icon: Boxes },
-  { name: 'Ventas', href: '/dashboard/ventas', icon: ShoppingCart },
-  { name: 'Clientes', href: '/dashboard/clientes', icon: Users },
-  { name: 'Proveedores', href: '/dashboard/proveedores', icon: Truck },
-  { name: 'Compras', href: '/dashboard/compras', icon: ShoppingCart },
-  { name: 'Configuración', href: '/dashboard/configuracion', icon: Settings },
+  {
+    name: 'Dashboard',
+    href: '/dashboard',
+    icon: LayoutDashboard,
+  },
+
+  {
+    name: 'Productos',
+    href: '/dashboard/productos',
+    icon: Package,
+  },
+
+  {
+    name: 'Stock',
+    href: '/dashboard/stock',
+    icon: Boxes,
+  },
+
+  {
+    name: 'Ventas',
+    href: '/dashboard/ventas',
+    icon: ShoppingCart,
+  },
+
+  {
+    name: 'Clientes',
+    href: '/dashboard/clientes',
+    icon: Users,
+    pro: true,
+  },
+
+  {
+    name: 'Proveedores',
+    href: '/dashboard/proveedores',
+    icon: Truck,
+    pro: true,
+  },
+
+  {
+    name: 'Compras',
+    href: '/dashboard/compras',
+    icon: ShoppingCart,
+    pro: true,
+  },
+
+  {
+    name: 'Configuración',
+    href: '/dashboard/configuracion',
+    icon: Settings,
+  },
 ]
 
 export default function Sidebar() {
@@ -177,10 +221,12 @@ window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
   {menuItems.map((item) => {
     const isActive = pathname === item.href
 
+    const isLocked = item.pro && !isPro
+
     return (
       <Link
         key={item.name}
-        href={item.href}
+        href={isLocked ? '/upgrade' : item.href}
        className={`
   relative flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200
   ${
@@ -202,6 +248,13 @@ window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
 />
 
 <span className="text-[15px] font-medium">{item.name}</span>
+
+{isLocked && (
+  <span className="ml-auto text-[10px] px-2 py-1 rounded-full bg-[#6D5EFC]/20 text-[#A78BFA] border border-[#6D5EFC]/30">
+    PRO
+  </span>
+)}
+
       </Link>
     )
   })}
