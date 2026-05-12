@@ -161,19 +161,57 @@ const getMobileNavClass = (href: string) => {
       : 'text-gray-300 bg-[#14141A] border border-[#1F1F24]'
   }`
 }
-
 if (accessState === 'loading') {
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-transparent px-6 text-center">
-      <div className="rounded-2xl border border-white/10 bg-white/5 px-8 py-6 text-white shadow-[0_0_40px_rgba(79,124,255,0.08)] backdrop-blur-xl">
-        <p className="text-sm uppercase tracking-[0.24em] text-blue-300/80">
-          Arcana
+    <div className="min-h-screen bg-[#08090D] flex items-center justify-center px-6">
+
+      <div className="text-center">
+
+        <div className="relative mb-6">
+
+          <div className="absolute inset-0 blur-3xl bg-[#1F6BFF]/30 rounded-full" />
+
+          <div
+            className="
+              relative
+              w-24
+              h-24
+              mx-auto
+              rounded-3xl
+              bg-gradient-to-br
+              from-[#1F6BFF]
+              to-[#6C5CE7]
+              flex
+              items-center
+              justify-center
+              shadow-2xl
+              shadow-[#1F6BFF]/30
+            "
+          >
+            <span className="text-4xl text-white">
+              ✦
+            </span>
+          </div>
+
+        </div>
+
+        <h1 className="text-3xl font-bold text-white tracking-wide">
+          Arcana POS
+        </h1>
+
+        <p className="text-gray-400 mt-3 text-sm">
+          Inicializando sistema...
         </p>
-        <p className="mt-3 text-base text-white/90">
-          Verificando acceso...
-        </p>
+
+        <div className="mt-6 flex justify-center">
+          <div className="w-32 h-1 rounded-full bg-[#1A1A22] overflow-hidden">
+            <div className="h-full w-1/2 bg-gradient-to-r from-[#1F6BFF] to-[#6C5CE7] animate-pulse" />
+          </div>
+        </div>
+
       </div>
+
     </div>
   )
 }
