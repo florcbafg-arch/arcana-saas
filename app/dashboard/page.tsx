@@ -468,6 +468,34 @@ useEffect(() => {
   fetchSalesTrend(selectedRange)
 }, [selectedRange])
 
+const formatRelativeTime = (dateString: string) => {
+
+  const now = new Date()
+  const date = new Date(dateString)
+
+  const diffMs = now.getTime() - date.getTime()
+
+  const diffMinutes = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMinutes / 60)
+
+  if (diffMinutes < 1) {
+    return 'Ahora'
+  }
+
+  if (diffMinutes < 60) {
+    return `Hace ${diffMinutes} min`
+  }
+
+  if (diffHours < 24) {
+    return `Hace ${diffHours}h`
+  }
+
+  return date.toLocaleDateString('es-AR', {
+    day: '2-digit',
+    month: '2-digit'
+  })
+}
+
   return (
     <div className="p-4 md:p-6 space-y-6 md:space-y-8">
 
@@ -652,7 +680,7 @@ useEffect(() => {
 
         {/* Hora más visible */}
         <span className="text-gray-300 text-sm font-medium self-start sm:self-auto">
-          {new Date(item.created_at).toLocaleTimeString()}
+          {formatRelativeTime(item.created_at)}
         </span>
       </div>
     ))
