@@ -189,12 +189,12 @@ if (accessState === 'error') {
 
   <div>
     <p className="text-sm text-gray-400">
-      Arcana POS
-    </p>
+  Arcana POS
+</p>
 
-    <p className="text-white font-semibold">
-      Panel principal
-    </p>
+<p className="text-white font-semibold">
+  {localStorage.getItem('businessName') || 'Mi negocio'}
+</p>
   </div>
 
   <button
