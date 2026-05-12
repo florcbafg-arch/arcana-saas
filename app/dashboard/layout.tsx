@@ -84,6 +84,16 @@ export default function DashboardLayout({
 
         localStorage.setItem('activeBusinessId', activeId)
 
+        const { data: businessInfo } = await supabase
+  .from('businesses')
+  .select('name')
+  .eq('id', activeId)
+  .single()
+
+if (businessInfo?.name) {
+  localStorage.setItem('businessName', businessInfo.name)
+}
+
         // 4️⃣ Validar suscripción
         const { data: business, error: businessError } =
           await supabase
