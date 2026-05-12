@@ -169,6 +169,14 @@ const createProduct = async () => {
     return
   }
 
+  if (!editingId && products.length >= FREE_LIMIT) {
+  setToast({
+    type: "error",
+    message: "Llegaste al límite de 500 productos del plan Free. Arcana PRO desbloquea productos ilimitados."
+  })
+  return
+}
+
   const weightNumbers = getWeightProductNumbers()
 
   try {
@@ -465,6 +473,17 @@ const downloadTemplate = () => {
   XLSX.writeFile(workbook, "plantilla_productos_arcana.xlsx")
 }
 
+const FREE_LIMIT = 500
+
+const isFreeLimitReached =
+  !editingId && products.length >= FREE_LIMIT
+
+const remainingProducts =
+  Math.max(FREE_LIMIT - products.length, 0)
+
+const usagePercentage =
+  Math.min((products.length / FREE_LIMIT) * 100, 100)
+
   return (
   <div className="p-4 md:p-6 space-y-6 md:space-y-8">
 
@@ -527,6 +546,52 @@ const downloadTemplate = () => {
 
 {/* BUSCADOR */}
 <div className="mt-4 mb-4">
+
+{/* PLAN FREE */}
+<div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-4 mb-4">
+  <div className="flex items-center justify-between mb-3">
+    <div>
+      <p className="text-white font-semibold">
+        Plan Free
+      </p>
+
+      <p className="text-sm text-gray-400">
+        {products.length} / {FREE_LIMIT} productos usados
+      </p>
+    </div>
+
+    <span className="text-xs px-3 py-1 rounded-full bg-[#1F6BFF]/20 text-[#6EA8FF] border border-[#1F6BFF]/30">
+      FREE
+    </span>
+  </div>
+
+  <div className="w-full h-2 rounded-full bg-[#0F0F14] overflow-hidden">
+    <div
+      className={`h-full transition-all duration-500 ${
+        usagePercentage > 85
+          ? 'bg-red-500'
+          : usagePercentage > 70
+          ? 'bg-yellow-400'
+          : 'bg-[#1F6BFF]'
+      }`}
+      style={{
+        width: `${usagePercentage}%`
+      }}
+    />
+  </div>
+
+  <p className="text-xs text-gray-500 mt-3">
+    {remainingProducts > 0
+      ? `Te quedan ${remainingProducts} productos disponibles.`
+      : 'Llegaste al límite del plan Free.'}
+  </p>
+
+  {usagePercentage >= 70 && (
+    <p className="text-xs text-[#6EA8FF] mt-1">
+      Arcana PRO desbloquea productos ilimitados.
+    </p>
+  )}
+</div>
 
   <input
     type="text"
