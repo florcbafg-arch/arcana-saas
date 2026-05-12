@@ -60,6 +60,7 @@ export default function ProductosPage() {
   const [newPackageWeightKg, setNewPackageWeightKg] = useState('')
   const [newPackageCost, setNewPackageCost] = useState('')
   const [showMobileTable, setShowMobileTable] = useState(false);
+  const [mobileActionProduct, setMobileActionProduct] = useState<Product | null>(null)
   const [toast, setToast] = useState<{
   type: "success" | "error"
   message: string
@@ -1300,10 +1301,7 @@ const margin = hasCost
 
 <td className="py-3 text-right">
   <button
-    onClick={() => {
-      setShowMobileTable(false)
-      handleEdit(p)
-    }}
+   onClick={() => setMobileActionProduct(p)}
     className="text-gray-400 hover:text-white text-2xl px-2"
   >
     ⋮
@@ -1319,6 +1317,52 @@ const margin = hasCost
     </div>
   </div>
 )}
+
+{mobileActionProduct && (
+  <div className="fixed inset-0 z-[1000] bg-black/60 flex items-end">
+    <div className="w-full bg-[#14141A] border-t border-[#2A2A32] rounded-t-3xl p-5 space-y-4">
+
+      <div>
+        <p className="text-white font-semibold text-lg">
+          {mobileActionProduct.name}
+        </p>
+        <p className="text-sm text-gray-400">
+          Elegí una acción
+        </p>
+      </div>
+
+      <button
+        onClick={() => {
+          handleEdit(mobileActionProduct)
+          setMobileActionProduct(null)
+          setShowMobileTable(false)
+        }}
+        className="w-full bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl py-3 font-semibold text-white"
+      >
+        ✏️ Editar producto
+      </button>
+
+      <button
+        onClick={() => {
+          handleDelete(mobileActionProduct.id)
+          setMobileActionProduct(null)
+        }}
+        className="w-full bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl py-3 font-semibold"
+      >
+        🗑 Eliminar producto
+      </button>
+
+      <button
+        onClick={() => setMobileActionProduct(null)}
+        className="w-full bg-[#1A1A22] border border-[#2A2A32] text-white rounded-xl py-3 font-semibold"
+      >
+        Cancelar
+      </button>
+
+    </div>
+  </div>
+)}
+
   </div>
 
 )
