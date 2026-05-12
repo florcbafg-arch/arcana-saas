@@ -479,17 +479,19 @@ const downloadTemplate = () => {
    
 
 {toast && (
-  <div
-    className={`mb-4 p-4 rounded-xl text-sm font-medium
-      ${toast.type === "success"
-        ? "bg-green-900 text-green-400 border border-green-700"
-        : "bg-red-900 text-red-400 border border-red-700"
-      }`}
-  >
-    {toast.message}
+  <div className="fixed top-5 right-5 z-[9999] max-w-sm">
+    <div
+      className={`rounded-2xl px-5 py-4 shadow-2xl border text-sm font-medium backdrop-blur-xl
+        ${toast.type === "success"
+          ? "bg-green-950/95 text-green-300 border-green-700"
+          : "bg-red-950/95 text-red-300 border-red-700"
+        }`}
+    >
+      {toast.message}
+    </div>
   </div>
-
 )}
+
 {/* HEADER */}
 <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
 
