@@ -142,11 +142,20 @@ if (businessInfo?.name) {
     }
   }, [accessState, router])
 
-   const mobileNavItems = [
+const isPro = false
+
+  const mobileNavItems = [
   { label: 'Inicio', href: '/dashboard' },
   { label: 'Productos', href: '/dashboard/productos' },
   { label: 'Stock', href: '/dashboard/stock' },
   { label: 'Ventas', href: '/dashboard/ventas' },
+
+  ...(isPro
+    ? [
+        { label: 'Clientes', href: '/dashboard/clientes' },
+        { label: 'Compras', href: '/dashboard/compras' },
+      ]
+    : []),
 ]
 
 const getMobileNavClass = (href: string) => {
