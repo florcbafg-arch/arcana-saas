@@ -189,16 +189,26 @@ if (accessState === 'loading') {
               shadow-[#1F6BFF]/30
             "
           >
-            <span className="text-4xl text-white">
-              ✦
-            </span>
+            <div className="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-xl" />
           </div>
 
         </div>
 
-        <h1 className="text-3xl font-bold text-white tracking-wide">
-          Arcana POS
-        </h1>
+        <h1
+  className="
+    text-3xl
+    font-extrabold
+    tracking-wide
+    bg-gradient-to-r
+    from-[#1F6BFF]
+    via-[#4F7CFF]
+    to-[#8B5CF6]
+    bg-clip-text
+    text-transparent
+  "
+>
+  Arcana POS
+</h1>
 
         <p className="text-gray-400 mt-3 text-sm">
           Inicializando sistema...
