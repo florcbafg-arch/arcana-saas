@@ -168,31 +168,9 @@ if (accessState === 'loading') {
 
       <div className="text-center">
 
-        <div className="relative mb-6">
-
-          <div className="absolute inset-0 blur-3xl bg-[#1F6BFF]/30 rounded-full" />
-
-          <div
-            className="
-              relative
-              w-24
-              h-24
-              mx-auto
-              rounded-3xl
-              bg-gradient-to-br
-              from-[#1F6BFF]
-              to-[#6C5CE7]
-              flex
-              items-center
-              justify-center
-              shadow-2xl
-              shadow-[#1F6BFF]/30
-            "
-          >
-            <div className="w-10 h-10 rounded-2xl bg-white/10 backdrop-blur-xl" />
-          </div>
-
-        </div>
+        <div className="mb-6">
+  <div className="w-24 h-24 mx-auto rounded-full bg-[#1F6BFF]/20 blur-3xl" />
+</div>
 
         <h1
   className="
