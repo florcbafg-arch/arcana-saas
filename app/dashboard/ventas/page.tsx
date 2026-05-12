@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from "framer-motion"
 import { useRef } from 'react'
 import BarcodeScanner from "../components/BarcodeScanner"
+import FloatingToast from "../components/FloatingToast"
 
 
 type Product = {
@@ -63,8 +64,8 @@ export default function VentasPage() {
   const audio = new Audio("/beep.mp3")
   audio.play()
 }
-  const [toast, setToast] = useState<{
-  type: "success" | "error"
+const [toast, setToast] = useState<{
+  type: "success" | "error" | "warning"
   message: string
 } | null>(null)
 const [salesSummary, setSalesSummary] = useState({
@@ -561,17 +562,10 @@ const filteredProducts = products.filter((product) => {
   className="absolute opacity-0 pointer-events-none"
 />
 
-{toast && (
-  <div
-    className={`mb-4 p-4 rounded-xl text-sm font-medium
-      ${toast.type === "success"
-        ? "bg-green-900 text-green-400 border border-green-700"
-        : "bg-red-900 text-red-400 border border-red-700"
-      }`}
-  >
-    {toast.message}
-  </div>
-)}
+<FloatingToast
+  toast={toast}
+  onClose={() => setToast(null)}
+/>
 
 {selectedProduct && selectedProduct.stock_quantity <= 5 && (
   <div className="mb-6 p-4 rounded-xl border border-red-700 bg-red-950 text-red-400 flex justify-between items-center animate-pulse">
