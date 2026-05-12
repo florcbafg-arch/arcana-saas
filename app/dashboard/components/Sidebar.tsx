@@ -226,7 +226,7 @@ window.open(`https://t.me/arcana_soporte?text=${texto}`, "_blank")
     return (
       <Link
         key={item.name}
-        href={isLocked ? '/upgrade' : item.href}
+        href={isLocked ? '/dashboard/upgrade' : item.href}
        className={`
   relative flex items-center gap-3 rounded-xl px-4 py-3 transition-all duration-200
   ${
