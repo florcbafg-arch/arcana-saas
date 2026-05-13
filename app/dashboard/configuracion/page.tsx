@@ -202,7 +202,7 @@ if (updateError) {
       </div>
 
       {/* Negocio Activo */}
-     <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-6 space-y-5">
+     <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-4 space-y-5">
   <div>
     <h2 className="text-white font-medium">Negocio activo</h2>
     <p className="text-gray-400 text-sm">
@@ -217,7 +217,7 @@ if (updateError) {
         setBusinessData({ ...businessData, name: e.target.value })
       }
       placeholder="Nombre del negocio"
-      className="bg-[#101018] border border-[#1F1F24] rounded-xl p-3 text-white"
+      className="bg-[#101018] border border-[#1F1F24] rounded-xl px-3 py-2.5 text-white"
     />
 
     <input
@@ -226,7 +226,7 @@ if (updateError) {
         setBusinessData({ ...businessData, email: e.target.value })
       }
       placeholder="Email"
-      className="bg-[#101018] border border-[#1F1F24] rounded-xl p-3 text-white"
+      className="bg-[#101018] border border-[#1F1F24] rounded-xl px-3 py-2.5 text-white"
     />
 
     <input
@@ -235,7 +235,7 @@ if (updateError) {
         setBusinessData({ ...businessData, phone: e.target.value })
       }
       placeholder="Teléfono"
-      className="bg-[#101018] border border-[#1F1F24] rounded-xl p-3 text-white"
+      className="bg-[#101018] border border-[#1F1F24] rounded-xl px-3 py-2.5 text-white"
     />
 
     <input
@@ -244,7 +244,7 @@ if (updateError) {
         setBusinessData({ ...businessData, address: e.target.value })
       }
       placeholder="Dirección"
-      className="bg-[#101018] border border-[#1F1F24] rounded-xl p-3 text-white"
+      className="bg-[#101018] border border-[#1F1F24] rounded-xl px-3 py-2.5 text-white"
     />
   </div>
 
@@ -252,11 +252,11 @@ if (updateError) {
     <label className="text-sm text-gray-300">Logo del negocio</label>
 
 {businessData.logo_url && (
-  <div className="flex items-center gap-3 bg-[#101018] border border-[#1F1F24] rounded-xl p-3">
+  <div className="flex items-center gap-3 bg-[#101018] border border-[#1F1F24] rounded-xl px-3 py-2.5">
     <img
       src={businessData.logo_url}
       alt="Logo del negocio"
-      className="h-12 w-12 rounded-full object-cover bg-white p-1"
+      className="h-10 w-10 rounded-full object-cover bg-white p-1"
     />
 
     <div>
@@ -283,14 +283,14 @@ if (updateError) {
 
   <button
     onClick={updateBusiness}
-    className="bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-6 py-3 font-medium text-white"
+    className="bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-5 py-2.5 font-medium text-white"
   >
     Guardar cambios
   </button>
 </div>
 
       {/* Lista de negocios */}
-      <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-6 space-y-4">
+      <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-4 space-y-4">
         <h2 className="text-white font-medium">
           Mis negocios
         </h2>
@@ -325,7 +325,7 @@ if (updateError) {
       </div>
 
       {/* Crear nueva sucursal */}
-      <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-6 space-y-4">
+      <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-4 space-y-3">
         <h2 className="text-white font-medium">
           Crear nueva sucursal
         </h2>
@@ -335,7 +335,7 @@ if (updateError) {
             value={newBusinessName}
             onChange={(e) => setNewBusinessName(e.target.value)}
             placeholder="Nombre de la sucursal"
-            className="w-full bg-[#101018] border border-[#1F1F24] rounded-xl p-3 text-white"
+            className="w-full bg-[#101018] border border-[#1F1F24] rounded-xl px-3 py-2.5 text-white"
           />
 
           <button
