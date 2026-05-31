@@ -357,15 +357,21 @@ const handleUpgrade = async () => {
 
     </div>
 
-    <button
-  onClick={handleUpgrade}
-  disabled={loadingUpgrade}
-  className="w-full bg-purple-600 hover:bg-purple-500 transition rounded-xl py-3 font-medium text-white"
->
-  {loadingUpgrade
-    ? 'Conectando con Mercado Pago...'
-    : '🚀 Actualizar a Arcana Impulso'}
-</button>
+    {planType === 'impulso' ? (
+  <div className="w-full rounded-xl border border-green-500/30 bg-green-500/10 py-3 text-center font-medium text-green-400">
+    ✅ Arcana Impulso activo
+  </div>
+) : (
+  <button
+    onClick={handleUpgrade}
+    disabled={loadingUpgrade}
+    className="w-full bg-purple-600 hover:bg-purple-500 transition rounded-xl py-3 font-medium text-white disabled:opacity-60 disabled:cursor-not-allowed"
+  >
+    {loadingUpgrade
+      ? 'Conectando con Mercado Pago...'
+      : '🚀 Actualizar a Arcana Impulso'}
+  </button>
+)}
 
   </div>
 
