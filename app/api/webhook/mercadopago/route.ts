@@ -11,6 +11,9 @@ export async function POST(req: Request) {
     const body = await req.json()
 
     console.log("Webhook recibido:", body)
+console.log("TIPO:", body.type)
+console.log("ACTION:", body.action)
+console.log("DATA:", body.data)
 
     const subscriptionId = body.data?.id || body.id
 
@@ -29,12 +32,13 @@ export async function POST(req: Request) {
     }
 
     const eventType = body.type || body.action
-
-    if (
-      eventType === "payment.created" ||
-      eventType === "subscription_authorized" ||
-      eventType === "subscription.updated"
-    ) {
+if (
+  eventType === "subscription_preapproval" ||
+  eventType === "payment.created" ||
+  eventType === "subscription_authorized" ||
+  eventType === "subscription.updated"
+) {
+    
       await supabase
         .from("businesses")
         .update({
