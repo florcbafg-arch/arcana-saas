@@ -335,29 +335,6 @@ const getRiskStatus = (debt: number, limit: number) => {
         Gestión de cuentas y riesgo financiero.
       </p>
     </div>
-
-{/* BENEFICIO IMPULSO */}
-<div className="bg-gradient-to-r from-purple-500/10 via-[#14141A] to-blue-500/10 border border-purple-500/30 rounded-2xl p-5">
-  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-    <div>
-      <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400 mb-3">
-        ARCANA IMPULSO
-      </span>
-
-      <h2 className="text-xl font-semibold text-white">
-        Clientes y fiado bajo control
-      </h2>
-
-      <p className="text-gray-400 text-sm mt-1">
-        Registrá deudas, pagos, límites de crédito y movimientos de cada cliente sin depender del cuaderno.
-      </p>
-    </div>
-
-    <div className="text-sm text-gray-300">
-      ✓ Cuentas corrientes · ✓ Riesgo financiero · ✓ Historial de pagos
-    </div>
-  </div>
-</div>
     
    {/* ================= NUEVO CLIENTE ================= */}
 <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-6 space-y-4">
