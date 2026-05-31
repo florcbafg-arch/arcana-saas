@@ -18,6 +18,7 @@ export default function ConfiguracionPage() {
   const [newBusinessName, setNewBusinessName] = useState('')
   const [toast, setToast] = useState<string | null>(null)
   const [planType, setPlanType] = useState<'base' | 'impulso' | 'dominio'>('base')
+  const [loadingUpgrade, setLoadingUpgrade] = useState(false)
   const [businessData, setBusinessData] = useState({
   name: '',
   email: '',
@@ -198,6 +199,52 @@ if (updateError) {
   alert('Logo actualizado ✅')
 }
 
+const handleUpgrade = async () => {
+  try {
+    setLoadingUpgrade(true)
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      alert('Tenés que iniciar sesión.')
+      return
+    }
+
+    const res = await fetch('/api/create-subscription', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: user.email,
+        user_id: user.id,
+        business_id: activeBusinessId,
+      }),
+    })
+
+    const data = await res.json()
+
+    if (data.init_point) {
+      window.location.href = data.init_point
+      return
+    }
+
+    if (data.sandbox_init_point) {
+      window.location.href = data.sandbox_init_point
+      return
+    }
+
+    alert('No se pudo iniciar Mercado Pago.')
+  } catch (error) {
+    console.error(error)
+    alert('Error iniciando suscripción.')
+  } finally {
+    setLoadingUpgrade(false)
+  }
+}
+
   return (
     <div className="space-y-6">
 
@@ -311,10 +358,14 @@ if (updateError) {
     </div>
 
     <button
-      className="w-full bg-purple-600 hover:bg-purple-500 transition rounded-xl py-3 font-medium text-white"
-    >
-      🚀 Actualizar a Arcana Impulso
-    </button>
+  onClick={handleUpgrade}
+  disabled={loadingUpgrade}
+  className="w-full bg-purple-600 hover:bg-purple-500 transition rounded-xl py-3 font-medium text-white"
+>
+  {loadingUpgrade
+    ? 'Conectando con Mercado Pago...'
+    : '🚀 Actualizar a Arcana Impulso'}
+</button>
 
   </div>
 
