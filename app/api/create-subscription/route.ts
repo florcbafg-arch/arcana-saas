@@ -19,39 +19,46 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
       },
-   body: JSON.stringify({
-  reason: "Arcana Impulso - Suscripción mensual",
-
-  auto_recurring: {
-    frequency: 1,
-    frequency_type: "months",
-    transaction_amount: 30000,
-    currency_id: "ARS",
-  },
-
-  back_url: "https://arcanaapp.app/dashboard",
-
-  payer_email: email,
-
-  external_reference: user_id
-})
+      body: JSON.stringify({
+        reason: "Arcana Impulso - Suscripción mensual",
+        auto_recurring: {
+          frequency: 1,
+          frequency_type: "months",
+          transaction_amount: 30000,
+          currency_id: "ARS",
+        },
+        back_url: "https://arcanaapp.app/dashboard",
+        payer_email: email,
+        external_reference: user_id,
+      }),
     })
 
     const data = await response.json()
 
     console.log("MP DATA:", data)
 
-    // guardar subscription_id en Supabase
+    const { data: membership } = await supabase
+      .from("business_users")
+      .select("business_id")
+      .eq("user_id", user_id)
+      .single()
+
+    if (!membership) {
+      return NextResponse.json(
+        { message: "Business not found" },
+        { status: 404 }
+      )
+    }
+
     await supabase
-      .from("users")
+      .from("businesses")
       .update({
         subscription_id: data.id,
-        subscription_status: "pending"
+        subscription_status: "pending",
       })
-      .eq("id", user_id)
+      .eq("id", membership.business_id)
 
     return NextResponse.json(data)
-
   } catch (error) {
     console.error("SERVER ERROR:", error)
 
