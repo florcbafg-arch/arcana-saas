@@ -37,9 +37,10 @@ const handleUpgrade = async () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        email: user.email,
-        user_id: user.id,
-      }),
+  email: user.email,
+  user_id: user.id,
+  business_id: localStorage.getItem('activeBusinessId'),
+}),
     })
 
     const data = await res.json()

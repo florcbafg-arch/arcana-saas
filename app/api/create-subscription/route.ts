@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     const body = await req.json()
     console.log("BODY RECIBIDO:", body)
 
-    const { email, user_id } = body
+    const { email, user_id, business_id } = body
 
     const response = await fetch("https://api.mercadopago.com/preapproval", {
       method: "POST",
