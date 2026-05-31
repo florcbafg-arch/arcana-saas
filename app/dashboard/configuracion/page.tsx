@@ -13,7 +13,8 @@ export default function ConfiguracionPage() {
   const [activeBusinessId, setActiveBusinessId] = useState<string | null>(null)
   const [newBusinessName, setNewBusinessName] = useState('')
   const [toast, setToast] = useState<string | null>(null)
-const [businessData, setBusinessData] = useState({
+  const [planType, setPlanType] = useState<'base' | 'impulso' | 'dominio'>('base')
+  const [businessData, setBusinessData] = useState({
   name: '',
   email: '',
   phone: '',
@@ -60,9 +61,11 @@ const [businessData, setBusinessData] = useState({
   const { data, error } = await supabase
     .from('businesses')
     .insert({
-      name: newBusinessName,
-      owner_id: user.id
-    })
+  name: newBusinessName,
+  owner_id: user.id,
+  plan_type: 'base',
+  subscription_active: true
+})
     .select()
     .single()
 
@@ -113,6 +116,8 @@ const fetchBusiness = async () => {
     .single()
 
   if (data) {
+    setPlanType(data.plan_type || 'base')
+
     setBusinessData({
       name: data.name || '',
       email: data.email || '',
@@ -200,6 +205,113 @@ if (updateError) {
           Administrá tus sucursales y negocio activo.
         </p>
       </div>
+
+{/* Planes */}
+<div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+
+  {/* Arcana Base */}
+  <div className="bg-[#14141A] border border-blue-500/30 rounded-2xl p-6">
+
+    <div className="flex justify-between items-start mb-4">
+
+      <div>
+        <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-blue-500/10 text-blue-400">
+          TU PLAN ACTUAL
+        </span>
+
+        <h2 className="text-3xl font-bold text-white mt-3">
+          Arcana Base
+        </h2>
+
+        <p className="text-blue-400 font-medium">
+          Gratis para siempre
+        </p>
+      </div>
+
+      <div className="h-20 w-20 rounded-2xl border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold">
+        BASE
+      </div>
+
+    </div>
+
+    <p className="text-gray-400 mb-6">
+      Las herramientas esenciales para vender,
+      controlar stock y administrar tu negocio.
+    </p>
+
+    <div className="grid grid-cols-2 gap-3 text-sm">
+
+      <div className="text-white">✓ Ventas</div>
+      <div className="text-white">✓ Dashboard</div>
+
+      <div className="text-white">✓ Productos</div>
+      <div className="text-white">✓ Scanner</div>
+
+      <div className="text-white">✓ Stock</div>
+      <div className="text-white">✓ Tickets</div>
+
+      <div className="text-white">✓ 1 Sucursal</div>
+      <div className="text-white">✓ 500 Productos</div>
+
+    </div>
+
+  </div>
+
+  {/* Arcana Impulso */}
+  <div className="bg-[#14141A] border border-purple-500/30 rounded-2xl p-6">
+
+    <div className="flex justify-between items-start mb-4">
+
+      <div>
+        <span className="inline-flex px-3 py-1 rounded-full text-xs font-medium bg-purple-500/10 text-purple-400">
+          MEJORÁ TU PLAN
+        </span>
+
+        <h2 className="text-3xl font-bold text-white mt-3">
+          Arcana Impulso
+        </h2>
+
+        <p className="text-purple-400 font-medium">
+          $30.000 ARS / mes
+        </p>
+      </div>
+
+      <div className="h-20 w-20 rounded-2xl border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold">
+        🚀
+      </div>
+
+    </div>
+
+    <p className="text-gray-400 mb-6">
+      Más control, más organización y más crecimiento
+      para tu negocio.
+    </p>
+
+    <div className="grid grid-cols-2 gap-3 text-sm mb-6">
+
+      <div className="text-white">✓ Clientes y fiado</div>
+      <div className="text-white">✓ Historial completo</div>
+
+      <div className="text-white">✓ Proveedores</div>
+      <div className="text-white">✓ Recepción mercadería</div>
+
+      <div className="text-white">✓ Compras inteligentes</div>
+      <div className="text-white">✓ Soporte prioritario</div>
+
+      <div className="text-white">✓ 2 Sucursales</div>
+      <div className="text-white">✓ 1000 Productos</div>
+
+    </div>
+
+    <button
+      className="w-full bg-purple-600 hover:bg-purple-500 transition rounded-xl py-3 font-medium text-white"
+    >
+      🚀 Actualizar a Arcana Impulso
+    </button>
+
+  </div>
+
+</div>
 
       {/* Negocio Activo */}
      <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-4 space-y-5">
