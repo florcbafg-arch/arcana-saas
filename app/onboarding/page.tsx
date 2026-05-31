@@ -32,18 +32,13 @@ export default function OnboardingPage() {
 
   
   // 1️⃣ Crear negocio
-  const now = new Date()
-const trialEnd = new Date()
-trialEnd.setDate(now.getDate() + 7)
 
 const { data: business, error } = await supabase
   .from('businesses')
   .insert({
     name: businessName,
     owner_id: user.id,
-    plan_type: 'pro',
-    trial_start: now.toISOString(),
-    trial_end: trialEnd.toISOString(),
+    plan_type: 'base',
     subscription_active: true
   })
   .select()

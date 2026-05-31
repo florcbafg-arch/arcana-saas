@@ -13,7 +13,6 @@ type AccessState =
   | 'authorized'
   | 'no-session'
   | 'no-business'
-  | 'trial-expired'
   | 'error'
 
 export default function DashboardLayout({
@@ -98,7 +97,7 @@ if (businessInfo?.name) {
         const { data: business, error: businessError } =
           await supabase
             .from('businesses')
-            .select('trial_end, subscription_active')
+            .select('plan_type, subscription_active')
             .eq('id', activeId)
             .single()
 
@@ -107,16 +106,12 @@ if (businessInfo?.name) {
           return
         }
 
-        const now = new Date()
+        if (!business.subscription_active) {
+  router.replace('/upgrade')
+  return
+}
 
-        if (
-          !business.subscription_active &&
-          business.trial_end &&
-          new Date(business.trial_end) < now
-        ) {
-          setAccessState('trial-expired')
-          return
-        }
+setAccessState('authorized')
 
         setAccessState('authorized')
       } catch (err) {
@@ -137,9 +132,6 @@ if (businessInfo?.name) {
       router.replace('/onboarding')
     }
 
-    if (accessState === 'trial-expired') {
-      router.replace('/upgrade')
-    }
   }, [accessState, router])
 
 const isPro = false
