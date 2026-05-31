@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { Store, TrendingUp } from 'lucide-react'
 
 type Business = {
   id: string
@@ -228,9 +229,9 @@ if (updateError) {
         </p>
       </div>
 
-      <div className="h-20 w-20 rounded-2xl border border-blue-500/30 flex items-center justify-center text-blue-400 font-bold">
-        BASE
-      </div>
+      <div className="h-20 w-20 rounded-2xl border border-blue-500/30 bg-blue-500/10 flex items-center justify-center shadow-[0_0_25px_rgba(59,130,246,0.25)]">
+  <Store size={42} className="text-blue-400" />
+</div>
 
     </div>
 
@@ -276,10 +277,9 @@ if (updateError) {
         </p>
       </div>
 
-      <div className="h-20 w-20 rounded-2xl border border-purple-500/30 flex items-center justify-center text-purple-400 font-bold">
-        🚀
-      </div>
-
+      <div className="h-20 w-20 rounded-2xl border border-purple-500/30 bg-purple-500/10 flex items-center justify-center shadow-[0_0_25px_rgba(168,85,247,0.25)]">
+  <TrendingUp size={42} className="text-purple-400" />
+</div>
     </div>
 
     <p className="text-gray-400 mb-6">
