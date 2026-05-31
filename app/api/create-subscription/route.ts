@@ -37,26 +37,29 @@ export async function POST(req: Request) {
 
     console.log("MP DATA:", data)
 
-    const { data: membership } = await supabase
-      .from("business_users")
-      .select("business_id")
-      .eq("user_id", user_id)
-      .single()
+    if (!business_id) {
+  return NextResponse.json(
+    { message: "Business id not found" },
+    { status: 400 }
+  )
+}
 
-    if (!membership) {
-      return NextResponse.json(
-        { message: "Business not found" },
-        { status: 404 }
-      )
-    }
+const { error: updateError } = await supabase
+  .from("businesses")
+  .update({
+    subscription_id: data.id,
+    subscription_status: "pending",
+  })
+  .eq("id", business_id)
 
-    await supabase
-      .from("businesses")
-      .update({
-        subscription_id: data.id,
-        subscription_status: "pending",
-      })
-      .eq("id", membership.business_id)
+if (updateError) {
+  console.error("ERROR GUARDANDO SUSCRIPCIÓN:", updateError)
+
+  return NextResponse.json(
+    { message: "Error saving subscription" },
+    { status: 500 }
+  )
+}
 
     return NextResponse.json(data)
   } catch (error) {
