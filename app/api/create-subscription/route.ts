@@ -20,19 +20,18 @@ export async function POST(req: Request) {
         Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
       },
    body: JSON.stringify({
-  reason: "Arcana Pro - Suscripción mensual",
+  reason: "Arcana Impulso - Suscripción mensual",
 
   auto_recurring: {
     frequency: 1,
     frequency_type: "months",
-    transaction_amount: 15000,
+    transaction_amount: 30000,
     currency_id: "ARS",
   },
 
-  back_url: "https://arcana-saas.vercel.app/dashboard",
+  back_url: "https://arcanaapp.app/dashboard",
 
   payer_email: email,
-
 
   external_reference: user_id
 })

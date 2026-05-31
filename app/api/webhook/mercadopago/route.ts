@@ -48,11 +48,11 @@ export async function POST(req: Request) {
     ) {
 
       await supabase
-        .from("users")
-        .update({
-          plan: "pro",
-          subscription_status: "active"
-        })
+  .from("users")
+  .update({
+    plan_type: "impulso",
+    subscription_status: "active"
+  })
         .eq("id", user.id)
 
       console.log("Usuario actualizado a PRO")
@@ -67,7 +67,7 @@ export async function POST(req: Request) {
       await supabase
         .from("users")
         .update({
-          plan: "free",
+          plan_type: "base",
           subscription_status: "past_due"
         })
         .eq("id", user.id)
@@ -87,7 +87,7 @@ export async function POST(req: Request) {
       await supabase
         .from("users")
         .update({
-          plan: "free",
+         plan_type: "base",
           subscription_status: "cancelled"
         })
         .eq("id", user.id)

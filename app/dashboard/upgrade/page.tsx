@@ -9,10 +9,61 @@ import {
   Building2,
   ShieldCheck,
 } from 'lucide-react'
+import { useState } from 'react'
+import { supabase } from '@/lib/supabase'
 
 export default function UpgradePage() {
 
   const IMPULSO_PRICE = 'USD 20'
+
+  const [loading, setLoading] = useState(false)
+
+const handleUpgrade = async () => {
+  try {
+    setLoading(true)
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      alert('Tenés que iniciar sesión para actualizar tu plan.')
+      return
+    }
+
+    const res = await fetch('/api/create-subscription', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: user.email,
+        user_id: user.id,
+      }),
+    })
+
+    const data = await res.json()
+
+    if (data.init_point) {
+      window.location.href = data.init_point
+      return
+    }
+
+    if (data.sandbox_init_point) {
+      window.location.href = data.sandbox_init_point
+      return
+    }
+
+    console.error('Respuesta Mercado Pago:', data)
+    alert('No se pudo iniciar el pago. Revisá la consola.')
+
+  } catch (error) {
+    console.error(error)
+    alert('Error iniciando Mercado Pago.')
+  } finally {
+    setLoading(false)
+  }
+}
 
   const features = [
     {
@@ -83,7 +134,9 @@ export default function UpgradePage() {
           </div>
 
           <button
-            className="
+  onClick={handleUpgrade}
+  disabled={loading}
+  className="
               mt-8
               rounded-2xl
               bg-gradient-to-r
@@ -99,7 +152,7 @@ export default function UpgradePage() {
               hover:scale-[1.02]
             "
           >
-            🚀 Actualizar a Arcana Impulso
+            {loading ? 'Conectando con Mercado Pago...' : '🚀 Actualizar a Arcana Impulso'}
           </button>
         </div>
       </div>
