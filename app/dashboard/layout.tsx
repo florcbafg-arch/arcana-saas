@@ -25,6 +25,7 @@ export default function DashboardLayout({
   const [accessState, setAccessState] =
     useState<AccessState>('loading')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isPro, setIsPro] = useState(false)
   const handleLogout = async () => {
   localStorage.removeItem('activeBusinessId')
 
