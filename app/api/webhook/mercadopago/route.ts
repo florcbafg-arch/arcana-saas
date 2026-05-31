@@ -18,23 +18,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "No subscription id" })
     }
 
-    const { data: user } = await supabase
-      .from("users")
+    const { data: business } = await supabase
+      .from("businesses")
       .select("*")
       .eq("subscription_id", subscriptionId)
       .single()
 
-    if (!user) {
-      return NextResponse.json({ message: "User not found" })
-    }
-
-    const { data: membership } = await supabase
-      .from("business_users")
-      .select("business_id")
-      .eq("user_id", user.id)
-      .single()
-
-    if (!membership) {
+    if (!business) {
       return NextResponse.json({ message: "Business not found" })
     }
 
@@ -50,15 +40,9 @@ export async function POST(req: Request) {
         .update({
           plan_type: "impulso",
           subscription_active: true,
-        })
-        .eq("id", membership.business_id)
-
-      await supabase
-        .from("users")
-        .update({
           subscription_status: "active",
         })
-        .eq("id", user.id)
+        .eq("id", business.id)
     }
 
     if (eventType === "payment.failed") {
@@ -67,15 +51,9 @@ export async function POST(req: Request) {
         .update({
           plan_type: "base",
           subscription_active: true,
-        })
-        .eq("id", membership.business_id)
-
-      await supabase
-        .from("users")
-        .update({
           subscription_status: "past_due",
         })
-        .eq("id", user.id)
+        .eq("id", business.id)
     }
 
     if (
@@ -87,15 +65,9 @@ export async function POST(req: Request) {
         .update({
           plan_type: "base",
           subscription_active: true,
-        })
-        .eq("id", membership.business_id)
-
-      await supabase
-        .from("users")
-        .update({
           subscription_status: "cancelled",
         })
-        .eq("id", user.id)
+        .eq("id", business.id)
     }
 
     return NextResponse.json({ received: true })
