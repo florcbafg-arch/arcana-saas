@@ -112,6 +112,8 @@ if (businessInfo?.name) {
   return
 }
 
+setIsPro(business.plan_type === 'impulso')
+
 setAccessState('authorized')
 
         setAccessState('authorized')
@@ -135,7 +137,7 @@ setAccessState('authorized')
 
   }, [accessState, router])
 
-const isPro = false
+
 
   const mobileNavItems = [
   { label: 'Inicio', href: '/dashboard' },
