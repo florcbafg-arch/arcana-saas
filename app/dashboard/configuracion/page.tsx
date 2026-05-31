@@ -10,6 +10,9 @@ type Business = {
 }
 
 export default function ConfiguracionPage() {
+
+  const IMPULSO_PRICE = 'USD 20'
+
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [activeBusinessId, setActiveBusinessId] = useState<string | null>(null)
   const [newBusinessName, setNewBusinessName] = useState('')
@@ -272,9 +275,13 @@ if (updateError) {
           Arcana Impulso
         </h2>
 
-        <p className="text-purple-400 font-medium">
-          $30.000 ARS / mes
-        </p>
+     <p className="text-purple-400 font-medium">
+  {IMPULSO_PRICE} / mes
+</p>
+
+<p className="text-xs text-gray-500 mt-1">
+  Cobro equivalente en ARS mediante Mercado Pago.
+</p>
       </div>
 
       <div className="h-20 w-20 rounded-2xl border border-purple-500/30 bg-purple-500/10 flex items-center justify-center shadow-[0_0_25px_rgba(168,85,247,0.25)]">

@@ -11,6 +11,9 @@ import {
 } from 'lucide-react'
 
 export default function UpgradePage() {
+
+  const IMPULSO_PRICE = 'USD 20'
+
   const features = [
     {
       icon: Users,
@@ -66,10 +69,14 @@ export default function UpgradePage() {
           </p>
 
           <div className="mt-6">
-            <p className="text-3xl font-extrabold text-white">
-              $30.000 ARS
-              <span className="text-base font-medium text-gray-400"> / mes</span>
-            </p>
+  <p className="text-3xl font-extrabold text-white">
+  {IMPULSO_PRICE}
+  <span className="text-base font-medium text-gray-400"> / mes</span>
+</p>
+
+<p className="text-sm text-gray-500 mt-1">
+  Cobro equivalente en ARS mediante Mercado Pago.
+</p>
             <p className="text-sm text-gray-500 mt-1">
               Podés cancelar cuando quieras.
             </p>
