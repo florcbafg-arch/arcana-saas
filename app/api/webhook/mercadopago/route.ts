@@ -33,8 +33,8 @@ console.log("DATA:", body.data)
 
     const eventType = body.type || body.action
 if (
-  eventType === "subscription_preapproval" ||
   eventType === "payment.created" ||
+  eventType === "payment.updated" ||
   eventType === "subscription_authorized" ||
   eventType === "subscription.updated"
 ) {
