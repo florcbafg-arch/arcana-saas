@@ -128,8 +128,27 @@ setAccessState('authorized')
       }
     }
 
-    validateAccess()
-  }, [])
+    const {
+  data: { subscription },
+} = supabase.auth.onAuthStateChange(
+  async (event, session) => {
+    console.log('Auth event:', event)
+
+    if (
+      event === 'SIGNED_OUT' ||
+      !session
+    ) {
+      await clearSessionAndRedirect()
+    }
+  }
+)
+
+  validateAccess()
+
+return () => {
+  subscription.unsubscribe()
+}
+}, [])
 
   // 🔁 Redirecciones controladas
   useEffect(() => {
