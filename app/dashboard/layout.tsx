@@ -26,12 +26,18 @@ export default function DashboardLayout({
     useState<AccessState>('loading')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isPro, setIsPro] = useState(false)
-  const handleLogout = async () => {
+  const clearSessionAndRedirect = async () => {
   localStorage.removeItem('activeBusinessId')
+  localStorage.removeItem('businessName')
+  localStorage.removeItem('lastSessionCheck')
 
   await supabase.auth.signOut()
 
   router.replace('/login')
+}
+
+const handleLogout = async () => {
+  await clearSessionAndRedirect()
 }
 
   useEffect(() => {
@@ -44,14 +50,14 @@ export default function DashboardLayout({
         } = await supabase.auth.getUser()
 
         if (userError) {
-          setAccessState('error')
-          return
-        }
+  await clearSessionAndRedirect()
+  return
+}
 
         if (!user) {
-          setAccessState('no-session')
-          return
-        }
+  await clearSessionAndRedirect()
+  return
+}
 
         // 2️⃣ Validar membresía
         const { data: businesses, error } = await supabase
