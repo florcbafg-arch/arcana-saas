@@ -125,6 +125,16 @@ const fetchOpenFoodProduct = async () => {
 
     const product = data.product
 
+    console.log('OPEN FOOD FACTS FULL:', data)
+
+console.log({
+  name: product.product_name,
+  brand: product.brands,
+  category: product.categories,
+  image: product.image_url,
+  quantity: product.quantity,
+})
+
     setNewProductName(product.product_name || newProductName)
 
     setToast({
