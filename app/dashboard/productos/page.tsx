@@ -24,6 +24,7 @@ type Product = {
   price_by?: string
   package_weight_kg?: number | null
   package_cost?: number | null
+  expiration_date?: string | null
   suppliers?: {
    name: string
 } | null
@@ -44,7 +45,8 @@ export default function ProductosPage() {
   const [newPrice, setNewPrice] = useState('')
   const [newCostPrice, setNewCostPrice] = useState('')
   const [isOpen, setIsOpen] = useState(false)
-  
+  const [newExpirationDate, setNewExpirationDate] = useState('')
+
   const [newActive, setNewActive] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
@@ -193,6 +195,7 @@ const createProduct = async () => {
       stock_quantity: Number(newStock || 0),
       min_stock_yellow: Number(newMinStock || 1),
       min_stock_red: Math.max(1, Math.floor(Number(newMinStock || 1) / 2)),
+      expiration_date: newExpirationDate || null,
       price: newSaleType === 'weight'
   ? weightNumbers.salePricePer100g
   : parseMoney(newPrice),
@@ -242,6 +245,7 @@ setEditingId(null)
   stock_quantity: Number(newStock || 0),
   min_stock_yellow: newMinStock,
   min_stock_red: Math.max(1, Math.floor(Number(newMinStock || 1) / 2)),
+  expiration_date: newExpirationDate || null,
   price: newSaleType === 'weight'
   ? weightNumbers.salePricePer100g
   : parseMoney(newPrice),
@@ -285,6 +289,7 @@ setEditingId(null)
     setNewSaleType('unit')
     setNewUnitBase('unidad')
     setNewPriceBy('kg')
+    setNewExpirationDate('')
 
   } catch (err: any) {
     setToast({ type: "error", message: err.message || "Error al guardar producto" })
@@ -334,6 +339,9 @@ const handleEdit = (product: Product) => {
   setNewUnitBase(product.unit_base || 'unidad')
   setIsOpen(true)
   setNewPackageWeightKg(String(product.package_weight_kg || ''))
+  setNewExpirationDate(
+  product.expiration_date || ''
+)
   setNewPackageCost(
   product.package_cost
     ? Number(product.package_cost).toLocaleString('es-AR')
@@ -1216,6 +1224,24 @@ const usagePercentage =
             focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
           />
         </div>
+
+<div className="space-y-1">
+  <label className="text-sm text-gray-400">
+    Fecha de vencimiento (opcional)
+  </label>
+
+  <input
+    type="date"
+    value={newExpirationDate}
+    onChange={(e) => setNewExpirationDate(e.target.value)}
+    className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
+    focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
+  />
+
+  <p className="text-xs text-gray-500">
+    Arcana te avisará antes de que el producto venza.
+  </p>
+</div>
 
 {/* Código interno */}
 <div className="space-y-1">
