@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase'
 export default function GlobalInsightsBanner() {
   const router = useRouter()
   const [message, setMessage] = useState<string | null>(null)
+  const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
     const loadInsight = async () => {
@@ -48,17 +49,26 @@ export default function GlobalInsightsBanner() {
     return () => clearInterval(interval)
   }, [])
 
-  if (!message) return null
+  if (!message || dismissed) return null
 
   return (
+  <div className="mb-4 relative">
     <button
       onClick={() => router.push('/dashboard')}
-      className="mb-4 w-full rounded-2xl border border-yellow-400/30 bg-yellow-400/10 px-4 py-3 text-left text-sm font-semibold text-yellow-300 shadow-[0_0_25px_rgba(250,204,21,0.08)] transition hover:bg-yellow-400/15"
+      className="w-full rounded-2xl border border-yellow-400/30 bg-yellow-400/10 px-4 py-3 text-left text-sm font-semibold text-yellow-300 shadow-[0_0_25px_rgba(250,204,21,0.08)] transition hover:bg-yellow-400/15"
     >
       {message}
       <span className="ml-2 text-xs text-yellow-200/70">
         Ver detalle
       </span>
     </button>
-  )
+
+    <button
+      onClick={() => setDismissed(true)}
+      className="absolute right-3 top-1/2 -translate-y-1/2 text-yellow-300 hover:text-white"
+    >
+      ✕
+    </button>
+  </div>
+)
 }
