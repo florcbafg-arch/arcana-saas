@@ -4,6 +4,19 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { LineChart, Line, ResponsiveContainer, Tooltip } from 'recharts'
 
+console.log('LOCAL:', new Date())
+
+console.log(
+  'ARG:',
+  new Date().toLocaleString('es-AR', {
+    timeZone: 'America/Argentina/Cordoba'
+  })
+)
+
+console.log(
+  'UTC:',
+  new Date().toISOString()
+)
 
 type RiskCustomer = {
   id: string
