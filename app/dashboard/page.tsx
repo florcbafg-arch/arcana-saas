@@ -33,6 +33,7 @@ export default function DashboardHome() {
   const [topProfitAmount, setTopProfitAmount] = useState(0)
 
   const [recentActivity, setRecentActivity] = useState<any[]>([])
+  const [smartInsights, setSmartInsights] = useState<any[]>([])
   const [activeProductsCount, setActiveProductsCount] = useState(0)
   const [alertProductsCount, setAlertProductsCount] = useState(0)
   const [salesTrend, setSalesTrend] = useState<any[]>([])
@@ -347,8 +348,37 @@ const fetchTopProfitProduct = async () => {
     return []
   }) || []
 
+  const insights = []
+
+if (topProduct && topQuantity > 0) {
+  insights.push({
+    type: 'insight',
+    priority: 2,
+    message: `🔥 ${topProduct} fue el producto más vendido hoy (${topQuantity} ventas)`,
+    created_at: new Date().toISOString()
+  })
+}
+
+if (topRevenueProduct && topRevenueAmount > 0) {
+  insights.push({
+    type: 'insight',
+    priority: 2,
+    message: `💰 ${topRevenueProduct} fue el producto que más facturó hoy ($${topRevenueAmount.toLocaleString()})`,
+    created_at: new Date().toISOString()
+  })
+}
+
+if (topProfitProduct && topProfitAmount > 0) {
+  insights.push({
+    type: 'insight',
+    priority: 2,
+    message: `💎 ${topProfitProduct} dejó la mayor ganancia estimada hoy ($${topProfitAmount.toLocaleString('es-AR')})`,
+    created_at: new Date().toISOString()
+  })
+}
+
   // 🔹 3. Combinar y ordenar por prioridad + fecha
-  const combined = [...stockAlerts, ...salesFormatted]
+  const combined = [...stockAlerts, ...insights, ...salesFormatted]
     .sort((a, b) => {
       if (a.priority !== b.priority) {
         return a.priority - b.priority
@@ -656,10 +686,12 @@ const formatRelativeTime = (dateString: string) => {
           <div
             className={`w-3 h-3 rounded-full ${
               item.type === 'critical'
-                ? 'bg-red-500'
-                : item.type === 'warning'
-                ? 'bg-yellow-400'
-                : 'bg-green-500'
+  ? 'bg-red-500'
+  : item.type === 'warning'
+  ? 'bg-yellow-400'
+  : item.type === 'insight'
+  ? 'bg-blue-500'
+  : 'bg-green-500'
             }`}
           />
 
@@ -667,10 +699,12 @@ const formatRelativeTime = (dateString: string) => {
           <p
             className={`text-sm font-semibold ${
               item.type === 'critical'
-                ? 'text-red-400'
-                : item.type === 'warning'
-                ? 'text-yellow-400'
-                : 'text-white'
+  ? 'text-red-400'
+  : item.type === 'warning'
+  ? 'text-yellow-400'
+  : item.type === 'insight'
+  ? 'text-blue-400'
+  : 'text-white'
             }`}
           >
             {item.message}
