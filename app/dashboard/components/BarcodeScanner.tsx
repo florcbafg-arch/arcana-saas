@@ -68,7 +68,7 @@ export default function BarcodeScanner({ onScan }: Props) {
               const code = result.getText()
               const now = Date.now()
 
-              if (lastScanRef.current === code) return
+             if (lastScanRef.current === code && scanningRef.current) return
 
               scanningRef.current = true
               lastScanRef.current = code
@@ -87,7 +87,7 @@ export default function BarcodeScanner({ onScan }: Props) {
                 setMessage("Buscando código...")
               }, 1200)
 
-              controlsRef.current?.stop()
+             onScan(code)
             }
           }
         )
