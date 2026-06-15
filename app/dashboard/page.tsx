@@ -323,7 +323,7 @@ const fetchTopProfitProduct = async () => {
   // 🔹 2. Productos stock
   const { data: products } = await supabase
     .from('products')
-    .select('name, stock_quantity, min_stock_yellow, min_stock_red')
+    .select('id, name, stock_quantity, min_stock_yellow, min_stock_red, active')
     .eq('business_id', businessId)
 
   const stockAlerts = products?.flatMap(p => {
@@ -377,8 +377,48 @@ if (topProfitProduct && topProfitAmount > 0) {
   })
 }
 
+// 🔹 3. Productos sin movimiento en últimos 15 días
+const fifteenDaysAgo = new Date()
+fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15)
+
+const { data: recentSales } = await supabase
+  .from('sales')
+  .select('id')
+  .eq('business_id', businessId)
+  .gte('created_at', fifteenDaysAgo.toISOString())
+
+let slowProducts: any[] = []
+
+if (recentSales?.length) {
+  const saleIds = recentSales.map(s => s.id)
+
+  const { data: recentItems } = await supabase
+    .from('sale_items')
+    .select('product_id')
+    .in('sale_id', saleIds)
+
+  const soldProductIds = new Set(
+    recentItems?.map(item => item.product_id) || []
+  )
+
+  slowProducts =
+    products
+      ?.filter(p =>
+  p.active &&
+  p.stock_quantity > 0 &&
+  !soldProductIds.has(p.id)
+)
+      .slice(0, 3)
+      .map(p => ({
+        type: 'critical',
+        priority: 2,
+        message: `🛑 ${p.name} lleva 15 días sin venderse`,
+        created_at: new Date().toISOString()
+      })) || []
+}
+
   // 🔹 3. Combinar y ordenar por prioridad + fecha
-  const combined = [...stockAlerts, ...insights, ...salesFormatted]
+  const combined = [...stockAlerts, ...slowProducts, ...insights, ...salesFormatted]
     .sort((a, b) => {
       if (a.priority !== b.priority) {
         return a.priority - b.priority
