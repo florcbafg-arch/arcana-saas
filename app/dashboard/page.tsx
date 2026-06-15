@@ -336,7 +336,7 @@ const fetchTopProfitProduct = async () => {
   // 🔹 2. Productos stock
   const { data: products } = await supabase
     .from('products')
-    .select('id, name, stock_quantity, min_stock_yellow, min_stock_red, active, expiration_date')
+    .select('id, name, stock_quantity, min_stock_yellow, min_stock_red, active, expiration_date, cost_price')
     .eq('business_id', businessId)
 
   const stockAlerts = products?.flatMap(p => {
@@ -471,12 +471,18 @@ if (recentSales?.length) {
   !soldProductIds.has(p.id)
 )
       .slice(0, 3)
-      .map(p => ({
-        type: 'critical',
-        priority: 2,
-        message: `🛑 ${p.name} lleva 15 días sin venderse`,
-        created_at: new Date().toISOString()
-      })) || []
+     .map(p => {
+  const stockValue =
+    Number(p.stock_quantity || 0) *
+    Number(p.cost_price || 0)
+
+  return {
+    type: 'critical',
+    priority: 2,
+    message: `🛑 ${p.name} lleva 15 días sin venderse. Tenés $${stockValue.toLocaleString('es-AR')} inmovilizados.`,
+    created_at: new Date().toISOString()
+  }
+}) || []
 }
 
   // 🔹 3. Combinar y ordenar por prioridad + fecha
