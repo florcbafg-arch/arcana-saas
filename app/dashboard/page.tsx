@@ -336,7 +336,7 @@ const fetchTopProfitProduct = async () => {
   // 🔹 2. Productos stock
   const { data: products } = await supabase
     .from('products')
-    .select('id, name, stock_quantity, min_stock_yellow, min_stock_red, active')
+    .select('id, name, stock_quantity, min_stock_yellow, min_stock_red, active, expiration_date')
     .eq('business_id', businessId)
 
   const stockAlerts = products?.flatMap(p => {
@@ -354,6 +354,55 @@ const fetchTopProfitProduct = async () => {
         type: 'warning',
         priority: 2,
         message: `${p.name} con stock bajo (quedan ${p.stock_quantity})`,
+        created_at: new Date().toISOString()
+      }]
+    }
+
+    return []
+  }) || []
+
+  const today = new Date()
+today.setHours(0, 0, 0, 0)
+
+const expirationAlerts =
+  products?.flatMap(product => {
+    if (!product.expiration_date) return []
+
+    const [year, month, day] =
+      product.expiration_date.split('-').map(Number)
+
+    const expiration = new Date(year, month - 1, day)
+
+    expiration.setHours(0, 0, 0, 0)
+
+    const diffDays = Math.ceil(
+      (expiration.getTime() - today.getTime()) /
+      (1000 * 60 * 60 * 24)
+    )
+
+    if (diffDays < 0) {
+      return [{
+        type: 'critical',
+        priority: 1,
+        message: `⛔ ${product.name} está vencido`,
+        created_at: new Date().toISOString()
+      }]
+    }
+
+    if (diffDays === 0) {
+      return [{
+        type: 'critical',
+        priority: 1,
+        message: `🚨 ${product.name} vence hoy`,
+        created_at: new Date().toISOString()
+      }]
+    }
+
+    if (diffDays <= 7) {
+      return [{
+        type: 'warning',
+        priority: 2,
+        message: `⚠️ ${product.name} vence en ${diffDays} días`,
         created_at: new Date().toISOString()
       }]
     }
@@ -431,7 +480,13 @@ if (recentSales?.length) {
 }
 
   // 🔹 3. Combinar y ordenar por prioridad + fecha
-  const combined = [...stockAlerts, ...slowProducts, ...insights, ...salesFormatted]
+  const combined = [
+  ...expirationAlerts,
+  ...stockAlerts,
+  ...slowProducts,
+  ...insights,
+  ...salesFormatted
+]
     .sort((a, b) => {
       if (a.priority !== b.priority) {
         return a.priority - b.priority
