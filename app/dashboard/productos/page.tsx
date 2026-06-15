@@ -99,6 +99,54 @@ useEffect(() => {
   }
 }, [])
 
+const fetchOpenFoodProduct = async () => {
+  if (!newBarcode.trim()) {
+    setToast({
+      type: "error",
+      message: "Primero escaneá o escribí un código de barras"
+    })
+    return
+  }
+
+  try {
+    const res = await fetch(
+      `https://world.openfoodfacts.org/api/v2/product/${newBarcode}?fields=product_name,brands,categories,image_url,quantity`
+    )
+
+    const data = await res.json()
+
+    if (data.status !== 1) {
+      setToast({
+  type: "error",
+  message: "No encontramos este producto en Open Food Facts"
+})
+      return
+    }
+
+    const product = data.product
+
+    setNewProductName(product.product_name || newProductName)
+
+    setToast({
+      type: "success",
+      message: "Producto encontrado. Arcana completó el nombre."
+    })
+
+    console.log("Open Food Facts:", {
+      name: product.product_name,
+      brand: product.brands,
+      category: product.categories,
+      image: product.image_url,
+      quantity: product.quantity,
+    })
+
+  } catch (error) {
+    setToast({
+      type: "error",
+      message: "Error buscando datos del producto"
+    })
+  }
+}
 
   const fetchProducts = async () => {
     if (!selectedBusinessId) return
@@ -1282,6 +1330,14 @@ const usagePercentage =
     >
       ⚡ Generar
     </button>
+
+<button
+  type="button"
+  onClick={fetchOpenFoodProduct}
+  className="px-3 bg-green-700 rounded-xl hover:bg-green-600 text-white"
+>
+  🔎 Buscar
+</button>
 
   </div>
 </div>
