@@ -27,8 +27,9 @@ today.setHours(0, 0, 0, 0)
 const productsWithExpiration = products
   .filter(p => p.active && p.expiration_date)
   .map(p => {
-    const expiration = new Date(p.expiration_date)
-    expiration.setHours(0, 0, 0, 0)
+    const [year, month, day] = p.expiration_date.split('-').map(Number)
+const expiration = new Date(year, month - 1, day)
+expiration.setHours(0, 0, 0, 0)
 
     const diffDays = Math.ceil(
       (expiration.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
