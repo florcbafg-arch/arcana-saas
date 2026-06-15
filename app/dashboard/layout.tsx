@@ -7,6 +7,7 @@ import Sidebar from './components/Sidebar'
 import SupportButton from './components/SupportButton'
 import ErrorDetector from './components/ErrorDetector'
 import Link from 'next/link'
+import GlobalInsightsBanner from './components/GlobalInsightsBanner'
 
 type AccessState =
   | 'loading'
@@ -300,8 +301,9 @@ if (accessState === 'error') {
 )}
 
     <main className="relative flex-1 min-w-0 w-full md:ml-64 px-4 py-4 md:px-8 md:py-7 pb-24 md:pb-8">
-      {children}
-    </main>
+  <GlobalInsightsBanner />
+  {children}
+</main>
 
     <div className="hidden md:block">
       <SupportButton />
