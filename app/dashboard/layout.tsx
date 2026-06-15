@@ -128,20 +128,19 @@ setAccessState('authorized')
       }
     }
 
-    const {
+  const {
   data: { subscription },
-} = supabase.auth.onAuthStateChange(
-  async (event, session) => {
-    console.log('Auth event:', event)
+} = supabase.auth.onAuthStateChange((event) => {
+  console.log('Auth event:', event)
 
-    if (
-      event === 'SIGNED_OUT' ||
-      !session
-    ) {
-      await clearSessionAndRedirect()
-    }
+  if (event === 'SIGNED_OUT') {
+    localStorage.removeItem('activeBusinessId')
+    localStorage.removeItem('businessName')
+    localStorage.removeItem('lastSessionCheck')
+
+    router.replace('/login')
   }
-)
+})
 
   validateAccess()
 
