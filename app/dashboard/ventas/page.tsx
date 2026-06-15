@@ -713,19 +713,31 @@ const filteredProducts = products.filter((product) => {
 </div>
 
 {showScanner && (
-  <BarcodeScanner
-    onScan={(code) => {
-      const product = products.find(
-        (p) => p.code === code || p.barcode === code
-      )
+ <BarcodeScanner
+  onScan={(code) => {
+    const product = products.find(
+      (p) => p.code === code || p.barcode === code
+    )
 
-      if (product) {
-        setSelectedProduct(product)
-      }
+    if (product) {
+      addProductToCart(product, 1)
 
-      setShowScanner(false)
-    }}
-  />
+      setToast({
+        type: "success",
+        message: `${product.name} agregado al carrito`
+      })
+
+      beep()
+    } else {
+      setToast({
+        type: "error",
+        message: "Producto no encontrado"
+      })
+    }
+
+    setShowScanner(false)
+  }}
+/>
 )}
 
       {/* GRID PRINCIPAL */}
