@@ -379,8 +379,13 @@ quantity: newQuantityLabel || null,
     setNewQuantityLabel('')
 
   } catch (err: any) {
-    setToast({ type: "error", message: err.message || "Error al guardar producto" })
-  }
+  console.error("ERROR SUPABASE:", err)
+
+  setToast({
+    type: "error",
+    message: err.message || "Error al guardar producto"
+  })
+}
 }
 
 
