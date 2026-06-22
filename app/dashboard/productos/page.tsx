@@ -288,6 +288,11 @@ const createProduct = async () => {
   package_cost: newSaleType === 'weight'
   ? parseMoney(newPackageCost)
   : null,
+
+  brand: newBrand || null,
+category: newCategory || null,
+image_url: newImageUrl || null,
+quantity: newQuantityLabel || null,
     })
     .eq('id', editingId)
 
@@ -338,6 +343,11 @@ setEditingId(null)
   package_cost: newSaleType === 'weight'
   ? parseMoney(newPackageCost)
   : null,
+
+  brand: newBrand || null,
+category: newCategory || null,
+image_url: newImageUrl || null,
+quantity: newQuantityLabel || null,
 })
 
       if (error) throw error
