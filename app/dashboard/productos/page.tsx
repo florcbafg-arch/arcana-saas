@@ -321,7 +321,7 @@ setEditingId(null)
   business_id: selectedBusinessId,
   unit: newUnit,
   stock_quantity: Number(newStock || 0),
-  min_stock_yellow: newMinStock,
+  min_stock_yellow: Number(newMinStock || 1),
   min_stock_red: Math.max(1, Math.floor(Number(newMinStock || 1) / 2)),
   expiration_date: newExpirationDate || null,
   price: newSaleType === 'weight'
