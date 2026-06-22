@@ -145,6 +145,13 @@ console.log({
     setNewImageUrl(product.image_url || '')
     setNewQuantityLabel(product.quantity || '')
 
+    console.log('ESTADOS A SETEAR:', {
+  brand: product.brands || '',
+  category: product.categories || '',
+  image: product.image_url || '',
+  quantity: product.quantity || '',
+})
+
     setToast({
       type: "success",
       message: "Producto encontrado. Arcana completó los datos disponibles."
