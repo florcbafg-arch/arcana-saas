@@ -39,6 +39,15 @@ type Supplier = {
   name: string
 }
 
+type OpenFoodSuggestion = {
+  code: string
+  product_name?: string
+  brands?: string
+  categories?: string
+  image_url?: string
+  quantity?: string
+}
+
 export default function ProductosPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [newProductName, setNewProductName] = useState('')
@@ -54,6 +63,8 @@ export default function ProductosPage() {
   const [newCategory, setNewCategory] = useState('')
   const [newImageUrl, setNewImageUrl] = useState('')
   const [newQuantityLabel, setNewQuantityLabel] = useState('')
+  const [openFoodSuggestions, setOpenFoodSuggestions] = useState<OpenFoodSuggestion[]>([])
+  const [searchingSuggestions, setSearchingSuggestions] = useState(false)
 
   const [newActive, setNewActive] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
