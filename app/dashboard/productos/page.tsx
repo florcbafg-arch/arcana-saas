@@ -194,6 +194,64 @@ if (detectedUnit) {
   }
 }
 
+const searchOpenFoodByName = async () => {
+  if (!newProductName.trim()) {
+    setToast({
+      type: "error",
+      message: "Escribí un nombre para buscar sugerencias"
+    })
+    return
+  }
+
+  setSearchingSuggestions(true)
+
+  try {
+    const res = await fetch(
+      `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(newProductName)}&search_simple=1&action=process&json=1&page_size=8&fields=code,product_name,brands,categories,image_url,quantity`
+    )
+
+    const data = await res.json()
+
+    setOpenFoodSuggestions(data.products || [])
+
+    if (!data.products || data.products.length === 0) {
+      setToast({
+        type: "error",
+        message: "No encontramos sugerencias para ese producto"
+      })
+    }
+  } catch (error) {
+    setToast({
+      type: "error",
+      message: "Error buscando sugerencias"
+    })
+  } finally {
+    setSearchingSuggestions(false)
+  }
+}
+
+const useOpenFoodSuggestion = (suggestion: OpenFoodSuggestion) => {
+  setNewProductName(suggestion.product_name || newProductName)
+  setNewBarcode(suggestion.code || '')
+  setNewBrand(suggestion.brands || '')
+  setNewCategory(suggestion.categories || '')
+  setNewImageUrl(suggestion.image_url || '')
+  setNewQuantityLabel(suggestion.quantity || '')
+
+  const detectedUnit = detectUnitFromQuantity(suggestion.quantity || '')
+
+  if (detectedUnit) {
+    setNewUnit(detectedUnit)
+  }
+
+  setOpenFoodSuggestions([])
+
+  setToast({
+    type: "success",
+    message: "Arcana completó el producto seleccionado."
+  })
+}
+
   const fetchProducts = async () => {
     if (!selectedBusinessId) return
 
@@ -1075,6 +1133,79 @@ const usagePercentage =
     className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
     focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
   />
+
+<button
+  type="button"
+  onClick={searchOpenFoodByName}
+  disabled={searchingSuggestions}
+  className="mt-2 w-full bg-[#2A2A32] hover:bg-[#333] transition rounded-xl px-4 py-2 text-sm text-white disabled:opacity-50"
+>
+  {searchingSuggestions ? 'Buscando sugerencias...' : '🔎 Buscar por nombre'}
+</button>
+
+{openFoodSuggestions.length > 0 && (
+  <div className="mt-3 rounded-2xl border border-[#2A2A32] bg-[#0B0B10] overflow-hidden">
+    <div className="p-3 border-b border-[#2A2A32]">
+      <p className="text-sm font-semibold text-white">
+        Sugerencias encontradas
+      </p>
+      <p className="text-xs text-gray-500">
+        Tocá una opción para completar el producto.
+      </p>
+    </div>
+
+    <div className="max-h-72 overflow-y-auto divide-y divide-[#1F1F24]">
+      {openFoodSuggestions.map((suggestion) => (
+        <button
+          key={suggestion.code}
+          type="button"
+          onClick={() => useOpenFoodSuggestion(suggestion)}
+          className="w-full flex gap-3 p-3 text-left hover:bg-[#14141A] transition"
+        >
+          {suggestion.image_url ? (
+            <img
+              src={suggestion.image_url}
+              alt={suggestion.product_name || 'Producto'}
+              className="w-14 h-14 rounded-lg object-contain bg-white p-1"
+            />
+          ) : (
+            <div className="w-14 h-14 rounded-lg bg-[#1A1A22] flex items-center justify-center text-gray-500">
+              📦
+            </div>
+          )}
+
+          <div className="flex-1 min-w-0">
+            <p className="text-sm text-white font-semibold truncate">
+              {suggestion.product_name || 'Producto sin nombre'}
+            </p>
+
+            {suggestion.brands && (
+              <p className="text-xs text-gray-400 truncate">
+                Marca: {suggestion.brands}
+              </p>
+            )}
+
+            {suggestion.quantity && (
+              <p className="text-xs text-gray-400">
+                Presentación: {suggestion.quantity}
+              </p>
+            )}
+
+            {suggestion.code && (
+              <p className="text-xs text-gray-600">
+                Código: {suggestion.code}
+              </p>
+            )}
+          </div>
+
+          <span className="text-xs text-[#6EA8FF] font-semibold">
+            Usar
+          </span>
+        </button>
+      ))}
+    </div>
+  </div>
+)}
 
   <p className="text-xs text-gray-500">
     Ej: Coca Cola 500cc, Yerba 1kg, Papas fritas
