@@ -1364,6 +1364,50 @@ const usagePercentage =
   </div>
 </div>
 
+{(newImageUrl || newBrand || newCategory || newQuantityLabel) && (
+  <div className="rounded-2xl border border-green-500/20 bg-green-500/10 p-4 space-y-3">
+    <p className="text-sm font-semibold text-green-400">
+      ✅ Arcana encontró datos del producto
+    </p>
+
+    <div className="flex gap-4 items-start">
+      {newImageUrl && (
+        <img
+          src={newImageUrl}
+          alt={newProductName || 'Producto'}
+          className="w-20 h-20 rounded-xl object-contain bg-white p-2"
+        />
+      )}
+
+      <div className="space-y-1 text-sm">
+        {newProductName && (
+          <p className="text-white font-semibold">
+            {newProductName}
+          </p>
+        )}
+
+        {newBrand && (
+          <p className="text-gray-300">
+            Marca: <span className="text-white">{newBrand}</span>
+          </p>
+        )}
+
+        {newCategory && (
+          <p className="text-gray-300">
+            Categoría: <span className="text-white">{newCategory}</span>
+          </p>
+        )}
+
+        {newQuantityLabel && (
+          <p className="text-gray-300">
+            Presentación: <span className="text-white">{newQuantityLabel}</span>
+          </p>
+        )}
+      </div>
+    </div>
+  </div>
+)}
+
         {/* Activo */}
         <div className="flex items-center gap-3 pt-2">
           <input
