@@ -148,6 +148,12 @@ console.log({
     setNewCategory(product.categories || '')
     setNewImageUrl(product.image_url || '')
     setNewQuantityLabel(product.quantity || '')
+    
+    const detectedUnit = detectUnitFromQuantity(product.quantity || '')
+
+if (detectedUnit) {
+  setNewUnit(detectedUnit)
+}
 
     console.log('ESTADOS A SETEAR:', {
   brand: product.brands || '',
@@ -219,6 +225,47 @@ const formatMoneyInput = (value: string) => {
   if (!onlyNumbers) return ''
 
   return Number(onlyNumbers).toLocaleString('es-AR')
+}
+
+const detectUnitFromQuantity = (quantity: string) => {
+  const normalized = quantity
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+
+  if (!normalized) return null
+
+  if (
+    normalized.includes('ml') ||
+    normalized.includes('cl') ||
+    normalized.includes('l') ||
+    normalized.includes('litro')
+  ) {
+    return 'litro'
+  }
+
+  if (
+    normalized.includes('kg') ||
+    normalized.includes('g') ||
+    normalized.includes('gr') ||
+    normalized.includes('gramo') ||
+    normalized.includes('kilo')
+  ) {
+    return 'kg'
+  }
+
+  if (
+    normalized.includes('unidad') ||
+    normalized.includes('unidades') ||
+    normalized.includes('uds') ||
+    normalized.includes('pack') ||
+    normalized.includes('x')
+  ) {
+    return 'pack'
+  }
+
+  return null
 }
 
 const getWeightProductNumbers = () => {
