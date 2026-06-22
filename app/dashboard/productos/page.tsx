@@ -46,6 +46,10 @@ export default function ProductosPage() {
   const [newCostPrice, setNewCostPrice] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [newExpirationDate, setNewExpirationDate] = useState('')
+  const [newBrand, setNewBrand] = useState('')
+  const [newCategory, setNewCategory] = useState('')
+  const [newImageUrl, setNewImageUrl] = useState('')
+  const [newQuantityLabel, setNewQuantityLabel] = useState('')
 
   const [newActive, setNewActive] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -136,10 +140,14 @@ console.log({
 })
 
     setNewProductName(product.product_name || newProductName)
+    setNewBrand(product.brands || '')
+    setNewCategory(product.categories || '')
+    setNewImageUrl(product.image_url || '')
+    setNewQuantityLabel(product.quantity || '')
 
     setToast({
       type: "success",
-      message: "Producto encontrado. Arcana completó el nombre."
+      message: "Producto encontrado. Arcana completó los datos disponibles."
     })
 
     console.log("Open Food Facts:", {
@@ -348,6 +356,10 @@ setEditingId(null)
     setNewUnitBase('unidad')
     setNewPriceBy('kg')
     setNewExpirationDate('')
+    setNewBrand('')
+    setNewCategory('')
+    setNewImageUrl('')
+    setNewQuantityLabel('')
 
   } catch (err: any) {
     setToast({ type: "error", message: err.message || "Error al guardar producto" })
