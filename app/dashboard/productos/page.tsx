@@ -28,6 +28,10 @@ type Product = {
   suppliers?: {
    name: string
 } | null
+  brand?: string | null
+category?: string | null
+image_url?: string | null
+quantity?: string | null
 }
 
 type Supplier = {
@@ -442,6 +446,11 @@ const handleEdit = (product: Product) => {
   setNewPriceBy(
   product.price_by === '100g' ? '100g' : 'kg'
 )
+
+setNewBrand(product.brand || '')
+setNewCategory(product.category || '')
+setNewImageUrl(product.image_url || '')
+setNewQuantityLabel(product.quantity || '')
 }
 
 useEffect(() => {
