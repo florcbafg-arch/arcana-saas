@@ -32,6 +32,10 @@ type Product = {
 category?: string | null
 image_url?: string | null
 quantity?: string | null
+times_used?: number
+last_used_at?: string | null
+country?: string | null
+confidence?: number | null
 }
 
 type Supplier = {
@@ -178,7 +182,7 @@ const fetchProduct = async () => {
       await supabase
         .from('arcana_catalog')
         .update({
-          usage_count: (catalogProduct.usage_count || 0) + 1,
+          times_used: (catalogProduct.times_used || 0) + 1,
           last_used_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         })
@@ -220,7 +224,7 @@ const fetchProduct = async () => {
       source: 'openfood',
       country: 'AR',
       confidence: 70,
-      usage_count: 1,
+      times_used: 1,
       last_used_at: new Date().toISOString(),
     }
 
