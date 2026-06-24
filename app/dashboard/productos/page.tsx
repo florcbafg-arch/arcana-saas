@@ -118,7 +118,33 @@ useEffect(() => {
   }
 }, [])
 
-const fetchOpenFoodProduct = async () => {
+const applyProductData = (product: {
+  name?: string | null
+  brand?: string | null
+  category?: string | null
+  image_url?: string | null
+  quantity?: string | null
+  unit?: string | null
+  barcode?: string | null
+}) => {
+  setNewProductName(product.name || newProductName)
+  setNewBrand(product.brand || '')
+  setNewCategory(product.category || '')
+  setNewImageUrl(product.image_url || '')
+  setNewQuantityLabel(product.quantity || '')
+
+  if (product.barcode) {
+    setNewBarcode(product.barcode)
+  }
+
+  const detectedUnit =
+    product.unit || detectUnitFromQuantity(product.quantity || '')
+
+  if (detectedUnit) {
+    setNewUnit(detectedUnit)
+  }
+}
+const fetchProduct = async () => {
   if (!newBarcode.trim()) {
     setToast({
       type: "error",
@@ -127,69 +153,98 @@ const fetchOpenFoodProduct = async () => {
     return
   }
 
+  const barcode = newBarcode.trim()
+
   try {
+    const { data: catalogProduct, error: catalogError } = await supabase
+      .from('arcana_catalog')
+      .select('*')
+      .eq('barcode', barcode)
+      .maybeSingle()
+
+    if (catalogError) throw catalogError
+
+    if (catalogProduct) {
+      applyProductData({
+        name: catalogProduct.name,
+        brand: catalogProduct.brand,
+        category: catalogProduct.category,
+        image_url: catalogProduct.image_url,
+        quantity: catalogProduct.quantity,
+        unit: catalogProduct.unit,
+        barcode: catalogProduct.barcode,
+      })
+
+      await supabase
+        .from('arcana_catalog')
+        .update({
+          usage_count: (catalogProduct.usage_count || 0) + 1,
+          last_used_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', catalogProduct.id)
+
+      setToast({
+        type: "success",
+        message: "Producto encontrado en el catálogo inteligente de Arcana."
+      })
+
+      return
+    }
+
     const res = await fetch(
-      `https://world.openfoodfacts.org/api/v2/product/${newBarcode}?fields=product_name,brands,categories,image_url,quantity`
+      `https://world.openfoodfacts.org/api/v2/product/${barcode}?fields=product_name,brands,categories,image_url,quantity`
     )
 
     const data = await res.json()
 
     if (data.status !== 1) {
       setToast({
-  type: "error",
-  message: "No encontramos este producto en Open Food Facts"
-})
+        type: "error",
+        message: "No encontramos este producto en el catálogo ni en Open Food Facts"
+      })
       return
     }
 
     const product = data.product
-
-    console.log('OPEN FOOD FACTS FULL:', data)
-
-console.log({
-  name: product.product_name,
-  brand: product.brands,
-  category: product.categories,
-  image: product.image_url,
-  quantity: product.quantity,
-})
-
-    setNewProductName(product.product_name || newProductName)
-    setNewBrand(product.brands || '')
-    setNewCategory(product.categories || '')
-    setNewImageUrl(product.image_url || '')
-    setNewQuantityLabel(product.quantity || '')
-    
     const detectedUnit = detectUnitFromQuantity(product.quantity || '')
 
-if (detectedUnit) {
-  setNewUnit(detectedUnit)
-}
+    const productToSave = {
+      barcode,
+      name: product.product_name || 'Producto sin nombre',
+      brand: product.brands || null,
+      category: product.categories || null,
+      image_url: product.image_url || null,
+      quantity: product.quantity || null,
+      unit: detectedUnit || null,
+      source: 'openfood',
+      country: 'AR',
+      confidence: 70,
+      usage_count: 1,
+      last_used_at: new Date().toISOString(),
+    }
 
-    console.log('ESTADOS A SETEAR:', {
-  brand: product.brands || '',
-  category: product.categories || '',
-  image: product.image_url || '',
-  quantity: product.quantity || '',
-})
+    const { error: insertCatalogError } = await supabase
+      .from('arcana_catalog')
+      .upsert(productToSave, {
+        onConflict: 'barcode'
+      })
+
+    if (insertCatalogError) throw insertCatalogError
+
+    applyProductData(productToSave)
 
     setToast({
       type: "success",
-      message: "Producto encontrado. Arcana completó los datos disponibles."
+      message: "Producto encontrado y guardado en el catálogo inteligente de Arcana."
     })
 
-    console.log("Open Food Facts:", {
-      name: product.product_name,
-      brand: product.brands,
-      category: product.categories,
-      image: product.image_url,
-      quantity: product.quantity,
-    })
+  } catch (error: any) {
+    console.error("ERROR FETCH PRODUCT:", error)
 
-  } catch (error) {
     setToast({
       type: "error",
-      message: "Error buscando datos del producto"
+      message: error.message || "Error buscando producto"
     })
   }
 }
@@ -1575,7 +1630,7 @@ const usagePercentage =
 
 <button
   type="button"
-  onClick={fetchOpenFoodProduct}
+  onClick={fetchProduct}
   className="px-3 bg-green-700 rounded-xl hover:bg-green-600 text-white"
 >
   🔎 Buscar
