@@ -1413,8 +1413,36 @@ const usagePercentage =
   <p className="text-xs text-gray-500">
     Ej: Coca Cola 500cc, Yerba 1kg, Papas fritas
   </p>
-  
-   {/* Barcode */}
+</div>
+
+{/* Tipo de venta */}
+<div className="space-y-2">
+
+  <label className="text-sm text-gray-400">
+    Tipo de venta
+  </label>
+
+  <div className="grid grid-cols-1 gap-2">
+
+    <label className="flex items-center gap-3 bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 cursor-pointer">
+      <input
+        type="radio"
+        checked={newSaleType === 'unit'}
+        onChange={() => {
+          setNewSaleType('unit')
+          setNewUnitBase('unidad')
+        }}
+      />
+
+      <div>
+        <p className="text-sm text-white font-medium">
+          Unidad / paquete
+        </p>
+
+        <p className="text-xs text-gray-500">
+          Ej: Coca Cola 500cc, Galletas 600g, Yerba 1kg
+        </p>
+        {/* Barcode */}
 
 <div className="space-y-1">
   <label className="text-sm text-gray-400">
@@ -1507,36 +1535,6 @@ const usagePercentage =
   </div>
 )}
 
-</div>
-
-{/* Tipo de venta */}
-<div className="space-y-2">
-
-  <label className="text-sm text-gray-400">
-    Tipo de venta
-  </label>
-
-  <div className="grid grid-cols-1 gap-2">
-
-    <label className="flex items-center gap-3 bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 cursor-pointer">
-      <input
-        type="radio"
-        checked={newSaleType === 'unit'}
-        onChange={() => {
-          setNewSaleType('unit')
-          setNewUnitBase('unidad')
-        }}
-      />
-
-      <div>
-        <p className="text-sm text-white font-medium">
-          Unidad / paquete
-        </p>
-
-        <p className="text-xs text-gray-500">
-          Ej: Coca Cola 500cc, Galletas 600g, Yerba 1kg
-        </p>
-        
       </div>
     </label>
 
