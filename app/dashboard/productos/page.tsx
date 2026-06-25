@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import * as XLSX from "xlsx"
 import { useRef } from "react"
+import BarcodeScanner from "../components/BarcodeScanner"
 
 type Product = {
   id: string
@@ -71,6 +72,7 @@ export default function ProductosPage() {
   const [searchingSuggestions, setSearchingSuggestions] = useState(false)
   const [businessType, setBusinessType] = useState('kiosco')
   const [barcodeWasGenerated, setBarcodeWasGenerated] = useState(false)
+  const [showScanner, setShowScanner] = useState(false)
 
   const [newActive, setNewActive] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -264,7 +266,7 @@ const saveProductToArcanaCatalog = async (product: {
   }
 }
 
-const fetchProduct = async () => {
+const fetchProduct = async (barcodeFromScanner?: string) => {
   if (!newBarcode.trim()) {
     setToast({
       type: "error",
@@ -273,7 +275,7 @@ const fetchProduct = async () => {
     return
   }
 
-  const barcode = newBarcode.trim()
+  const barcode = barcodeFromScanner || newBarcode.trim()
 
   try {
     const { data: catalogProduct, error: catalogError } = await supabase
@@ -367,6 +369,14 @@ const fetchProduct = async () => {
       message: error.message || "Error buscando producto"
     })
   }
+}
+
+const handleProductScan = async (code: string) => {
+  setNewBarcode(code)
+  setBarcodeWasGenerated(false)
+  setShowScanner(false)
+
+  await fetchProduct(code)
 }
 
 const searchOpenFoodByName = async () => {
@@ -1773,10 +1783,18 @@ const usagePercentage =
 
 <button
   type="button"
-  onClick={fetchProduct}
+  onClick={() => fetchProduct()}
   className="px-3 bg-green-700 rounded-xl hover:bg-green-600 text-white"
 >
   🔎 Buscar
+</button>
+
+<button
+  type="button"
+  onClick={() => setShowScanner(true)}
+  className="px-3 bg-[#6C5CE7] rounded-xl hover:bg-[#5A4BD1] text-white"
+>
+  📷
 </button>
 
   </div>
@@ -1859,6 +1877,33 @@ const usagePercentage =
     </div>
   </div>
 )}
+
+{showScanner && (
+  <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="w-full max-w-lg space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-white font-semibold">
+            Escanear código
+          </p>
+          <p className="text-xs text-gray-400">
+            Apuntá al código de barras del producto.
+          </p>
+        </div>
+
+        <button
+          onClick={() => setShowScanner(false)}
+          className="text-white text-2xl"
+        >
+          ✕
+        </button>
+      </div>
+
+      <BarcodeScanner onScan={handleProductScan} />
+    </div>
+  </div>
+)}
+
 {showMobileTable && (
   <div className="fixed inset-0 z-[999] bg-[#08080D] flex flex-col">
 
