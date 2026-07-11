@@ -549,11 +549,12 @@ const createProduct = async () => {
     return
   }
 
-  if (!editingId && products.length >= FREE_LIMIT) {
+  if (!editingId && products.length >= BASE_LIMIT) {
   setToast({
-    type: "error",
-    message: "Llegaste al límite de 500 productos del plan Free. Arcana PRO desbloquea productos ilimitados."
-  })
+  type: "error",
+  message:
+    "Llegaste al límite de 2.000 productos del Plan Base. Actualizá a Arcana Impulso para seguir creciendo."
+})
   return
 }
 
@@ -779,88 +780,245 @@ useEffect(() => {
   return () => clearTimeout(timer)
 }, [toast])
 
-const handleExcelUpload = async (e: any) => {
-
-  const file = e.target.files[0]
+const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0]
 
   if (!file) return
 
-  const data = await file.arrayBuffer()
-
-  const workbook = XLSX.read(data)
-
-  const sheet = workbook.Sheets[workbook.SheetNames[0]]
-
-  const rows: any[] = XLSX.utils.sheet_to_json(sheet)
-
-  console.log(rows)
-  
-  const requiredFields = ["name", "price", "stock"]
-
-for (const field of requiredFields) {
-  if (!rows[0] || !(field in rows[0])) {
+  if (!selectedBusinessId) {
     setToast({
       type: "error",
-      message: `El Excel debe tener la columna "${field}"`
+      message: "No hay un negocio activo seleccionado."
     })
     return
   }
-}
 
-for (const row of rows) {
+  try {
+    const data = await file.arrayBuffer()
+    const workbook = XLSX.read(data)
+    const sheet = workbook.Sheets[workbook.SheetNames[0]]
+    const rows: any[] = XLSX.utils.sheet_to_json(sheet)
 
-  const generatedCode = `PRD-${Date.now()}-${Math.floor(Math.random() * 1000)}`
+    if (rows.length === 0) {
+      setToast({
+        type: "error",
+        message: "El archivo Excel está vacío."
+      })
+      return
+    }
 
-  const productName = row.name.trim().toLowerCase()
+    const requiredFields = ["name", "price", "stock"]
 
-  const { data } = await supabase
-    .from("products")
-    .select("*")
-    .eq("business_id", selectedBusinessId)
+    for (const field of requiredFields) {
+      if (!(field in rows[0])) {
+        setToast({
+          type: "error",
+          message: `El Excel debe tener la columna "${field}".`
+        })
+        return
+      }
+    }
 
-  const existing = data?.find(
-    p => p.name.trim().toLowerCase() === productName
-  )
+    const invalidRow = rows.find(
+      (row) =>
+        !row.name ||
+        String(row.name).trim() === "" ||
+        row.price === undefined ||
+        row.stock === undefined
+    )
 
- if (existing) {
-  await supabase
-    .from("products")
-    .update({
-      stock_quantity: existing.stock_quantity + Number(row.stock),
-      min_stock_yellow: row.min_stock_yellow
-        ? Number(row.min_stock_yellow)
-        : existing.min_stock_yellow,
-      min_stock_red: row.min_stock_yellow
-        ? Math.max(1, Math.floor(Number(row.min_stock_yellow) / 2))
-        : existing.min_stock_red,
-      code: row.code || existing.code,
+    if (invalidRow) {
+      setToast({
+        type: "error",
+        message:
+          "Hay filas incompletas. Revisá que todos los productos tengan name, price y stock."
+      })
+      return
+    }
+
+    /*
+     * Normalizamos los nombres para comparar productos existentes,
+     * sin importar mayúsculas, minúsculas o espacios.
+     */
+    const existingProductNames = new Set(
+      products.map((product) =>
+        product.name.trim().toLowerCase()
+      )
+    )
+
+    /*
+     * Evitamos contar dos veces un mismo producto nuevo
+     * si aparece repetido dentro del propio Excel.
+     */
+    const newProductNames = new Set<string>()
+
+    for (const row of rows) {
+      const productName = String(row.name).trim().toLowerCase()
+
+      if (
+        !existingProductNames.has(productName)
+      ) {
+        newProductNames.add(productName)
+      }
+    }
+
+    const newProductsCount = newProductNames.size
+    const projectedTotal = products.length + newProductsCount
+
+    if (projectedTotal > BASE_LIMIT) {
+      const availableSlots = Math.max(
+        BASE_LIMIT - products.length,
+        0
+      )
+
+      setToast({
+        type: "error",
+        message:
+          `No se puede importar el archivo. Contiene ${newProductsCount} productos nuevos, pero solo te quedan ${availableSlots} lugares disponibles en el Plan Base. El límite es de 2.000 productos.`
+      })
+
+      /*
+       * Permite volver a seleccionar el mismo archivo
+       * después de corregirlo.
+       */
+      e.target.value = ""
+      return
+    }
+
+    setLoading(true)
+
+    /*
+     * Creamos un mapa local para no consultar toda la tabla
+     * de productos en cada vuelta del ciclo.
+     */
+    const productsByName = new Map(
+      products.map((product) => [
+        product.name.trim().toLowerCase(),
+        product
+      ])
+    )
+
+    for (const row of rows) {
+      const generatedCode =
+        `PRD-${Date.now()}-${Math.floor(Math.random() * 100000)}`
+
+      const productName = String(row.name)
+        .trim()
+        .toLowerCase()
+
+      const existing = productsByName.get(productName)
+
+      if (existing) {
+        const { error } = await supabase
+          .from("products")
+          .update({
+            stock_quantity:
+              Number(existing.stock_quantity || 0) +
+              Number(row.stock || 0),
+
+            price:
+              row.price !== undefined
+                ? Number(row.price)
+                : existing.price,
+
+            unit:
+              row.unit || existing.unit || "unidad",
+
+            min_stock_yellow:
+              row.min_stock_yellow !== undefined
+                ? Number(row.min_stock_yellow)
+                : existing.min_stock_yellow,
+
+            min_stock_red:
+              row.min_stock_yellow !== undefined
+                ? Math.max(
+                    1,
+                    Math.floor(
+                      Number(row.min_stock_yellow) / 2
+                    )
+                  )
+                : existing.min_stock_red,
+
+            code:
+              row.code || existing.code
+          })
+          .eq("id", existing.id)
+
+        if (error) throw error
+      } else {
+        const newProduct = {
+          name: String(row.name).trim(),
+          price: Number(row.price),
+          stock_quantity: Number(row.stock),
+          unit: row.unit || "unidad",
+          code: row.code || generatedCode,
+          min_stock_yellow:
+            row.min_stock_yellow !== undefined
+              ? Number(row.min_stock_yellow)
+              : 1,
+          min_stock_red:
+            row.min_stock_yellow !== undefined
+              ? Math.max(
+                  1,
+                  Math.floor(
+                    Number(row.min_stock_yellow) / 2
+                  )
+                )
+              : 1,
+          business_id: selectedBusinessId,
+          active: true
+        }
+
+        const { data: insertedProduct, error } =
+          await supabase
+            .from("products")
+            .insert(newProduct)
+            .select("*")
+            .single()
+
+        if (error) throw error
+
+        /*
+         * Agregamos el producto recién creado al mapa.
+         * Así, si aparece repetido más adelante en el Excel,
+         * se actualizará en lugar de volver a insertarse.
+         */
+        if (insertedProduct) {
+          productsByName.set(
+            productName,
+            insertedProduct
+          )
+        }
+      }
+    }
+
+    await fetchProducts()
+
+    setToast({
+      type: "success",
+      message:
+        newProductsCount > 0
+          ? `Importación completada. Se agregaron ${newProductsCount} productos nuevos sin superar el límite de 2.000.`
+          : "Importación completada. Se actualizaron productos existentes."
     })
-    .eq("id", existing.id)
-} else {
+  } catch (error: any) {
+    console.error("ERROR IMPORTANDO EXCEL:", error)
 
- await supabase.from("products").insert({
-  name: row.name.trim(),
-  price: Number(row.price),
-  stock_quantity: Number(row.stock),
-  unit: row.unit || "unidad",
-  code: row.code || generatedCode,
-  min_stock_yellow: row.min_stock_yellow ? Number(row.min_stock_yellow) : 1,
-  min_stock_red: row.min_stock_yellow
-    ? Math.max(1, Math.floor(Number(row.min_stock_yellow) / 2))
-    : 1,
-  business_id: selectedBusinessId
-})
+    setToast({
+      type: "error",
+      message:
+        error.message ||
+        "Ocurrió un error al importar los productos."
+    })
+  } finally {
+    setLoading(false)
+
+    /*
+     * Limpia el input para permitir importar nuevamente
+     * el mismo archivo.
+     */
+    e.target.value = ""
   }
-
-}
-
-  fetchProducts()
-
-  setToast({
-    type: "success",
-    message: "Productos importados correctamente"
-  })
-
 }
 
 const downloadTemplate = () => {
@@ -897,17 +1055,16 @@ const downloadTemplate = () => {
   XLSX.utils.book_append_sheet(workbook, worksheet, "productos")
   XLSX.writeFile(workbook, "plantilla_productos_arcana.xlsx")
 }
-
-const FREE_LIMIT = 500
+const BASE_LIMIT = 2000
 
 const isFreeLimitReached =
-  !editingId && products.length >= FREE_LIMIT
+  !editingId && products.length >= BASE_LIMIT
 
 const remainingProducts =
-  Math.max(FREE_LIMIT - products.length, 0)
+  Math.max(BASE_LIMIT - products.length, 0)
 
 const usagePercentage =
-  Math.min((products.length / FREE_LIMIT) * 100, 100)
+  Math.min((products.length / BASE_LIMIT) * 100, 100)
 
   const canGenerateInternalBarcode =
   ['indumentaria', 'bazar', 'libreria', 'otro'].includes(businessType)
@@ -980,16 +1137,16 @@ const usagePercentage =
   <div className="flex items-center justify-between mb-3">
     <div>
       <p className="text-white font-semibold">
-        Plan Free
+        Plan Base
       </p>
 
       <p className="text-sm text-gray-400">
-        {products.length} / {FREE_LIMIT} productos usados
+        {products.length} / {BASE_LIMIT} productos usados
       </p>
     </div>
 
     <span className="text-xs px-3 py-1 rounded-full bg-[#1F6BFF]/20 text-[#6EA8FF] border border-[#1F6BFF]/30">
-      FREE
+      BASE
     </span>
   </div>
 
@@ -1011,12 +1168,12 @@ const usagePercentage =
   <p className="text-xs text-gray-500 mt-3">
     {remainingProducts > 0
       ? `Te quedan ${remainingProducts} productos disponibles.`
-      : 'Llegaste al límite del plan Free.'}
+      : 'Llegaste al límite del Plan Base.'}
   </p>
 
   {usagePercentage >= 70 && (
     <p className="text-xs text-[#6EA8FF] mt-1">
-      Arcana PRO desbloquea productos ilimitados.
+      Arcana Impulso aumenta la capacidad de tu negocio.
     </p>
   )}
 </div>
