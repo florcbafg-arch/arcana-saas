@@ -863,9 +863,9 @@ const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     }
 
     const newProductsCount = newProductNames.size
-    const projectedTotal = products.length + newProductsCount
+const projectedTotal = products.length + newProductsCount
 
-    if (projectedTotal > BASE_LIMIT) {
+if (newProductsCount > 0 && projectedTotal > BASE_LIMIT) {
       const availableSlots = Math.max(
         BASE_LIMIT - products.length,
         0
@@ -1055,7 +1055,7 @@ const downloadTemplate = () => {
   XLSX.utils.book_append_sheet(workbook, worksheet, "productos")
   XLSX.writeFile(workbook, "plantilla_productos_arcana.xlsx")
 }
-const BASE_LIMIT = 2000
+const BASE_LIMIT = 3
 
 const isFreeLimitReached =
   !editingId && products.length >= BASE_LIMIT
