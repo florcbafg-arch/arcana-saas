@@ -188,51 +188,58 @@ useEffect(() => {
 
   return (
     
-    <div className="p-6 space-y-8">
+    <div className="p-4 md:p-6 space-y-5 md:space-y-8">
 
       {/* ================= HEADER ================= */}
       <div>
-        <h1 className="text-2xl font-semibold text-white">
+        <h1 className="text-2xl md:text-3xl font-semibold text-white">
           📦 Control de Stock
         </h1>
         <p className="text-gray-400 mt-1">
-          Gestioná tu inventario en tiempo real.
+          Consultá el estado de tu inventario en tiempo real.
         </p>
       </div>
 
       {/* ================= KPI CARDS ================= */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <div className="bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
+<div className="grid grid-cols-3 gap-2 md:gap-6">
 
-          <p className="text-gray-400 text-sm">Total productos</p>
-          <p className="text-3xl font-bold text-white mt-2">
-  {products.length}
-</p>
+  <div className="bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-2xl p-3 md:p-6">
+    <p className="text-gray-400 text-[11px] md:text-sm">
+      Productos
+    </p>
 
-        </div>
+    <p className="text-xl md:text-3xl font-bold text-white mt-1 md:mt-2">
+      {products.length}
+    </p>
+  </div>
 
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-          <p className="text-gray-400 text-sm">En alerta</p>
-          <p className="text-3xl font-bold text-yellow-400 mt-2">
-  {alertProducts}
-</p>
-        </div>
+  <div className="bg-gray-900 border border-gray-800 rounded-2xl p-3 md:p-6">
+    <p className="text-gray-400 text-[11px] md:text-sm">
+      En alerta
+    </p>
 
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
-          <p className="text-gray-400 text-sm">Críticos</p>
-       <p className="text-3xl font-bold text-red-500 mt-2">
-  {criticalProducts}
-</p>
-        </div>
+    <p className="text-xl md:text-3xl font-bold text-yellow-400 mt-1 md:mt-2">
+      {alertProducts}
+    </p>
+  </div>
 
-      </div>
+  <div className="bg-gray-900 border border-gray-800 rounded-2xl p-3 md:p-6">
+    <p className="text-gray-400 text-[11px] md:text-sm">
+      Críticos
+    </p>
+
+    <p className="text-xl md:text-3xl font-bold text-red-500 mt-1 md:mt-2">
+      {criticalProducts}
+    </p>
+  </div>
+
+</div>
 
       {/* ================= GRID PRINCIPAL ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {/* ===== IZQUIERDA PRODUCTOS ===== */}
-        <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-2xl p-6 space-y-4">
+        <div className="lg:col-span-2 bg-gray-900 border border-gray-800 rounded-2xl p-4 md:p-6 space-y-4">
 
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
@@ -288,7 +295,7 @@ useEffect(() => {
   ))}
 </div>
 
-         <div className="max-h-[500px] overflow-y-auto pr-2 space-y-3">
+         <div className="md:max-h-[500px] md:overflow-y-auto md:pr-2 space-y-3">
 
 
        {products
@@ -318,6 +325,19 @@ const color =
     ? 'bg-yellow-400'
     : 'bg-green-500'
 
+    const statusLabel =
+  status === 'red'
+    ? 'Crítico'
+    : status === 'yellow'
+    ? 'En alerta'
+    : 'Normal'
+
+const statusTextColor =
+  status === 'red'
+    ? 'text-red-400'
+    : status === 'yellow'
+    ? 'text-yellow-400'
+    : 'text-green-400'
 
       return (
         <div
@@ -327,37 +347,57 @@ const color =
     fetchMovements(product.id)
   }}
   className={`
-  flex items-center justify-between
-  bg-[#111827]
-  border border-[#1F2937]
-  rounded-2xl
-  px-4 py-4
-  cursor-pointer
-  transition-all
-  ${
-    selectedProduct?.id === product.id
-      ? 'ring-2 ring-blue-500 border-blue-500'
-      : 'hover:bg-[#1A2233]'
-  }
-`}
+    flex items-center justify-between gap-3
+    bg-[#111827]
+    border border-[#1F2937]
+    rounded-2xl
+    px-4 py-4
+    cursor-pointer
+    transition-all
+    active:scale-[0.99]
+    ${
+      selectedProduct?.id === product.id
+        ? 'md:ring-2 md:ring-blue-500 md:border-blue-500'
+        : 'hover:bg-[#1A2233]'
+    }
+  `}
 >
-          <div>
-            <p className="text-white font-medium leading-tight">
-  {product.name}
-</p>
-            <p className="text-gray-400 text-sm">
-              Stock: {product.stock_quantity}
-            </p>
-          </div>
-          <div className={`w-3 h-3 rounded-full ${color}`} />
-        </div>
+  <div className="min-w-0 flex-1">
+    <p className="text-white font-semibold leading-tight truncate">
+      {product.name}
+    </p>
+
+    <div className="flex items-center gap-2 mt-1">
+      <p className="text-gray-400 text-sm">
+        Stock:{" "}
+        <span className="text-white font-medium">
+          {product.stock_quantity}
+        </span>
+      </p>
+
+      <span className="text-gray-600">•</span>
+
+      <p className={`text-xs font-medium ${statusTextColor}`}>
+        {statusLabel}
+      </p>
+    </div>
+  </div>
+
+  <div className="flex items-center gap-3">
+    <div className={`w-3 h-3 rounded-full shrink-0 ${color}`} />
+
+    <span className="md:hidden text-gray-500 text-xl">
+      ›
+    </span>
+  </div>
+</div>
       )
     })}
 </div>
 </div>
 
 {/* ===== DERECHA DETALLE PRODUCTO ===== */}
-<div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 space-y-6">
+<div className="hidden lg:block bg-gray-900 border border-gray-800 rounded-2xl p-6 space-y-6">
 
   {!selectedProduct ? (
     <p className="text-gray-500 text-sm">
@@ -570,7 +610,315 @@ const color =
 
 </div>
 
+{/* ================= DETALLE MOBILE ================= */}
+{selectedProduct && (
+  <div
+    className="lg:hidden fixed inset-0 z-[1000] bg-black/70 backdrop-blur-sm flex items-end"
+    onClick={() => {
+      setSelectedProduct(null)
+      setMovements([])
+    }}
+  >
+    <div
+      className="w-full max-h-[88vh] bg-[#111827] border-t border-[#263247] rounded-t-3xl overflow-hidden flex flex-col"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Indicador superior */}
+      <div className="flex justify-center pt-3">
+        <div className="w-12 h-1.5 rounded-full bg-gray-700" />
+      </div>
 
+      {/* Encabezado */}
+      <div className="flex items-start justify-between gap-4 px-5 pt-4 pb-5 border-b border-gray-800">
+        <div className="min-w-0">
+          <h2 className="text-xl font-bold text-white leading-tight">
+            {selectedProduct.name}
+          </h2>
+
+          <p className="text-sm text-gray-400 mt-1">
+            Unidad: {selectedProduct.unit}
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedProduct(null)
+            setMovements([])
+          }}
+          className="w-10 h-10 shrink-0 rounded-full bg-gray-800 text-gray-300 flex items-center justify-center text-xl"
+          aria-label="Cerrar detalle"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Contenido desplazable */}
+      <div className="overflow-y-auto flex-1 px-5 py-5 space-y-5">
+
+        {/* Estado y stock */}
+        <div className="bg-[#0F172A] border border-[#1E293B] rounded-2xl p-4">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-sm text-gray-400">
+                Stock actual
+              </p>
+
+              <p className="text-4xl font-bold text-white mt-1">
+                {selectedProduct.stock_quantity}
+              </p>
+
+              <p className="text-xs text-gray-500 mt-1">
+                {selectedProduct.unit}
+              </p>
+            </div>
+
+            <div>
+              {getStockStatus(selectedProduct) === 'red' && (
+                <span className="inline-flex px-3 py-1.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-semibold">
+                  🔴 Crítico
+                </span>
+              )}
+
+              {getStockStatus(selectedProduct) === 'yellow' && (
+                <span className="inline-flex px-3 py-1.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs font-semibold">
+                  🟡 En alerta
+                </span>
+              )}
+
+              {getStockStatus(selectedProduct) === 'green' && (
+                <span className="inline-flex px-3 py-1.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 text-xs font-semibold">
+                  🟢 Normal
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden mt-4">
+            <div
+              className={`h-full transition-all duration-500 ${
+                getStockStatus(selectedProduct) === 'red'
+                  ? 'bg-red-500'
+                  : getStockStatus(selectedProduct) === 'yellow'
+                  ? 'bg-yellow-400'
+                  : 'bg-green-500'
+              }`}
+              style={{
+                width: `${Math.min(
+                  100,
+                  selectedProduct.min_stock_yellow > 0
+                    ? (selectedProduct.stock_quantity /
+                        (selectedProduct.min_stock_yellow * 2)) *
+                        100
+                    : 100
+                )}%`
+              }}
+            />
+          </div>
+
+          <p className="text-xs text-gray-500 mt-3">
+            Alerta: {selectedProduct.min_stock_yellow} · Crítico:{" "}
+            {selectedProduct.min_stock_red}
+          </p>
+        </div>
+
+        {/* Valores principales */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
+            <p className="text-xs text-gray-400">
+              Precio
+            </p>
+
+            <p className="text-lg text-white font-bold mt-1">
+              ${Number(selectedProduct.price || 0).toLocaleString('es-AR')}
+            </p>
+          </div>
+
+          <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
+            <p className="text-xs text-gray-400">
+              Costo
+            </p>
+
+            <p className="text-lg text-white font-bold mt-1">
+              ${Number(selectedProduct.cost_price || 0).toLocaleString('es-AR')}
+            </p>
+          </div>
+
+          <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
+            <p className="text-xs text-gray-400">
+              Margen
+            </p>
+
+            <p
+              className={`text-lg font-bold mt-1 ${
+                (selectedProduct.price || 0) -
+                  (selectedProduct.cost_price || 0) <
+                0
+                  ? 'text-red-400'
+                  : 'text-green-400'
+              }`}
+            >
+              $
+              {(
+                (selectedProduct.price || 0) -
+                (selectedProduct.cost_price || 0)
+              ).toLocaleString('es-AR')}
+            </p>
+          </div>
+
+          <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
+            <p className="text-xs text-gray-400">
+              Valor en stock
+            </p>
+
+            <p className="text-lg text-blue-400 font-bold mt-1">
+              $
+              {(
+                selectedProduct.stock_quantity *
+                selectedProduct.price
+              ).toLocaleString('es-AR')}
+            </p>
+          </div>
+        </div>
+
+        {/* Rentabilidad */}
+        <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
+          <p className="text-sm text-gray-400">
+            Rentabilidad
+          </p>
+
+          <p
+            className={`text-lg font-bold mt-2 ${
+              getProfitStatus(selectedProduct) === 'loss'
+                ? 'text-red-400'
+                : getProfitStatus(selectedProduct) === 'low' ||
+                  getProfitStatus(selectedProduct) === 'zero'
+                ? 'text-yellow-400'
+                : 'text-green-400'
+            }`}
+          >
+            {getProfitLabel(selectedProduct)}
+          </p>
+
+          <p className="text-xs text-gray-500 mt-2">
+            {selectedProduct.sale_type === 'weight'
+              ? 'Valores calculados por 100 gramos.'
+              : 'Valores calculados por unidad.'}
+          </p>
+        </div>
+
+        {/* Ganancia potencial */}
+        <div className="bg-[#0F172A] border border-[#1E293B] rounded-2xl p-4">
+          <p className="text-sm text-gray-400">
+            Ganancia potencial
+          </p>
+
+          <p className="text-2xl font-bold text-green-400 mt-2">
+            $
+            {(
+              ((selectedProduct.price || 0) -
+                (selectedProduct.cost_price || 0)) *
+              selectedProduct.stock_quantity
+            ).toLocaleString('es-AR')}
+          </p>
+
+          <p className="text-xs text-gray-500 mt-2">
+            Ganancia estimada si vendés todo el stock actual.
+          </p>
+        </div>
+
+        {/* Historial */}
+        <div className="pt-2">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <p className="text-white font-semibold">
+                Historial
+              </p>
+
+              <p className="text-xs text-gray-500">
+                Últimos movimientos del producto
+              </p>
+            </div>
+
+            <span className="text-xs text-gray-500">
+              {movements.length} movimientos
+            </span>
+          </div>
+
+          {loadingMovements ? (
+            <div className="bg-gray-800/60 rounded-2xl p-4">
+              <p className="text-gray-400 text-sm">
+                Cargando historial...
+              </p>
+            </div>
+          ) : movements.length === 0 ? (
+            <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
+              <p className="text-gray-400 text-sm">
+                Todavía no hay movimientos registrados.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {movements.map((movement) => (
+                <div
+                  key={movement.id}
+                  className="flex items-center justify-between gap-3 bg-gray-800/60 border border-gray-700 rounded-xl px-4 py-3"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div
+                      className={`w-9 h-9 shrink-0 rounded-full flex items-center justify-center ${
+                        movement.change < 0
+                          ? 'bg-red-500/10 text-red-400'
+                          : 'bg-green-500/10 text-green-400'
+                      }`}
+                    >
+                      {movement.change < 0 ? '−' : '+'}
+                    </div>
+
+                    <div className="min-w-0">
+                      <p className="text-sm text-white font-medium truncate">
+                        {movement.reason === 'Ingreso manual' && 'Ingreso'}
+                        {movement.reason === 'Ajuste manual' && 'Ajuste'}
+                        {movement.reason === 'Venta' && 'Venta'}
+                        {![
+                          'Ingreso manual',
+                          'Ajuste manual',
+                          'Venta'
+                        ].includes(movement.reason) && movement.reason}
+                      </p>
+
+                      <p className="text-xs text-gray-500">
+                        {new Date(movement.created_at).toLocaleDateString(
+                          'es-AR',
+                          {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                          }
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  <p
+                    className={`text-base font-bold ${
+                      movement.change < 0
+                        ? 'text-red-400'
+                        : 'text-green-400'
+                    }`}
+                  >
+                    {movement.change > 0 ? '+' : ''}
+                    {movement.change}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
 
 </div>
