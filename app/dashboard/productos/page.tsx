@@ -1055,7 +1055,7 @@ const downloadTemplate = () => {
   XLSX.utils.book_append_sheet(workbook, worksheet, "productos")
   XLSX.writeFile(workbook, "plantilla_productos_arcana.xlsx")
 }
-const BASE_LIMIT = 3
+const BASE_LIMIT = 2000
 
 const isFreeLimitReached =
   !editingId && products.length >= BASE_LIMIT
