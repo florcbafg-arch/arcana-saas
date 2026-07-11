@@ -295,7 +295,7 @@ useEffect(() => {
   ))}
 </div>
 
-         <div className="md:max-h-[500px] md:overflow-y-auto md:pr-2 space-y-3">
+         <div className="max-h-[620px] overflow-y-auto pr-1 space-y-3 scrollbar-hide">
 
 
        {products
