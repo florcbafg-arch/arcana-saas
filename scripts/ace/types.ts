@@ -53,3 +53,31 @@ export interface ImportResult {
 
   reason?: string
 }
+
+/**
+ * Campos del producto que ACE puede comparar
+ * y mejorar automáticamente.
+ */
+export type ComparableCatalogField =
+  | 'name'
+  | 'brand'
+  | 'category'
+  | 'image_url'
+  | 'quantity'
+  | 'unit'
+
+export type CatalogFieldChange = {
+  field: ComparableCatalogField
+  currentValue: string | null
+  incomingValue: string | null
+  selectedValue: string | null
+  action: 'keep' | 'fill' | 'replace'
+  reason: string
+}
+
+export type CatalogComparisonResult = {
+  barcode: string
+  hasChanges: boolean
+  changes: CatalogFieldChange[]
+  mergedProduct: CatalogProduct
+}
