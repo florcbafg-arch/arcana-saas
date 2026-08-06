@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "ace:analyze": "tsx scripts/ace/import.ts"
+    "ace:analyze": "tsx scripts/ace/import.ts",
+    "ace:test-comparator": "tsx scripts/ace/core/comparator.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.3",
