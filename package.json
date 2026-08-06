@@ -9,7 +9,8 @@
     "lint": "eslint",
     "ace:analyze": "tsx scripts/ace/import.ts",
     "ace:test-comparator": "tsx scripts/ace/core/comparator.test.ts",
-    "ace:test-reader": "tsx scripts/ace/core/supabase-reader.test.ts"
+    "ace:test-reader": "tsx scripts/ace/core/supabase-reader.test.ts",
+    "ace:test-planner": "tsx scripts/ace/core/planner.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.3",
