@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "ace:analyze": "tsx scripts/ace/import.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.3",
