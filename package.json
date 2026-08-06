@@ -17,7 +17,8 @@
     "ace:test-enricher": "tsx scripts/ace/core/enricher.test.ts",
     "ace:test-measurement": "tsx scripts/ace/core/measurement.test.ts",
     "ace:test-progress": "tsx scripts/ace/core/progress.test.ts",
-    "ace:test-logger": "tsx scripts/ace/core/logger.test.ts"
+    "ace:test-logger": "tsx scripts/ace/core/logger.test.ts",
+    "ace:test-pipeline": "tsx scripts/ace/core/pipeline.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.3",
