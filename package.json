@@ -11,7 +11,8 @@
     "ace:test-comparator": "tsx scripts/ace/core/comparator.test.ts",
     "ace:test-reader": "tsx scripts/ace/core/supabase-reader.test.ts",
     "ace:test-planner": "tsx scripts/ace/core/planner.test.ts",
-    "ace:test-writer": "tsx scripts/ace/core/writer.test.ts"
+    "ace:test-writer": "tsx scripts/ace/core/writer.test.ts",
+    "ace:test-transaction": "tsx scripts/ace/core/transaction.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.3",
