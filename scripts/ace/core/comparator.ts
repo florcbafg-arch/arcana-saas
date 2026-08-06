@@ -4,6 +4,9 @@ import type {
   CatalogProduct,
   ComparableCatalogField,
 } from '../types'
+import {
+  areMeasurementsEquivalent,
+} from './measurement'
 
 const COMPARABLE_FIELDS: ComparableCatalogField[] = [
   'name',
@@ -35,9 +38,37 @@ export function compareCatalogProducts(
     )
   }
 
+  const equivalentMeasurement =
+  areMeasurementsEquivalent(
+    currentProduct.quantity,
+    currentProduct.unit,
+    incomingProduct.quantity,
+    incomingProduct.unit
+  )
+
   const changes: CatalogFieldChange[] = []
 
   for (const field of COMPARABLE_FIELDS) {
+if (
+  equivalentMeasurement &&
+  (field === 'quantity' || field === 'unit')
+) {
+  changes.push({
+    field,
+    currentValue:
+      currentProduct[field],
+    incomingValue:
+      incomingProduct[field],
+    selectedValue:
+      currentProduct[field],
+    action: 'keep',
+    reason:
+      'Ambas presentaciones representan la misma cantidad física.',
+  })
+
+  continue
+}
+
     changes.push(
       compareField(
         field,
