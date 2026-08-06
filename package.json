@@ -12,6 +12,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.93.3",
     "@zxing/browser": "^0.1.5",
+    "dotenv": "^17.4.2",
     "framer-motion": "^12.34.3",
     "html5-qrcode": "^2.3.8",
     "lucide-react": "^0.563.0",
@@ -29,6 +30,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
+    "tsx": "^4.23.9",
     "typescript": "^5"
   }
 }
