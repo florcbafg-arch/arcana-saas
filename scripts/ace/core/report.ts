@@ -142,6 +142,51 @@ export function printDatasetInspection(
   )
   console.log('')
 
+    console.log('PREVISUALIZACIÓN DEL CATÁLOGO')
+  console.log('----------------------------------------')
+  console.log(
+    `Productos listos:        ${inspection.catalogPreview.readyToImport}`
+  )
+  console.log(
+    `EAN-13 consultables:     ${inspection.catalogPreview.ean13Ready}`
+  )
+  console.log(
+    `Códigos internos:        ${inspection.catalogPreview.numericCodesReady}`
+  )
+  console.log(
+    `Productos rechazados:    ${inspection.catalogPreview.rejectedProducts}`
+  )
+  console.log(
+    `Pendientes de enriquecer:${inspection.catalogPreview.pendingEnrichment}`
+  )
+  console.log('')
+
+  console.log('ENRIQUECIMIENTO ESPERADO')
+  console.log('----------------------------------------')
+  console.log(
+    `Aptos para Open Food Facts: ${inspection.enrichmentForecast.openFoodFactsEligible}`
+  )
+  console.log(
+    `Marcas por completar:       ${inspection.enrichmentForecast.brandCandidates}`
+  )
+  console.log(
+    `Categorías por completar:   ${inspection.enrichmentForecast.categoryCandidates}`
+  )
+  console.log(
+    `Imágenes por completar:     ${inspection.enrichmentForecast.imageCandidates}`
+  )
+  console.log(
+    `Cantidades por completar:   ${inspection.enrichmentForecast.quantityCandidates}`
+  )
+  console.log(
+    `Unidades por completar:     ${inspection.enrichmentForecast.unitCandidates}`
+  )
+  console.log('')
+  console.log(
+    'El resultado real se conocerá durante el enriquecimiento.'
+  )
+  console.log('')
+
   console.log('ACE DATASET HEALTH')
   console.log('----------------------------------------')
   console.log(`Puntaje:                 ${inspection.healthScore} / 100`)

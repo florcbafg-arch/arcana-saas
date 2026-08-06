@@ -22,6 +22,23 @@ export type MissingFieldPercentages = {
   unit: number
 }
 
+export type CatalogPreview = {
+  readyToImport: number
+  ean13Ready: number
+  numericCodesReady: number
+  rejectedProducts: number
+  pendingEnrichment: number
+}
+
+export type EnrichmentForecast = {
+  openFoodFactsEligible: number
+  brandCandidates: number
+  categoryCandidates: number
+  imageCandidates: number
+  quantityCandidates: number
+  unitCandidates: number
+}
+
 export type DatasetInspection = {
   totalProducts: number
   uniqueProducts: number
@@ -40,6 +57,9 @@ export type DatasetInspection = {
   topBrands: RankedValue[]
   topCategories: RankedValue[]
   topUnits: RankedValue[]
+
+  catalogPreview: CatalogPreview
+  enrichmentForecast: EnrichmentForecast
 
   averageConfidence: number
   healthScore: number
@@ -148,6 +168,31 @@ export function inspectCatalogDataset(
       ? roundNumber(confidenceTotal / totalProducts)
       : 0
 
+        const catalogPreview: CatalogPreview = {
+    readyToImport: totalProducts,
+    ean13Ready: ean13Count,
+    numericCodesReady: numericCodeCount,
+    rejectedProducts: invalidCodeCount,
+    pendingEnrichment: products.filter((product) => {
+      return (
+        !product.brand ||
+        !product.category ||
+        !product.image_url ||
+        !product.quantity ||
+        !product.unit
+      )
+    }).length,
+  }
+
+  const enrichmentForecast: EnrichmentForecast = {
+    openFoodFactsEligible: ean13Count,
+    brandCandidates: missingFields.brand,
+    categoryCandidates: missingFields.category,
+    imageCandidates: missingFields.image,
+    quantityCandidates: missingFields.quantity,
+    unitCandidates: missingFields.unit,
+  }
+
   const healthScore = calculateHealthScore({
     totalProducts,
     ean13Count,
@@ -173,6 +218,9 @@ export function inspectCatalogDataset(
     topBrands: getTopValues(brands, 15),
     topCategories: getTopValues(categories, 15),
     topUnits: getTopValues(units, 10),
+
+    catalogPreview,
+    enrichmentForecast,
 
     averageConfidence,
     healthScore,
