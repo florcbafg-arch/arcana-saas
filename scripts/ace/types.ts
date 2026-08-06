@@ -81,3 +81,24 @@ export type CatalogComparisonResult = {
   changes: CatalogFieldChange[]
   mergedProduct: CatalogProduct
 }
+
+export type CatalogPlanAction =
+  | 'insert'
+  | 'update'
+  | 'keep'
+
+export type CatalogPlanItem = {
+  barcode: string
+  action: CatalogPlanAction
+  incomingProduct: CatalogProduct
+  currentProduct: CatalogProduct | null
+  finalProduct: CatalogProduct
+  reasons: string[]
+}
+
+export type CatalogSyncPlan = {
+  total: number
+  inserts: CatalogPlanItem[]
+  updates: CatalogPlanItem[]
+  keeps: CatalogPlanItem[]
+}
