@@ -83,30 +83,69 @@ async function run(): Promise<void> {
     console.log('')
 
     if (result.plan.updates.length > 0) {
-      console.log('MEJORAS PROPUESTAS')
-      console.log(
-        '----------------------------------------'
-      )
+  console.log('MEJORAS PROPUESTAS')
+  console.log(
+    '----------------------------------------'
+  )
 
-      for (
-        const item
-        of result.plan.updates
-      ) {
-        console.log(
-          `${item.barcode} | ${item.finalProduct.name}`
-        )
+  for (const item of result.plan.updates) {
+    console.log(
+      `${item.barcode} | ${item.finalProduct.name}`
+    )
 
-        item.reasons.forEach(
-          (reason) => {
-            console.log(
-              `- ${reason}`
-            )
-          }
-        )
+    console.log('')
 
-        console.log('')
-      }
-    }
+    printFieldDiff(
+      'name',
+      item.currentProduct?.name ?? null,
+      item.finalProduct.name
+    )
+
+    printFieldDiff(
+      'brand',
+      item.currentProduct?.brand ?? null,
+      item.finalProduct.brand
+    )
+
+    printFieldDiff(
+      'category',
+      item.currentProduct?.category ?? null,
+      item.finalProduct.category
+    )
+
+    printFieldDiff(
+      'image_url',
+      item.currentProduct?.image_url ?? null,
+      item.finalProduct.image_url
+    )
+
+    printFieldDiff(
+      'quantity',
+      item.currentProduct?.quantity ?? null,
+      item.finalProduct.quantity
+    )
+
+    printFieldDiff(
+      'unit',
+      item.currentProduct?.unit ?? null,
+      item.finalProduct.unit
+    )
+
+    console.log(
+      'Razones detectadas por Comparator:'
+    )
+
+    item.reasons.forEach((reason) => {
+      console.log(`- ${reason}`)
+    })
+
+    console.log('')
+    console.log(
+      '========================================'
+    )
+    console.log('')
+  }
+}
 
     console.log(
       'Modo prueba: Supabase no fue modificado.'
@@ -129,6 +168,31 @@ async function run(): Promise<void> {
 
     process.exitCode = 1
   }
+}
+
+function printFieldDiff(
+  field: string,
+  currentValue: string | null,
+  finalValue: string | null
+): void {
+  const current =
+    String(currentValue ?? '').trim()
+
+  const final =
+    String(finalValue ?? '').trim()
+
+  if (current === final) {
+    return
+  }
+
+  console.log(`Campo: ${field}`)
+  console.log(
+    `Antes:   ${current || '(vacío)'}`
+  )
+  console.log(
+    `Después: ${final || '(vacío)'}`
+  )
+  console.log('----------------------------------------')
 }
 
 void run()
