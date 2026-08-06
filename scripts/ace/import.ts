@@ -3,7 +3,11 @@ import process from 'node:process'
 
 import { readEaxaFile } from './adapters/eaxa'
 import { prepareCatalogImport } from './core/importer'
-import { printImportReport } from './core/report'
+import { inspectCatalogDataset } from './core/inspector'
+import {
+  printDatasetInspection,
+  printImportReport,
+} from './core/report'
 
 function getFilePath(): string {
   const fileArgument = process.argv[2]
@@ -46,6 +50,12 @@ function run(): void {
     )
 
     printImportReport(preparedImport)
+    
+    const inspection = inspectCatalogDataset(
+  preparedImport.products
+)
+
+printDatasetInspection(inspection)
 
     console.log('Resumen del adaptador EAXA:')
     console.log('----------------------------------------')
