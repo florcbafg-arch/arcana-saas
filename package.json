@@ -15,7 +15,8 @@
     "ace:test-transaction": "tsx scripts/ace/core/transaction.test.ts",
     "ace:test-rollback": "tsx scripts/ace/core/transaction.rollback.test.ts",
     "ace:test-enricher": "tsx scripts/ace/core/enricher.test.ts",
-    "ace:test-measurement": "tsx scripts/ace/core/measurement.test.ts"
+    "ace:test-measurement": "tsx scripts/ace/core/measurement.test.ts",
+    "ace:test-progress": "tsx scripts/ace/core/progress.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.3",
