@@ -3,6 +3,9 @@ import dotenv from 'dotenv'
 import path from 'node:path'
 
 import type { CatalogProduct } from '../types'
+import {
+  ACE_CONFIG,
+} from '../config'
 
 dotenv.config({
   path: path.resolve(process.cwd(), '.env.local'),
@@ -50,7 +53,8 @@ export type SupabaseCatalogReadResult = {
  */
 export async function readCatalogProductsByBarcodes(
   barcodes: string[],
-  batchSize = 500
+  batchSize =
+    ACE_CONFIG.catalog.readBatchSize
 ): Promise<SupabaseCatalogReadResult> {
   const cleanBarcodes = Array.from(
     new Set(

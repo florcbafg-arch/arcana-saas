@@ -7,6 +7,10 @@ import type {
   CatalogSyncPlan,
 } from '../types'
 
+import {
+  ACE_CONFIG,
+} from '../config'
+
 dotenv.config({
   path: path.resolve(process.cwd(), '.env.local'),
 })
@@ -66,7 +70,8 @@ export type WriterResult = {
 export async function executeCatalogPlan(
   plan: CatalogSyncPlan,
   mode: WriterMode = 'dry-run',
-  batchSize = 250
+  batchSize =
+  ACE_CONFIG.catalog.writeBatchSize
 ): Promise<WriterResult> {
   if (mode === 'dry-run') {
     return {
