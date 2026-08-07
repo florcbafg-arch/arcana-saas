@@ -16,6 +16,10 @@ import {
   saveAceFinalReport,
 } from './core/final-report'
 
+import {
+  printCommandSummary,
+} from './core/summary'
+
 type CliOptions = {
   filePath: string | null
   mode: AceMode
