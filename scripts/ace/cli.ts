@@ -86,17 +86,12 @@ async function main(): Promise<void> {
       options
     )
 
-    const pipeline =
-      await runAcePipeline({
-        filePath:
-          resolvedFilePath,
-
-        mode:
-          options.mode,
-
-        enrich:
-          options.enrich,
-      })
+  const pipeline =
+  await runAcePipeline({
+    filePath: resolvedFilePath,
+    mode: options.mode,
+    enrich: options.enrich,
+  })
 
     const status =
       options.mode === 'dry-run'
