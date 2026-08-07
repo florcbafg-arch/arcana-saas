@@ -16,6 +16,10 @@ import {
   isValidEAN13,
 } from './validator'
 
+import {
+  ACE_CONFIG,
+} from '../config'
+
 export type EnrichmentStats = {
   total: number
   eligible: number
@@ -38,9 +42,41 @@ export type EnrichmentResult = {
  * Genera un nuevo plan para Transaction Engine.
  */
 export async function enrichCatalogProducts(
+    
   products: CatalogProduct[],
-  delayMs = 150
+  delayMs =
+    ACE_CONFIG.enrichment.requestDelayMs
 ): Promise<EnrichmentResult> {
+
+    if (!ACE_CONFIG.enrichment.enabled) {
+  const keeps = products.map(
+    (product) =>
+      createKeepItem(
+        product,
+        'El enriquecimiento está desactivado en ACE_CONFIG.'
+      )
+  )
+
+  return {
+    plan: {
+      total: products.length,
+      inserts: [],
+      updates: [],
+      keeps,
+    },
+
+    stats: {
+      total: products.length,
+      eligible: 0,
+      found: 0,
+      notFound: 0,
+      improved: 0,
+      unchanged: products.length,
+      failed: 0,
+    },
+  }
+}
+
   const updates: CatalogPlanItem[] = []
   const keeps: CatalogPlanItem[] = []
 

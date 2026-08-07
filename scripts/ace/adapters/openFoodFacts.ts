@@ -10,6 +10,10 @@ import {
 
 import { buildProductSearchKeywords } from '../core/keywords'
 
+import {
+  ACE_CONFIG,
+} from '../config'
+
 type OpenFoodFactsResponse = {
   status?: number
   product?: {
@@ -165,7 +169,8 @@ function mapOpenFoodFactsToCatalogProduct(
      * Le damos buena confianza,
      * pero no la consideramos absoluta.
      */
-    confidence: 85,
+    confidence:
+  ACE_CONFIG.enrichment.confidence,
 
     verified: false,
     is_global: true,
