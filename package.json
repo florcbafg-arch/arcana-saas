@@ -21,7 +21,8 @@
     "ace:test-pipeline": "tsx scripts/ace/core/pipeline.test.ts",
     "ace:test-final-report": "tsx scripts/ace/core/final-report.test.ts",
     "ace:test-config": "tsx scripts/ace/core/config.test.ts",
-    "ace": "tsx scripts/ace/cli.ts"
+    "ace": "tsx scripts/ace/cli.ts",
+    "ace:test-config-validator": "tsx scripts/ace/core/config-validator.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.3",
