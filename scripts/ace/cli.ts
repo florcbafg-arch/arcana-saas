@@ -98,29 +98,43 @@ assertPreflightSafe({
     options.mode,
 })
 
-    /*
-     * Barrera de seguridad:
-     *
-     * ACE_CONFIG exige que execute
-     * sea una decisión explícita.
-     */
-    if (
-      options.mode === 'execute' &&
-      ACE_CONFIG
-        .safety
-        .requireExplicitExecute
-    ) {
-      console.log('')
-      console.log(
-        '⚠ ACE ejecutará cambios REALES en arcana_catalog.'
-      )
-      console.log('')
-    }
+   /*
+ * Barrera de seguridad:
+ *
+ * --execute NO alcanza por sí solo.
+ * También debe existir --confirm-execute.
+ */
+if (
+  options.mode === 'execute' &&
+  ACE_CONFIG.safety.requireExplicitExecute &&
+  !options.confirmExecute
+) {
+  throw new Error(
+    [
+      'ACE BLOQUEÓ LA EJECUCIÓN REAL.',
+      '',
+      'Se solicitó --execute, pero falta la confirmación explícita.',
+      '',
+      'Para ejecutar cambios reales agregá:',
+      '--confirm-execute',
+    ].join('\n')
+  )
+}
 
-    printHeader(
-      resolvedFilePath,
-      options
-    )
+if (
+  options.mode === 'execute'
+) {
+  console.log('')
+  console.log(
+    '⚠ ACE ejecutará cambios REALES en arcana_catalog.'
+  )
+  console.log('')
+}
+
+printHeader(
+  resolvedFilePath,
+  options
+)
 
   const pipeline =
   await runAcePipeline({
@@ -376,6 +390,10 @@ function printHelp(): void {
   )
 
   console.log(
+  '--confirm-execute  Confirma explícitamente la ejecución real.'
+)
+
+  console.log(
     '--enrich       Activa Open Food Facts.'
   )
 
@@ -403,9 +421,9 @@ function printHelp(): void {
     'npm run ace -- "C:\\Users\\flor\\Desktop\\productos.csv" --no-enrich'
   )
 
-  console.log(
-    'npm run ace -- "C:\\Users\\flor\\Desktop\\productos.csv" --execute'
-  )
+ console.log(
+  'npm run ace -- "C:\\Users\\flor\\Desktop\\productos.csv" --execute --confirm-execute'
+)
 
   console.log('')
 }
