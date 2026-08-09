@@ -19,6 +19,9 @@ import {
 import {
   printCommandSummary,
 } from './core/summary'
+import {
+  assertAceConfigValid,
+} from './core/config-validator'
 
 type CliOptions = {
   filePath: string | null
@@ -29,6 +32,8 @@ type CliOptions = {
 
 async function main(): Promise<void> {
   try {
+        assertAceConfigValid()
+        
     const options =
       parseArguments(
         process.argv.slice(2)
