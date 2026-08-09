@@ -23,8 +23,13 @@ type Product = {
   quantity_label?: string
   sale_quantity_kg?: number
   final_price?: number
-}
 
+  // Datos visuales del producto
+  image_url?: string | null
+  brand?: string | null
+  category?: string | null
+  quantity?: string | null
+}
 
 type Customer = {
   id: string
@@ -319,22 +324,28 @@ const addProductToCart = (product: Product, quantity = 1) => {
     setLastAddedId(product.id)
     setTimeout(() => setLastAddedId(null), 600)
 
-    return [
-      ...prev,
-      {
-        product_id: product.id,
-        name: product.name,
-        quantity,
-        price: product.price,
-        unit: product.unit,
-        sale_type: product.sale_type,
-        unit_base: product.unit_base,
-        price_by: product.price_by,
-        quantity_label: isWeightProduct
-          ? product.quantity_label || `${Math.round(quantity * 1000)}g`
-          : undefined
-      }
-    ]
+   return [
+  ...prev,
+  {
+    product_id: product.id,
+    name: product.name,
+    quantity,
+    price: product.price,
+    unit: product.unit,
+    sale_type: product.sale_type,
+    unit_base: product.unit_base,
+    price_by: product.price_by,
+
+    image_url: product.image_url || null,
+    brand: product.brand || null,
+    category: product.category || null,
+    product_quantity: product.quantity || null,
+
+    quantity_label: isWeightProduct
+      ? product.quantity_label || `${Math.round(quantity * 1000)}g`
+      : undefined
+  }
+]
   })
 }
 
@@ -806,6 +817,196 @@ transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
 )}
           </div>
 
+{/* PRODUCTO SELECCIONADO */}
+{selectedProduct && (
+  <motion.div
+    initial={{ opacity: 0, y: 8 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.25 }}
+    className="
+      bg-[#0B0B10]
+      border border-[#1F6BFF]/60
+      rounded-2xl
+      p-4
+      shadow-[0_0_25px_rgba(31,107,255,0.08)]
+    "
+  >
+
+    <div className="flex gap-4">
+
+      {/* IMAGEN */}
+      <div
+        className="
+          w-28 h-28
+          shrink-0
+          rounded-xl
+          bg-white
+          overflow-hidden
+          flex items-center justify-center
+        "
+      >
+
+        {selectedProduct.image_url ? (
+          <img
+            src={selectedProduct.image_url}
+            alt={selectedProduct.name}
+            className="w-full h-full object-contain p-2"
+          />
+        ) : (
+          <div className="w-full h-full bg-[#17171F] flex flex-col items-center justify-center text-gray-500">
+            <span className="text-3xl">
+              📦
+            </span>
+
+            <span className="text-[10px] mt-2">
+              Sin imagen
+            </span>
+          </div>
+        )}
+
+      </div>
+
+
+      {/* INFORMACIÓN */}
+      <div className="flex-1 min-w-0">
+
+        <div className="flex items-start justify-between gap-2">
+
+          <div className="min-w-0">
+
+            <p className="text-base font-semibold text-white leading-tight">
+              {selectedProduct.name}
+            </p>
+
+            {(selectedProduct.brand || selectedProduct.quantity) && (
+              <p className="text-xs text-gray-400 mt-1">
+                {selectedProduct.brand && (
+                  <>
+                    {selectedProduct.brand}
+                  </>
+                )}
+
+                {selectedProduct.brand &&
+                  selectedProduct.quantity && (
+                    <span> · </span>
+                  )}
+
+                {selectedProduct.quantity}
+              </p>
+            )}
+
+          </div>
+
+
+          <span
+            className="
+              shrink-0
+              text-[10px]
+              px-2 py-1
+              rounded-full
+              bg-green-500/10
+              border border-green-500/20
+              text-green-400
+              font-medium
+            "
+          >
+            Disponible
+          </span>
+
+        </div>
+
+
+        {/* PRECIO */}
+        <div className="mt-3">
+
+          <p className="text-xl font-bold text-green-400">
+            {formatCurrency(selectedProduct.price)}
+          </p>
+
+          <p className="text-xs text-gray-500">
+            {selectedProduct.sale_type === 'weight'
+              ? selectedProduct.price_by === '100g'
+                ? 'por 100 gramos'
+                : 'por kilo'
+              : `por ${selectedProduct.unit || 'unidad'}`}
+          </p>
+
+        </div>
+
+
+        {/* STOCK */}
+        <div className="mt-3 flex flex-wrap gap-2">
+
+          <span
+            className="
+              text-xs
+              px-2.5 py-1
+              rounded-lg
+              bg-green-500/10
+              text-green-400
+              border border-green-500/20
+            "
+          >
+            Stock: {selectedProduct.stock_quantity}{' '}
+            {selectedProduct.sale_type === 'weight'
+              ? 'kg'
+              : selectedProduct.unit}
+          </span>
+
+          {selectedProduct.code && (
+            <span
+              className="
+                text-xs
+                px-2.5 py-1
+                rounded-lg
+                bg-[#17171F]
+                text-gray-400
+                border border-[#2A2A32]
+              "
+            >
+              {selectedProduct.code}
+            </span>
+          )}
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    {/* CONFIRMACIÓN ARCANA */}
+    <div
+      className="
+        mt-4
+        pt-3
+        border-t border-[#25252D]
+        flex items-center gap-2
+      "
+    >
+
+      <div
+        className="
+          w-6 h-6
+          rounded-lg
+          bg-green-500/10
+          flex items-center justify-center
+          text-green-400
+          text-xs
+        "
+      >
+        ✓
+      </div>
+
+      <p className="text-xs text-gray-400">
+        Producto seleccionado y listo para agregar al carrito.
+      </p>
+
+    </div>
+
+  </motion.div>
+)}
+
          {/* Cantidad */}
 <div className="space-y-2">
 
@@ -981,25 +1182,71 @@ placeholder="Ej: 1"
     className="flex justify-between items-center bg-[#0F0F14] p-3 rounded-xl"
   >
     
-    <div>
-      <p className="text-sm font-medium">{item.name}</p>
-      <p className="text-xs text-gray-400">
-  {item.sale_type === 'weight' ? (
-    <>
-      {item.quantity_label || `${Math.round(item.quantity * 1000)}g`} ·{' '}
-      {formatCurrency(
-        item.price_by === '100g' ? item.price / 10 : item.price
-      )}
-      /{item.price_by === '100g' ? '100g' : 'kg'}
-    </>
-  ) : (
-    <>
-      {item.quantity} {item.unit} · {formatCurrency(item.price)}
-    </>
-  )}
-</p>
-    </div>
+   <div className="flex items-center gap-3 min-w-0">
 
+  {/* MINIATURA */}
+  <div
+    className="
+      w-12 h-12
+      shrink-0
+      rounded-lg
+      bg-white
+      overflow-hidden
+      flex items-center justify-center
+    "
+  >
+
+    {item.image_url ? (
+      <img
+        src={item.image_url}
+        alt={item.name}
+        className="w-full h-full object-contain p-1"
+      />
+    ) : (
+      <div className="w-full h-full bg-[#17171F] flex items-center justify-center text-gray-500">
+        📦
+      </div>
+    )}
+
+  </div>
+
+
+  {/* INFORMACIÓN */}
+  <div className="min-w-0">
+
+    <p className="text-sm font-medium text-white truncate">
+      {item.name}
+    </p>
+
+    <p className="text-xs text-gray-400">
+
+      {item.sale_type === 'weight' ? (
+        <>
+          {item.quantity_label ||
+            `${Math.round(item.quantity * 1000)}g`}
+          {' · '}
+          {formatCurrency(
+            item.price_by === '100g'
+              ? item.price / 10
+              : item.price
+          )}
+          /{item.price_by === '100g'
+            ? '100g'
+            : 'kg'}
+        </>
+      ) : (
+        <>
+          {item.quantity} {item.unit}
+          {' · '}
+          {formatCurrency(item.price)}
+        </>
+      )}
+
+    </p>
+
+  </div>
+
+</div>
     <button
       onClick={() =>
         setCart(prev => prev.filter((_, idx) => idx !== i))
