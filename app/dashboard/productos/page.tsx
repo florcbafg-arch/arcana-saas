@@ -446,7 +446,9 @@ const useOpenFoodSuggestion = (suggestion: OpenFoodSuggestion) => {
       .from('products')
       .select('*, suppliers(name)')
       .eq('business_id', selectedBusinessId)
+      .eq('active', true)
       .order('created_at', { ascending: false })
+      
 
     setProducts(data || [])
     setLoading(false)
@@ -730,46 +732,95 @@ const handleDelete = async (id: string) => {
   const product = products.find((p) => p.id === id)
 
   const confirmed = confirm(
-    `¿Eliminar "${product?.name || 'este producto'}"?\n\nEsta acción no se puede deshacer.`
+    `¿Eliminar "${product?.name || 'este producto'}"?\n\nSi tiene movimientos registrados, Arcana conservará su historial y lo archivará.`
   )
 
   if (!confirmed) return
 
   try {
-    const { error } = await supabase
+    // Primero intentamos eliminarlo físicamente
+    const { error: deleteError } = await supabase
       .from('products')
       .delete()
       .eq('id', id)
 
-    if (error) {
-      console.error('ERROR ELIMINANDO PRODUCTO:', error)
+    // Si se pudo borrar, terminamos
+    if (!deleteError) {
+      setProducts((currentProducts) =>
+        currentProducts.filter((p) => p.id !== id)
+      )
 
       setToast({
-        type: 'error',
-        message:
-          error.code === '23503'
-            ? 'Este producto tiene movimientos registrados y no puede eliminarse directamente.'
-            : error.message || 'No se pudo eliminar el producto.'
+        type: 'success',
+        message: 'Producto eliminado correctamente.'
       })
 
       return
     }
 
-    setProducts((currentProducts) =>
-      currentProducts.filter((p) => p.id !== id)
+    // 23503 = el producto está referenciado por otro registro
+    if (deleteError.code === '23503') {
+      const { error: archiveError } = await supabase
+        .from('products')
+        .update({
+          active: false
+        })
+        .eq('id', id)
+
+      if (archiveError) {
+        console.error(
+          'ERROR ARCHIVANDO PRODUCTO:',
+          archiveError
+        )
+
+        setToast({
+          type: 'error',
+          message:
+            archiveError.message ||
+            'No se pudo archivar el producto.'
+        })
+
+        return
+      }
+
+      // Lo quitamos inmediatamente de la vista
+      setProducts((currentProducts) =>
+        currentProducts.filter((p) => p.id !== id)
+      )
+
+      setToast({
+        type: 'success',
+        message:
+          'Producto archivado. Arcana conservó su historial de movimientos.'
+      })
+
+      return
+    }
+
+    // Otro error diferente
+    console.error(
+      'ERROR ELIMINANDO PRODUCTO:',
+      deleteError
     )
 
     setToast({
-      type: 'success',
-      message: 'Producto eliminado correctamente.'
+      type: 'error',
+      message:
+        deleteError.message ||
+        'No se pudo eliminar el producto.'
     })
 
   } catch (error: any) {
-    console.error('ERROR ELIMINANDO PRODUCTO:', error)
+    console.error(
+      'ERROR ELIMINANDO PRODUCTO:',
+      error
+    )
 
     setToast({
       type: 'error',
-      message: error.message || 'No se pudo eliminar el producto.'
+      message:
+        error.message ||
+        'No se pudo eliminar el producto.'
     })
   }
 }

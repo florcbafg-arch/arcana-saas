@@ -106,13 +106,24 @@ useEffect(() => {
 }, [])
 
   const fetchProducts = async () => {
-    const { data } = await supabase
-      .from('products')
-      .select('*')
-      .eq('business_id', selectedBusinessId)
+  if (!selectedBusinessId) return
 
-    setProducts(data || [])
+  const { data, error } = await supabase
+    .from('products')
+    .select('*')
+    .eq('business_id', selectedBusinessId)
+    .eq('active', true)
+
+  if (error) {
+    console.error(
+      'Error cargando productos activos:',
+      error
+    )
+    return
   }
+
+  setProducts(data || [])
+}
 
   const fetchCustomers = async () => {
     const { data } = await supabase
@@ -490,6 +501,7 @@ scannerRef.current?.focus()
     .select("*")
     .or(`barcode.eq.${code},code.eq.${code}`)
     .eq("business_id", selectedBusinessId)
+    .eq("active", true)
     .single()
 
   if (!product) {
