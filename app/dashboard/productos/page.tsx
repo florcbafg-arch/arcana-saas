@@ -1470,571 +1470,1261 @@ const usagePercentage =
 
     </div>
 {isOpen && (
-<div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-  <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden">
-      <div className="p-5 md:p-8 border-b border-[#1F1F24]">
-  <h2 className="text-2xl font-semibold text-white">
-    Nuevo producto
-  </h2>
-</div>
+  <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 md:p-6">
 
-<div className="p-5 md:p-8 space-y-5 overflow-y-auto flex-1 min-h-0">
+    <div
+      className="
+        bg-[#14141A]
+        border border-[#25252D]
+        rounded-2xl
+        w-full
+        max-w-5xl
+        max-h-[92vh]
+        flex
+        flex-col
+        overflow-hidden
+        shadow-2xl
+        shadow-black/50
+      "
+    >
 
-        {/* Nombre */}
-<div className="space-y-1">
-  <label className="text-sm text-gray-400">
-    Nombre del producto
-  </label>
+      {/* HEADER DEL MODAL */}
+      <div className="px-5 py-4 md:px-7 md:py-5 border-b border-[#25252D] flex items-center justify-between">
 
-  <input
-    value={newProductName}
-    onChange={(e) => setNewProductName(e.target.value)}
-    placeholder="Ej: Coca Cola 500cc"
-    className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
-    focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
-  />
+        <div>
+          <h2 className="text-xl md:text-2xl font-semibold text-white">
+            {editingId ? 'Editar producto' : 'Nuevo producto'}
+          </h2>
 
-<button
-  type="button"
-  onClick={searchOpenFoodByName}
-  disabled={searchingSuggestions}
-  className="mt-2 w-full bg-[#2A2A32] hover:bg-[#333] transition rounded-xl px-4 py-2 text-sm text-white disabled:opacity-50"
->
-  {searchingSuggestions ? 'Buscando sugerencias...' : '🔎 Buscar por nombre'}
-</button>
+          <p className="text-xs md:text-sm text-gray-500 mt-1">
+            Completá los datos para administrar tu producto en Arcana.
+          </p>
+        </div>
 
-{openFoodSuggestions.length > 0 && (
-  <div className="mt-3 rounded-2xl border border-[#2A2A32] bg-[#0B0B10] overflow-hidden">
-    <div className="p-3 border-b border-[#2A2A32]">
-      <p className="text-sm font-semibold text-white">
-        Sugerencias encontradas
-      </p>
-      <p className="text-xs text-gray-500">
-        Tocá una opción para completar el producto.
-      </p>
-    </div>
-
-    <div className="max-h-72 overflow-y-auto divide-y divide-[#1F1F24]">
-      {openFoodSuggestions.map((suggestion) => (
         <button
-          key={suggestion.code}
           type="button"
-          onClick={() => useOpenFoodSuggestion(suggestion)}
-          className="w-full flex gap-3 p-3 text-left hover:bg-[#14141A] transition"
-        >
-          {suggestion.image_url ? (
-            <img
-              src={suggestion.image_url}
-              alt={suggestion.product_name || 'Producto'}
-              className="w-14 h-14 rounded-lg object-contain bg-white p-1"
-            />
-          ) : (
-            <div className="w-14 h-14 rounded-lg bg-[#1A1A22] flex items-center justify-center text-gray-500">
-              📦
-            </div>
-          )}
-
-          <div className="flex-1 min-w-0">
-            <p className="text-sm text-white font-semibold truncate">
-              {suggestion.product_name || 'Producto sin nombre'}
-            </p>
-
-            {suggestion.brands && (
-              <p className="text-xs text-gray-400 truncate">
-                Marca: {suggestion.brands}
-              </p>
-            )}
-
-            {suggestion.quantity && (
-              <p className="text-xs text-gray-400">
-                Presentación: {suggestion.quantity}
-              </p>
-            )}
-
-            {suggestion.code && (
-              <p className="text-xs text-gray-600">
-                Código: {suggestion.code}
-              </p>
-            )}
-          </div>
-
-          <span className="text-xs text-[#6EA8FF] font-semibold">
-            Usar
-          </span>
-        </button>
-      ))}
-    </div>
-  </div>
-)}
-
-  <p className="text-xs text-gray-500">
-    Ej: Coca Cola 500cc, Yerba 1kg, Papas fritas
-  </p>
-  
-   {/* Barcode */}
-
-<div className="space-y-1">
-  <label className="text-sm text-gray-400">
-    Código de barras (opcional)
-  </label>
-
-  <div className="flex gap-2">
-
-    <input
-      value={newBarcode}
-      onChange={(e) => {
-  setNewBarcode(e.target.value)
-  setBarcodeWasGenerated(false)
-}}
-      placeholder="Ej: 7791234567890"
-      className="flex-1 bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
-      focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
-    />
-
-    {canGenerateInternalBarcode && (
-  <button
-    type="button"
-    onClick={generateEAN13}
-    className="px-3 bg-[#2A2A32] rounded-xl hover:bg-[#333]"
-  >
-    ⚡ Generar
-  </button>
-)}
-
-<button
-  type="button"
-  onClick={() => fetchProduct()}
-  className="px-3 bg-green-700 rounded-xl hover:bg-green-600 text-white"
->
-  🔎 Buscar
-</button>
-
-<button
-  type="button"
-  onClick={() => setShowScanner(true)}
-  className="px-3 bg-[#6C5CE7] rounded-xl hover:bg-[#5A4BD1] text-white"
->
-  📷
-</button>
-
-  </div>
-</div>
-
-{(newImageUrl || newBrand || newCategory || newQuantityLabel) && (
-  <div className="rounded-2xl border border-green-500/20 bg-green-500/10 p-4 space-y-3">
-    <p className="text-sm font-semibold text-green-400">
-      ✅ Arcana encontró datos del producto
-    </p>
-
-    <div className="flex gap-4 items-start">
-      {newImageUrl && (
-        <img
-          src={newImageUrl}
-          alt={newProductName || 'Producto'}
-          className="w-20 h-20 rounded-xl object-contain bg-white p-2"
-        />
-      )}
-
-      <div className="space-y-1 text-sm">
-        {newProductName && (
-          <p className="text-white font-semibold">
-            {newProductName}
-          </p>
-        )}
-
-        {newBrand && (
-          <p className="text-gray-300">
-            Marca: <span className="text-white">{newBrand}</span>
-          </p>
-        )}
-
-        {newCategory && (
-          <p className="text-gray-300">
-            Categoría: <span className="text-white">{newCategory}</span>
-          </p>
-        )}
-
-        {newQuantityLabel && (
-          <p className="text-gray-300">
-            Presentación: <span className="text-white">{newQuantityLabel}</span>
-          </p>
-        )}
-      </div>
-    </div>
-  </div>
-)}
-
-</div>
-
-{/* Tipo de venta */}
-<div className="space-y-2">
-
-  <label className="text-sm text-gray-400">
-    Tipo de venta
-  </label>
-
-  <div className="grid grid-cols-1 gap-2">
-
-    <label className="flex items-center gap-3 bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 cursor-pointer">
-      <input
-        type="radio"
-        checked={newSaleType === 'unit'}
-        onChange={() => {
-          setNewSaleType('unit')
-          setNewUnitBase('unidad')
-        }}
-      />
-
-      <div>
-        <p className="text-sm text-white font-medium">
-          Unidad / paquete
-        </p>
-
-        <p className="text-xs text-gray-500">
-          Ej: Coca Cola 500cc, Galletas 600g, Yerba 1kg
-        </p>
-        
-      </div>
-    </label>
-
-    <label className="flex items-center gap-3 bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 cursor-pointer">
-      <input
-        type="radio"
-        checked={newSaleType === 'weight'}
-        onChange={() => {
-          setNewSaleType('weight')
-          setNewUnitBase('kg')
-          setNewUnit('kg')
-          setNewPriceBy('kg')
-        }}
-      />
-
-      <div>
-        <p className="text-sm text-white font-medium">
-          Peso fraccionado
-        </p>
-
-        <p className="text-xs text-gray-500">
-          Ej: Queso, Papas fritas, Caramelos, Frutos secos
-        </p>
-      </div>
-    </label>
-
-  </div>
-
-</div>
-
-{newSaleType === 'weight' && (
-  <div className="space-y-2">
-    <label className="text-sm text-gray-400">
-      Precio cargado por
-    </label>
-
-    <div className="grid grid-cols-2 gap-2">
-      <label className="flex items-center gap-2 bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 cursor-pointer">
-        <input
-          type="radio"
-          checked={newPriceBy === 'kg'}
-          onChange={() => setNewPriceBy('kg')}
-        />
-        <span className="text-sm text-white">Kilo</span>
-      </label>
-
-      <label className="flex items-center gap-2 bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 cursor-pointer">
-        <input
-          type="radio"
-          checked={newPriceBy === '100g'}
-          onChange={() => setNewPriceBy('100g')}
-        />
-        <span className="text-sm text-white">100 gramos</span>
-      </label>
-    </div>
-
-    <p className="text-xs text-gray-500">
-      Ej: si el queso vale $1.300 cada 100g, elegí “100 gramos”.
-    </p>
-  </div>
-)}
-
-{newSaleType === 'weight' && (
-  <div className="bg-[#0B0B10] border border-[#2A2A32] rounded-2xl p-4 space-y-4">
-
-    <div>
-      <p className="text-sm text-white font-semibold">
-        Compra del producto
-      </p>
-      <p className="text-xs text-gray-500">
-        Arcana usa estos datos para calcular el costo real y el margen.
-      </p>
-    </div>
-
-    <div className="space-y-1">
-      <label className="text-sm text-gray-400">
-        Peso del paquete comprado
-      </label>
-
-      <input
-        type="text"
-        value={newPackageWeightKg}
-        onChange={(e) => setNewPackageWeightKg(e.target.value)}
-        placeholder="Ej: 5"
-        className="w-full bg-[#101018] border border-[#2A2A32] rounded-xl p-3 text-white"
-      />
-
-      <p className="text-xs text-gray-500">
-        Ej: si compraste una horma de 5kg, escribí 5.
-      </p>
-    </div>
-
-    <div className="space-y-1">
-      <label className="text-sm text-gray-400">
-        Costo total del paquete
-      </label>
-
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-          $
-        </span>
-
-        <input
-          type="text"
-          value={newPackageCost}
-          onChange={(e) => setNewPackageCost(formatMoneyInput(e.target.value))}
-          placeholder="Ej: 12.000"
-          className="w-full bg-[#101018] border border-[#2A2A32] rounded-xl p-3 pl-8 text-white"
-        />
-      </div>
-
-      <p className="text-xs text-gray-500">
-        Es lo que pagaste por el paquete completo.
-      </p>
-    </div>
-
-  </div>
-)}
-
-
-        {/* Unidad */}
-        <div className="space-y-1">
-          <label className="text-sm text-gray-400">
-            Unidad de venta
-          </label>
-          <select
-            value={newUnit}
-            onChange={(e) => setNewUnit(e.target.value)}
-            className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
-            focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
-          >
-            <option value="unidad">Unidad</option>
-            <option value="kg">Kilo</option>
-            <option value="litro">Litro</option>
-            <option value="pack">Pack</option>
-          </select>
-        </div>
-
-        {/* Precio */}
-        <div className="space-y-1">
-         <label className="text-sm text-gray-400">
-  {newSaleType === 'weight'
-    ? `Precio de venta por ${newPriceBy === '100g' ? '100g' : 'kg'}`
-    : 'Precio de venta'}
-</label>
-
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-              $
-            </span>
-
-            <input
-              type="text"
-              placeholder="Ej: 15000"
-              value={newPrice}
-              onChange={(e) => setNewPrice(formatMoneyInput(e.target.value))}
-              className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl 
-              p-3 pl-8 text-white
-              focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
-            />
-          </div>
-        </div>
-
-{/* Proveedor */}
-<div className="space-y-1">
-  <label className="text-sm text-gray-400">
-    Proveedor
-  </label>
-
-  <select
-    value={newSupplierId}
-    onChange={(e) => setNewSupplierId(e.target.value)}
-    className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
-    focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
-  >
-    <option value="">Sin proveedor</option>
-    {suppliers.map((supplier) => (
-      <option key={supplier.id} value={supplier.id}>
-        {supplier.name}
-      </option>
-    ))}
-  </select>
-</div>
-
-{/* Costo real */}
-{newSaleType !== 'weight' && (
-  <div className="space-y-1">
-    <label className="text-sm text-gray-400">
-      Costo de compra
-    </label>
-
-  <div className="relative">
-    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-      $
-    </span>
-
-    <input
-      type="text"
-      placeholder="Ej: 9000"
-      value={newCostPrice}
-      onChange={(e) => setNewCostPrice(formatMoneyInput(e.target.value))}
-      className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl 
-      p-3 pl-8 text-white
-      focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
-    />
-  </div>
-    </div>
-)}
-
- {newSaleType === 'weight' ? (
-
-  (() => {
-    const numbers = getWeightProductNumbers()
-
-    return (
-      <p
-        className={`text-xs font-semibold ${
-          numbers.marginPer100g >= 0
-            ? 'text-green-400'
-            : 'text-red-400'
-        }`}
-      >
-        Margen estimado por 100g: $
-        {numbers.marginPer100g.toLocaleString('es-AR')}
-      </p>
-    )
-  })()
-
-) : (
-
-  parseMoney(newPrice) > 0 &&
-  parseMoney(newCostPrice) > 0 && (
-    <p className="text-xs text-green-400">
-      Margen estimado: $
-      {(parseMoney(newPrice) - parseMoney(newCostPrice)).toLocaleString('es-AR')}
-    </p>
-  )
-
-)}
-
-        {/* Stock inicial */}
-        <div className="space-y-1">
-          <label className="text-sm text-gray-400">
-            {newSaleType === 'weight'
-  ? 'Stock inicial (kg disponibles)'
-  : 'Stock inicial (unidades)'}
-          </label>
-          <input
-            type="number"
-            placeholder={newSaleType === 'weight' ? 'Ej: 5' : 'Ej: 24'}
-            value={newStock}
-            onChange={(e) => setNewStock(e.target.value)}
-            className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
-            focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
-          />
-        </div>
-
-        {/* Stock mínimo */}
-        <div className="space-y-1">
-          <label className="text-sm text-gray-400">
-            {newSaleType === 'weight'
-  ? 'Stock mínimo (kg para alerta)'
-  : 'Stock mínimo (unidades para alerta)'}
-          </label>
-          <input
-            type="number"
-            min={1}
-            placeholder={newSaleType === 'weight' ? 'Ej: 2' : 'Ej: 5'}
-            value={newMinStock}
-            onChange={(e) => setNewMinStock(e.target.value)}
-          
-            className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
-            focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
-          />
-        </div>
-
-<div className="space-y-1">
-  <label className="text-sm text-gray-400">
-    Fecha de vencimiento (opcional)
-  </label>
-
-  <input
-    type="date"
-    value={newExpirationDate}
-    onChange={(e) => setNewExpirationDate(e.target.value)}
-    className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
-    focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
-  />
-
-  <p className="text-xs text-gray-500">
-    Arcana te avisará antes de que el producto venza.
-  </p>
-</div>
-
-{/* Código interno */}
-<div className="space-y-1">
-  <label className="text-sm text-gray-400">
-    Código del producto (opcional)
-  </label>
-
-  <input
-    value={newCode}
-    onChange={(e) => setNewCode(e.target.value)}
-    placeholder="Ej: VEL-202"
-    className="w-full bg-[#0B0B10] border border-[#2A2A32] rounded-xl p-3 text-white
-    focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40 transition"
-  />
-</div>
-
-
-        {/* Activo */}
-        <div className="flex items-center gap-3 pt-2">
-          <input
-            type="checkbox"
-            checked={newActive}
-            onChange={(e) => setNewActive(e.target.checked)}
-          />
-          <label className="text-sm text-gray-400">
-            Producto activo
-          </label>
-        </div>
-
-      </div>
-
-      {/* Botones */}
-      <div className="p-5 md:p-6 border-t border-[#1F1F24] bg-[#14141A] flex flex-col-reverse sm:flex-row justify-end gap-3">
-        <button
           onClick={() => setIsOpen(false)}
-          className="w-full sm:w-auto px-4 py-2 rounded-xl border border-[#2A2A32] bg-[#1A1A22] text-white hover:bg-[#22222B] hover:border-[#3A3A48] transition"
+          className="
+            w-9 h-9
+            rounded-xl
+            flex items-center justify-center
+            text-gray-400
+            hover:text-white
+            hover:bg-[#1F1F27]
+            transition
+          "
+        >
+          ✕
+        </button>
+
+      </div>
+
+
+      {/* CONTENIDO SCROLLEABLE */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
+
+        <div className="p-5 md:p-7">
+
+          <div className="grid grid-cols-1 lg:grid-cols-[280px_minmax(0,1fr)] gap-6 lg:gap-8">
+
+
+            {/* ================================================= */}
+            {/* COLUMNA IZQUIERDA — IMAGEN DEL PRODUCTO */}
+            {/* ================================================= */}
+
+            <div className="lg:sticky lg:top-0 self-start">
+
+              <div
+                className="
+                  bg-[#0B0B10]
+                  border border-[#25252D]
+                  rounded-2xl
+                  p-4
+                  md:p-5
+                "
+              >
+
+                <div className="mb-4">
+
+                  <p className="text-sm font-semibold text-white">
+                    Imagen del producto
+                  </p>
+
+                  <p className="text-xs text-gray-500 mt-1">
+                    Te ayuda a identificarlo rápidamente.
+                  </p>
+
+                </div>
+
+
+                {/* IMAGEN */}
+                <div
+                  className="
+                    w-full
+                    aspect-square
+                    rounded-2xl
+                    bg-[#101018]
+                    border border-[#25252D]
+                    overflow-hidden
+                    flex items-center justify-center
+                  "
+                >
+
+                  {newImageUrl ? (
+
+                    <img
+                      src={newImageUrl}
+                      alt={newProductName || 'Producto'}
+                      className="w-full h-full object-contain p-4 bg-white"
+                    />
+
+                  ) : (
+
+                    <div className="flex flex-col items-center justify-center text-center p-6">
+
+                      <div
+                        className="
+                          w-16 h-16
+                          rounded-2xl
+                          bg-[#1A1A22]
+                          flex items-center justify-center
+                          text-3xl
+                          mb-4
+                        "
+                      >
+                        📦
+                      </div>
+
+                      <p className="text-sm text-white font-medium">
+                        Sin imagen
+                      </p>
+
+                      <p className="text-xs text-gray-500 mt-1 leading-5">
+                        Si Arcana encuentra una foto del producto, aparecerá acá.
+                      </p>
+
+                    </div>
+
+                  )}
+
+                </div>
+
+
+                {/* ESTADO DE LA FOTO */}
+                <div className="mt-4">
+
+                  {newImageUrl ? (
+
+                    <div className="rounded-xl bg-green-500/10 border border-green-500/20 px-3 py-3">
+
+                      <p className="text-xs font-semibold text-green-400">
+                        ✓ Imagen encontrada
+                      </p>
+
+                      <p className="text-xs text-gray-400 mt-1">
+                        Arcana completó automáticamente la imagen del producto.
+                      </p>
+
+                    </div>
+
+                  ) : (
+
+                    <div className="rounded-xl bg-[#12121A] border border-[#25252D] px-3 py-3">
+
+                      <p className="text-xs text-gray-400">
+                        Más adelante vas a poder agregar o cambiar esta imagen manualmente.
+                      </p>
+
+                    </div>
+
+                  )}
+
+                </div>
+
+
+                {/* INFO VISUAL DEL PRODUCTO */}
+                {(newBrand || newQuantityLabel) && (
+
+                  <div className="mt-4 pt-4 border-t border-[#25252D] space-y-2">
+
+                    {newBrand && (
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-gray-600">
+                          Marca
+                        </p>
+
+                        <p className="text-sm text-gray-200 mt-0.5">
+                          {newBrand}
+                        </p>
+                      </div>
+                    )}
+
+                    {newQuantityLabel && (
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-gray-600">
+                          Presentación
+                        </p>
+
+                        <p className="text-sm text-gray-200 mt-0.5">
+                          {newQuantityLabel}
+                        </p>
+                      </div>
+                    )}
+
+                  </div>
+
+                )}
+
+              </div>
+
+            </div>
+
+
+            {/* ================================================= */}
+            {/* COLUMNA DERECHA — FORMULARIO */}
+            {/* ================================================= */}
+
+            <div className="space-y-5">
+
+
+              {/* NOMBRE */}
+              <div className="space-y-1">
+
+                <label className="text-sm text-gray-400">
+                  Nombre del producto
+                </label>
+
+                <input
+                  value={newProductName}
+                  onChange={(e) => setNewProductName(e.target.value)}
+                  placeholder="Ej: Coca Cola 500cc"
+                  className="
+                    w-full
+                    bg-[#0B0B10]
+                    border border-[#2A2A32]
+                    rounded-xl
+                    p-3
+                    text-white
+                    focus:outline-none
+                    focus:ring-2
+                    focus:ring-[#1F6BFF]/40
+                    transition
+                  "
+                />
+
+                <button
+                  type="button"
+                  onClick={searchOpenFoodByName}
+                  disabled={searchingSuggestions}
+                  className="
+                    mt-2
+                    w-full
+                    bg-[#2A2A32]
+                    hover:bg-[#333]
+                    transition
+                    rounded-xl
+                    px-4 py-2.5
+                    text-sm
+                    text-white
+                    disabled:opacity-50
+                  "
+                >
+                  {searchingSuggestions
+                    ? 'Buscando sugerencias...'
+                    : '🔎 Buscar por nombre'}
+                </button>
+
+
+                {/* SUGERENCIAS */}
+                {openFoodSuggestions.length > 0 && (
+
+                  <div className="mt-3 rounded-2xl border border-[#2A2A32] bg-[#0B0B10] overflow-hidden">
+
+                    <div className="p-3 border-b border-[#2A2A32]">
+
+                      <p className="text-sm font-semibold text-white">
+                        Sugerencias encontradas
+                      </p>
+
+                      <p className="text-xs text-gray-500">
+                        Tocá una opción para completar el producto.
+                      </p>
+
+                    </div>
+
+                    <div className="max-h-72 overflow-y-auto divide-y divide-[#1F1F24]">
+
+                      {openFoodSuggestions.map((suggestion) => (
+
+                        <button
+                          key={suggestion.code}
+                          type="button"
+                          onClick={() => useOpenFoodSuggestion(suggestion)}
+                          className="w-full flex gap-3 p-3 text-left hover:bg-[#14141A] transition"
+                        >
+
+                          {suggestion.image_url ? (
+
+                            <img
+                              src={suggestion.image_url}
+                              alt={suggestion.product_name || 'Producto'}
+                              className="w-14 h-14 rounded-lg object-contain bg-white p-1"
+                            />
+
+                          ) : (
+
+                            <div className="w-14 h-14 rounded-lg bg-[#1A1A22] flex items-center justify-center text-gray-500">
+                              📦
+                            </div>
+
+                          )}
+
+                          <div className="flex-1 min-w-0">
+
+                            <p className="text-sm text-white font-semibold truncate">
+                              {suggestion.product_name || 'Producto sin nombre'}
+                            </p>
+
+                            {suggestion.brands && (
+                              <p className="text-xs text-gray-400 truncate">
+                                Marca: {suggestion.brands}
+                              </p>
+                            )}
+
+                            {suggestion.quantity && (
+                              <p className="text-xs text-gray-400">
+                                Presentación: {suggestion.quantity}
+                              </p>
+                            )}
+
+                            {suggestion.code && (
+                              <p className="text-xs text-gray-600">
+                                Código: {suggestion.code}
+                              </p>
+                            )}
+
+                          </div>
+
+                          <span className="text-xs text-[#6EA8FF] font-semibold">
+                            Usar
+                          </span>
+
+                        </button>
+
+                      ))}
+
+                    </div>
+
+                  </div>
+
+                )}
+
+                <p className="text-xs text-gray-500">
+                  Ej: Coca Cola 500cc, Yerba 1kg, Papas fritas
+                </p>
+
+              </div>
+
+
+              {/* CÓDIGO DE BARRAS */}
+              <div className="space-y-1">
+
+                <label className="text-sm text-gray-400">
+                  Código de barras (opcional)
+                </label>
+
+                <div className="flex gap-2">
+
+                  <input
+                    value={newBarcode}
+                    onChange={(e) => {
+                      setNewBarcode(e.target.value)
+                      setBarcodeWasGenerated(false)
+                    }}
+                    placeholder="Ej: 7791234567890"
+                    className="
+                      flex-1
+                      min-w-0
+                      bg-[#0B0B10]
+                      border border-[#2A2A32]
+                      rounded-xl
+                      p-3
+                      text-white
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-[#1F6BFF]/40
+                      transition
+                    "
+                  />
+
+                  {canGenerateInternalBarcode && (
+
+                    <button
+                      type="button"
+                      onClick={generateEAN13}
+                      className="px-3 bg-[#2A2A32] rounded-xl hover:bg-[#333]"
+                    >
+                      ⚡
+                    </button>
+
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => fetchProduct()}
+                    className="
+                      px-4
+                      bg-green-700
+                      rounded-xl
+                      hover:bg-green-600
+                      text-white
+                      text-sm
+                      font-medium
+                    "
+                  >
+                    🔎 Buscar
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowScanner(true)}
+                    className="
+                      px-3
+                      bg-[#6C5CE7]
+                      rounded-xl
+                      hover:bg-[#5A4BD1]
+                      text-white
+                    "
+                  >
+                    📷
+                  </button>
+
+                </div>
+
+              </div>
+
+
+              {/* ARCANA ENCONTRÓ DATOS */}
+              {(newImageUrl ||
+                newBrand ||
+                newCategory ||
+                newQuantityLabel) && (
+
+                <div className="rounded-2xl border border-green-500/20 bg-green-500/10 p-4">
+
+                  <div className="flex items-start gap-3">
+
+                    <div
+                      className="
+                        w-8 h-8
+                        shrink-0
+                        rounded-lg
+                        bg-green-500/15
+                        flex items-center justify-center
+                        text-green-400
+                      "
+                    >
+                      ✓
+                    </div>
+
+                    <div className="min-w-0">
+
+                      <p className="text-sm font-semibold text-green-400">
+                        Arcana encontró el producto
+                      </p>
+
+                      {newProductName && (
+                        <p className="text-white font-semibold mt-2">
+                          {newProductName}
+                        </p>
+                      )}
+
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-xs text-gray-400">
+
+                        {newBrand && (
+                          <span>
+                            Marca:{' '}
+                            <span className="text-gray-200">
+                              {newBrand}
+                            </span>
+                          </span>
+                        )}
+
+                        {newQuantityLabel && (
+                          <span>
+                            Presentación:{' '}
+                            <span className="text-gray-200">
+                              {newQuantityLabel}
+                            </span>
+                          </span>
+                        )}
+
+                      </div>
+
+                      {newCategory && (
+                        <p className="text-xs text-gray-500 mt-1 truncate">
+                          Categoría: {newCategory}
+                        </p>
+                      )}
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              )}
+
+
+              {/* TIPO DE VENTA */}
+              <div className="space-y-2">
+
+                <label className="text-sm text-gray-400">
+                  Tipo de venta
+                </label>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                  <label
+                    className={`
+                      flex items-start gap-3
+                      border
+                      rounded-xl
+                      p-4
+                      cursor-pointer
+                      transition
+                      ${
+                        newSaleType === 'unit'
+                          ? 'bg-[#122039] border-[#1F6BFF]/60'
+                          : 'bg-[#0B0B10] border-[#2A2A32]'
+                      }
+                    `}
+                  >
+
+                    <input
+                      type="radio"
+                      checked={newSaleType === 'unit'}
+                      onChange={() => {
+                        setNewSaleType('unit')
+                        setNewUnitBase('unidad')
+                      }}
+                      className="mt-1"
+                    />
+
+                    <div>
+
+                      <p className="text-sm text-white font-medium">
+                        Unidad / paquete
+                      </p>
+
+                      <p className="text-xs text-gray-500 mt-1">
+                        Coca Cola 500cc, Galletas 600g, Yerba 1kg
+                      </p>
+
+                    </div>
+
+                  </label>
+
+
+                  <label
+                    className={`
+                      flex items-start gap-3
+                      border
+                      rounded-xl
+                      p-4
+                      cursor-pointer
+                      transition
+                      ${
+                        newSaleType === 'weight'
+                          ? 'bg-[#122039] border-[#1F6BFF]/60'
+                          : 'bg-[#0B0B10] border-[#2A2A32]'
+                      }
+                    `}
+                  >
+
+                    <input
+                      type="radio"
+                      checked={newSaleType === 'weight'}
+                      onChange={() => {
+                        setNewSaleType('weight')
+                        setNewUnitBase('kg')
+                        setNewUnit('kg')
+                        setNewPriceBy('kg')
+                      }}
+                      className="mt-1"
+                    />
+
+                    <div>
+
+                      <p className="text-sm text-white font-medium">
+                        Peso fraccionado
+                      </p>
+
+                      <p className="text-xs text-gray-500 mt-1">
+                        Queso, Papas fritas, Caramelos, Frutos secos
+                      </p>
+
+                    </div>
+
+                  </label>
+
+                </div>
+
+              </div>
+
+
+              {/* PRECIO POR PESO */}
+              {newSaleType === 'weight' && (
+
+                <div className="space-y-2">
+
+                  <label className="text-sm text-gray-400">
+                    Precio cargado por
+                  </label>
+
+                  <div className="grid grid-cols-2 gap-3">
+
+                    <label
+                      className={`
+                        flex items-center gap-2
+                        border
+                        rounded-xl
+                        p-3
+                        cursor-pointer
+                        ${
+                          newPriceBy === 'kg'
+                            ? 'bg-[#122039] border-[#1F6BFF]/60'
+                            : 'bg-[#0B0B10] border-[#2A2A32]'
+                        }
+                      `}
+                    >
+
+                      <input
+                        type="radio"
+                        checked={newPriceBy === 'kg'}
+                        onChange={() => setNewPriceBy('kg')}
+                      />
+
+                      <span className="text-sm text-white">
+                        Kilo
+                      </span>
+
+                    </label>
+
+                    <label
+                      className={`
+                        flex items-center gap-2
+                        border
+                        rounded-xl
+                        p-3
+                        cursor-pointer
+                        ${
+                          newPriceBy === '100g'
+                            ? 'bg-[#122039] border-[#1F6BFF]/60'
+                            : 'bg-[#0B0B10] border-[#2A2A32]'
+                        }
+                      `}
+                    >
+
+                      <input
+                        type="radio"
+                        checked={newPriceBy === '100g'}
+                        onChange={() => setNewPriceBy('100g')}
+                      />
+
+                      <span className="text-sm text-white">
+                        100 gramos
+                      </span>
+
+                    </label>
+
+                  </div>
+
+                  <p className="text-xs text-gray-500">
+                    Ej: si el queso vale $1.300 cada 100g, elegí “100 gramos”.
+                  </p>
+
+                </div>
+
+              )}
+
+
+              {/* COMPRA PRODUCTO POR PESO */}
+              {newSaleType === 'weight' && (
+
+                <div className="bg-[#0B0B10] border border-[#2A2A32] rounded-2xl p-4 space-y-4">
+
+                  <div>
+
+                    <p className="text-sm text-white font-semibold">
+                      Compra del producto
+                    </p>
+
+                    <p className="text-xs text-gray-500">
+                      Arcana usa estos datos para calcular el costo real y el margen.
+                    </p>
+
+                  </div>
+
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    <div className="space-y-1">
+
+                      <label className="text-sm text-gray-400">
+                        Peso del paquete comprado
+                      </label>
+
+                      <input
+                        type="text"
+                        value={newPackageWeightKg}
+                        onChange={(e) =>
+                          setNewPackageWeightKg(e.target.value)
+                        }
+                        placeholder="Ej: 5"
+                        className="
+                          w-full
+                          bg-[#101018]
+                          border border-[#2A2A32]
+                          rounded-xl
+                          p-3
+                          text-white
+                        "
+                      />
+
+                      <p className="text-xs text-gray-500">
+                        Ej: si compraste una horma de 5kg, escribí 5.
+                      </p>
+
+                    </div>
+
+
+                    <div className="space-y-1">
+
+                      <label className="text-sm text-gray-400">
+                        Costo total del paquete
+                      </label>
+
+                      <div className="relative">
+
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                          $
+                        </span>
+
+                        <input
+                          type="text"
+                          value={newPackageCost}
+                          onChange={(e) =>
+                            setNewPackageCost(
+                              formatMoneyInput(e.target.value)
+                            )
+                          }
+                          placeholder="Ej: 12.000"
+                          className="
+                            w-full
+                            bg-[#101018]
+                            border border-[#2A2A32]
+                            rounded-xl
+                            p-3 pl-8
+                            text-white
+                          "
+                        />
+
+                      </div>
+
+                      <p className="text-xs text-gray-500">
+                        Es lo que pagaste por el paquete completo.
+                      </p>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              )}
+
+
+              {/* UNIDAD Y PRECIO */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <div className="space-y-1">
+
+                  <label className="text-sm text-gray-400">
+                    Unidad de venta
+                  </label>
+
+                  <select
+                    value={newUnit}
+                    onChange={(e) => setNewUnit(e.target.value)}
+                    className="
+                      w-full
+                      bg-[#0B0B10]
+                      border border-[#2A2A32]
+                      rounded-xl
+                      p-3
+                      text-white
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-[#1F6BFF]/40
+                      transition
+                    "
+                  >
+
+                    <option value="unidad">Unidad</option>
+                    <option value="kg">Kilo</option>
+                    <option value="litro">Litro</option>
+                    <option value="pack">Pack</option>
+
+                  </select>
+
+                </div>
+
+
+                <div className="space-y-1">
+
+                  <label className="text-sm text-gray-400">
+                    {newSaleType === 'weight'
+                      ? `Precio de venta por ${
+                          newPriceBy === '100g'
+                            ? '100g'
+                            : 'kg'
+                        }`
+                      : 'Precio de venta'}
+                  </label>
+
+                  <div className="relative">
+
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      $
+                    </span>
+
+                    <input
+                      type="text"
+                      placeholder="Ej: 15000"
+                      value={newPrice}
+                      onChange={(e) =>
+                        setNewPrice(
+                          formatMoneyInput(e.target.value)
+                        )
+                      }
+                      className="
+                        w-full
+                        bg-[#0B0B10]
+                        border border-[#2A2A32]
+                        rounded-xl
+                        p-3 pl-8
+                        text-white
+                        focus:outline-none
+                        focus:ring-2
+                        focus:ring-[#1F6BFF]/40
+                        transition
+                      "
+                    />
+
+                  </div>
+
+                </div>
+
+              </div>
+
+
+              {/* PROVEEDOR Y COSTO */}
+              <div
+                className={`grid grid-cols-1 ${
+                  newSaleType !== 'weight'
+                    ? 'md:grid-cols-2'
+                    : ''
+                } gap-4`}
+              >
+
+                <div className="space-y-1">
+
+                  <label className="text-sm text-gray-400">
+                    Proveedor
+                  </label>
+
+                  <select
+                    value={newSupplierId}
+                    onChange={(e) =>
+                      setNewSupplierId(e.target.value)
+                    }
+                    className="
+                      w-full
+                      bg-[#0B0B10]
+                      border border-[#2A2A32]
+                      rounded-xl
+                      p-3
+                      text-white
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-[#1F6BFF]/40
+                    "
+                  >
+
+                    <option value="">
+                      Sin proveedor
+                    </option>
+
+                    {suppliers.map((supplier) => (
+
+                      <option
+                        key={supplier.id}
+                        value={supplier.id}
+                      >
+                        {supplier.name}
+                      </option>
+
+                    ))}
+
+                  </select>
+
+                </div>
+
+
+                {newSaleType !== 'weight' && (
+
+                  <div className="space-y-1">
+
+                    <label className="text-sm text-gray-400">
+                      Costo de compra
+                    </label>
+
+                    <div className="relative">
+
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                        $
+                      </span>
+
+                      <input
+                        type="text"
+                        placeholder="Ej: 9000"
+                        value={newCostPrice}
+                        onChange={(e) =>
+                          setNewCostPrice(
+                            formatMoneyInput(e.target.value)
+                          )
+                        }
+                        className="
+                          w-full
+                          bg-[#0B0B10]
+                          border border-[#2A2A32]
+                          rounded-xl
+                          p-3 pl-8
+                          text-white
+                          focus:outline-none
+                          focus:ring-2
+                          focus:ring-[#1F6BFF]/40
+                        "
+                      />
+
+                    </div>
+
+                  </div>
+
+                )}
+
+              </div>
+
+
+              {/* MARGEN */}
+              {newSaleType === 'weight' ? (
+
+                (() => {
+
+                  const numbers = getWeightProductNumbers()
+
+                  return (
+
+                    <div
+                      className={`
+                        rounded-xl
+                        border
+                        px-4 py-3
+                        text-sm
+                        font-semibold
+                        ${
+                          numbers.marginPer100g >= 0
+                            ? 'bg-green-500/10 border-green-500/20 text-green-400'
+                            : 'bg-red-500/10 border-red-500/20 text-red-400'
+                        }
+                      `}
+                    >
+                      Margen estimado por 100g: $
+                      {numbers.marginPer100g.toLocaleString(
+                        'es-AR'
+                      )}
+                    </div>
+
+                  )
+
+                })()
+
+              ) : (
+
+                parseMoney(newPrice) > 0 &&
+                parseMoney(newCostPrice) > 0 && (
+
+                  <div className="rounded-xl bg-green-500/10 border border-green-500/20 px-4 py-3 text-sm font-semibold text-green-400">
+
+                    Margen estimado: $
+                    {(
+                      parseMoney(newPrice) -
+                      parseMoney(newCostPrice)
+                    ).toLocaleString('es-AR')}
+
+                  </div>
+
+                )
+
+              )}
+
+
+              {/* STOCK */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <div className="space-y-1">
+
+                  <label className="text-sm text-gray-400">
+                    {newSaleType === 'weight'
+                      ? 'Stock inicial (kg disponibles)'
+                      : 'Stock inicial (unidades)'}
+                  </label>
+
+                  <input
+                    type="number"
+                    placeholder={
+                      newSaleType === 'weight'
+                        ? 'Ej: 5'
+                        : 'Ej: 24'
+                    }
+                    value={newStock}
+                    onChange={(e) =>
+                      setNewStock(e.target.value)
+                    }
+                    className="
+                      w-full
+                      bg-[#0B0B10]
+                      border border-[#2A2A32]
+                      rounded-xl
+                      p-3
+                      text-white
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-[#1F6BFF]/40
+                    "
+                  />
+
+                </div>
+
+
+                <div className="space-y-1">
+
+                  <label className="text-sm text-gray-400">
+                    {newSaleType === 'weight'
+                      ? 'Stock mínimo (kg para alerta)'
+                      : 'Stock mínimo (unidades para alerta)'}
+                  </label>
+
+                  <input
+                    type="number"
+                    min={1}
+                    placeholder={
+                      newSaleType === 'weight'
+                        ? 'Ej: 2'
+                        : 'Ej: 5'
+                    }
+                    value={newMinStock}
+                    onChange={(e) =>
+                      setNewMinStock(e.target.value)
+                    }
+                    className="
+                      w-full
+                      bg-[#0B0B10]
+                      border border-[#2A2A32]
+                      rounded-xl
+                      p-3
+                      text-white
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-[#1F6BFF]/40
+                    "
+                  />
+
+                </div>
+
+              </div>
+
+
+              {/* VENCIMIENTO Y CÓDIGO INTERNO */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                <div className="space-y-1">
+
+                  <label className="text-sm text-gray-400">
+                    Fecha de vencimiento (opcional)
+                  </label>
+
+                  <input
+                    type="date"
+                    value={newExpirationDate}
+                    onChange={(e) =>
+                      setNewExpirationDate(e.target.value)
+                    }
+                    className="
+                      w-full
+                      bg-[#0B0B10]
+                      border border-[#2A2A32]
+                      rounded-xl
+                      p-3
+                      text-white
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-[#1F6BFF]/40
+                    "
+                  />
+
+                  <p className="text-xs text-gray-500">
+                    Arcana te avisará antes de que el producto venza.
+                  </p>
+
+                </div>
+
+
+                <div className="space-y-1">
+
+                  <label className="text-sm text-gray-400">
+                    Código del producto (opcional)
+                  </label>
+
+                  <input
+                    value={newCode}
+                    onChange={(e) =>
+                      setNewCode(e.target.value)
+                    }
+                    placeholder="Ej: VEL-202"
+                    className="
+                      w-full
+                      bg-[#0B0B10]
+                      border border-[#2A2A32]
+                      rounded-xl
+                      p-3
+                      text-white
+                      focus:outline-none
+                      focus:ring-2
+                      focus:ring-[#1F6BFF]/40
+                    "
+                  />
+
+                </div>
+
+              </div>
+
+
+              {/* ACTIVO */}
+              <label
+                className="
+                  flex
+                  items-center
+                  justify-between
+                  gap-4
+                  bg-[#0B0B10]
+                  border border-[#2A2A32]
+                  rounded-xl
+                  p-4
+                  cursor-pointer
+                "
+              >
+
+                <div>
+
+                  <p className="text-sm text-white font-medium">
+                    Producto activo
+                  </p>
+
+                  <p className="text-xs text-gray-500 mt-1">
+                    El producto estará disponible para usar dentro de Arcana.
+                  </p>
+
+                </div>
+
+                <input
+                  type="checkbox"
+                  checked={newActive}
+                  onChange={(e) =>
+                    setNewActive(e.target.checked)
+                  }
+                />
+
+              </label>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      {/* FOOTER FIJO */}
+      <div
+        className="
+          px-5 py-4
+          md:px-7
+          border-t border-[#25252D]
+          bg-[#111116]
+          flex
+          flex-col-reverse
+          sm:flex-row
+          justify-end
+          gap-3
+        "
+      >
+
+        <button
+          type="button"
+          onClick={() => setIsOpen(false)}
+          className="
+            w-full
+            sm:w-auto
+            px-5 py-2.5
+            rounded-xl
+            border border-[#2A2A32]
+            bg-[#1A1A22]
+            text-white
+            hover:bg-[#22222B]
+            hover:border-[#3A3A48]
+            transition
+          "
         >
           Cancelar
         </button>
 
         <button
+          type="button"
           onClick={createProduct}
-          className="w-full sm:w-auto bg-[#1F6BFF] hover:bg-[#2E7BFF] transition px-5 py-2 rounded-xl font-semibold"
+          className="
+            w-full
+            sm:w-auto
+            bg-[#1F6BFF]
+            hover:bg-[#2E7BFF]
+            transition
+            px-6 py-2.5
+            rounded-xl
+            font-semibold
+            text-white
+          "
         >
-          Guardar
+          {editingId
+            ? 'Guardar cambios'
+            : 'Guardar producto'}
         </button>
-            </div>
+
+      </div>
+
     </div>
+
   </div>
 )}
 
