@@ -22,6 +22,11 @@ import {
 import {
   assertAceConfigValid,
 } from './core/config-validator'
+import {
+  runPreflight,
+  printPreflight,
+  assertPreflightSafe,
+} from './core/preflight'
 
 type CliOptions = {
   filePath: string | null
@@ -33,7 +38,7 @@ type CliOptions = {
 async function main(): Promise<void> {
   try {
         assertAceConfigValid()
-        
+
     const options =
       parseArguments(
         process.argv.slice(2)
@@ -70,6 +75,27 @@ async function main(): Promise<void> {
         `El archivo no existe: ${resolvedFilePath}`
       )
     }
+
+    const preflight =
+  runPreflight({
+    filePath:
+      resolvedFilePath,
+
+    mode:
+      options.mode,
+  })
+
+printPreflight(
+  preflight
+)
+
+assertPreflightSafe({
+  filePath:
+    resolvedFilePath,
+
+  mode:
+    options.mode,
+})
 
     /*
      * Barrera de seguridad:
