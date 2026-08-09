@@ -727,14 +727,51 @@ const updatePrice = async (id: string, newPrice: number) => {
 }
 
 const handleDelete = async (id: string) => {
-  if (!confirm("¿Eliminar producto?")) return
+  const product = products.find((p) => p.id === id)
 
-  await supabase
-    .from('products')
-    .delete()
-    .eq('id', id)
+  const confirmed = confirm(
+    `¿Eliminar "${product?.name || 'este producto'}"?\n\nEsta acción no se puede deshacer.`
+  )
 
-  fetchProducts()
+  if (!confirmed) return
+
+  try {
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      console.error('ERROR ELIMINANDO PRODUCTO:', error)
+
+      setToast({
+        type: 'error',
+        message:
+          error.code === '23503'
+            ? 'Este producto tiene movimientos registrados y no puede eliminarse directamente.'
+            : error.message || 'No se pudo eliminar el producto.'
+      })
+
+      return
+    }
+
+    setProducts((currentProducts) =>
+      currentProducts.filter((p) => p.id !== id)
+    )
+
+    setToast({
+      type: 'success',
+      message: 'Producto eliminado correctamente.'
+    })
+
+  } catch (error: any) {
+    console.error('ERROR ELIMINANDO PRODUCTO:', error)
+
+    setToast({
+      type: 'error',
+      message: error.message || 'No se pudo eliminar el producto.'
+    })
+  }
 }
 const handleEdit = (product: Product) => {
   setEditingId(product.id)
