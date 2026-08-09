@@ -23,7 +23,8 @@
     "ace:test-config": "tsx scripts/ace/core/config.test.ts",
     "ace": "tsx scripts/ace/cli.ts",
     "ace:test-config-validator": "tsx scripts/ace/core/config-validator.test.ts",
-    "ace:test-preflight": "tsx scripts/ace/core/preflight.test.ts"
+    "ace:test-preflight": "tsx scripts/ace/core/preflight.test.ts",
+    "ace:test-app-catalog": "tsx scripts/ace/core/app-catalog-check.test.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.93.3",
