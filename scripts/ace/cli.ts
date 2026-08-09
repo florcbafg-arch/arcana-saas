@@ -33,6 +33,7 @@ type CliOptions = {
   mode: AceMode
   enrich: boolean
   help: boolean
+  confirmExecute: boolean
 }
 
 async function main(): Promise<void> {
@@ -205,6 +206,8 @@ function parseArguments(
 
   let help = false
 
+  let confirmExecute = false
+
   for (
     let index = 0;
     index < args.length;
@@ -220,6 +223,13 @@ function parseArguments(
       help = true
       continue
     }
+
+    if (
+  argument === '--confirm-execute'
+) {
+  confirmExecute = true
+  continue
+}
 
     if (
       argument === '--execute'
@@ -296,11 +306,12 @@ function parseArguments(
   }
 
   return {
-    filePath,
-    mode,
-    enrich,
-    help,
-  }
+  filePath,
+  mode,
+  enrich,
+  help,
+  confirmExecute,
+}
 }
 
 function printHeader(
