@@ -736,7 +736,8 @@ const filteredProducts = products.filter((product) => {
 </div>
 
 {showScanner && (
- <BarcodeScanne  onScan={(code) => {
+ <BarcodeScanner
+  onScan={(code) => {
     const product = products.find(
       (p) => p.code === code || p.barcode === code
     )
@@ -767,8 +768,8 @@ const filteredProducts = products.filter((product) => {
 
         {/* PANEL IZQUIERDO */}
        
-        <div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 
-transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl
+       <div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 
+transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
 
           <h2 className="text-lg font-medium">Registrar venta</h2>
 
