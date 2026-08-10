@@ -583,17 +583,61 @@ const getSaleDateLabel = (createdAt: string) => {
   })} · ${time}`
 }
 
-const todaySales = sales.filter((sale) => {
-  const today = new Date().toLocaleDateString('en-CA', {
+const getSaleDayKey = (createdAt: string) => {
+  return new Date(createdAt).toLocaleDateString('en-CA', {
+    timeZone: 'America/Argentina/Buenos_Aires'
+  })
+}
+
+const getSaleDayLabel = (createdAt: string) => {
+  const saleDate = new Date(createdAt)
+
+  const today = new Date()
+
+  const todayKey = today.toLocaleDateString('en-CA', {
     timeZone: 'America/Argentina/Buenos_Aires'
   })
 
-  const saleDate = new Date(sale.created_at).toLocaleDateString('en-CA', {
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  const yesterdayKey = yesterday.toLocaleDateString('en-CA', {
     timeZone: 'America/Argentina/Buenos_Aires'
   })
 
-  return saleDate === today
-})
+  const saleKey = getSaleDayKey(createdAt)
+
+  if (saleKey === todayKey) {
+    return 'Hoy'
+  }
+
+  if (saleKey === yesterdayKey) {
+    return 'Ayer'
+  }
+
+  return saleDate
+    .toLocaleDateString('es-AR', {
+      timeZone: 'America/Argentina/Buenos_Aires',
+      day: '2-digit',
+      month: 'short'
+    })
+    .replace('.', '')
+}
+
+const groupedSales = sales.reduce(
+  (groups: Record<string, any[]>, sale) => {
+    const key = getSaleDayKey(sale.created_at)
+
+    if (!groups[key]) {
+      groups[key] = []
+    }
+
+    groups[key].push(sale)
+
+    return groups
+  },
+  {}
+)
 
 const printTicket = () => {
   window.print()
@@ -1307,7 +1351,7 @@ placeholder="Ej: 1"
         </div>
 
       </div>
-  {/* VENTAS RECIENTES - ARCANA BASE */}
+  {/* HISTORIAL DE VENTAS - ARCANA BASE */}
 <div
   ref={salesRef}
   className="
@@ -1320,36 +1364,20 @@ placeholder="Ej: 1"
 >
 
   {/* HEADER */}
-  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+  <div className="mb-5">
 
-    <div>
-      <h2 className="text-lg font-semibold text-white">
-        Ventas recientes
-      </h2>
+    <h2 className="text-lg font-semibold text-white">
+      Historial de ventas
+    </h2>
 
-      <p className="text-xs text-gray-500 mt-1">
-        Movimientos realizados durante el día de hoy.
-      </p>
-    </div>
-
-    <div
-      className="
-        self-start sm:self-auto
-        text-xs
-        px-3 py-1.5
-        rounded-full
-        bg-[#1F6BFF]/10
-        border border-[#1F6BFF]/20
-        text-[#6EA8FF]
-      "
-    >
-      Hoy · {todaySales.length} venta{todaySales.length === 1 ? '' : 's'}
-    </div>
+    <p className="text-xs text-gray-500 mt-1">
+      Consultá las ventas registradas de tu negocio.
+    </p>
 
   </div>
 
 
-  {todaySales.length === 0 ? (
+  {sales.length === 0 ? (
 
     <div
       className="
@@ -1360,222 +1388,338 @@ placeholder="Ej: 1"
         text-center
       "
     >
+
       <div className="text-3xl mb-2">
         🧾
       </div>
 
       <p className="text-sm text-white font-medium">
-        Todavía no hay ventas hoy
+        Todavía no hay ventas registradas
       </p>
 
       <p className="text-xs text-gray-500 mt-1">
         Las ventas que registres aparecerán acá.
       </p>
+
     </div>
 
   ) : (
 
-    <div className="space-y-2">
+    /*
+      Altura limitada:
+      aproximadamente 5 ventas visibles.
+      El resto queda disponible mediante scroll.
+    */
+    <div
+      className="
+        max-h-[420px]
+        overflow-y-auto
+        pr-2
+        space-y-5
+      "
+    >
 
-      <AnimatePresence>
-        {todaySales.map((sale) => {
+      {Object.entries(groupedSales).map(
+        ([dayKey, daySales]) => {
 
-          const totalUnits = sale.sale_items?.reduce(
-            (acc: number, item: any) =>
-              item.products?.sale_type !== 'weight'
-                ? acc + Number(item.quantity || 0)
-                : acc,
-            0
-          ) || 0
-
-          const totalWeightKg = sale.sale_items?.reduce(
-            (acc: number, item: any) =>
-              item.products?.sale_type === 'weight'
-                ? acc + Number(item.quantity || 0)
-                : acc,
-            0
-          ) || 0
-
-          const productsCount =
-            sale.sale_items?.length || 0
-
-          const paymentLabel =
-            sale.payment_method === 'paid'
-              ? sale.payment_type === 'cash'
-                ? '💵 Efectivo'
-                : sale.payment_type === 'transfer'
-                ? '🏦 Transferencia'
-                : sale.payment_type === 'card'
-                ? '💳 Tarjeta'
-                : 'Pago'
-              : '🟡 Fiado'
+          const firstSale = daySales[0]
 
           return (
 
-            <motion.div
-              key={sale.id}
-              initial={{
-                opacity: 0,
-                y: 10
-              }}
-              animate={{
-                opacity: 1,
-                y: 0
-              }}
-              transition={{
-                duration: 0.25
-              }}
-              className="
-                bg-[#0E0E11]
-                border border-[#1F1F24]
-                rounded-xl
-                px-4 py-3
-                hover:border-[#30303A]
-                transition
-              "
-            >
+            <div key={dayKey}>
 
+              {/* SEPARADOR DEL DÍA */}
               <div
                 className="
-                  flex
-                  flex-col
-                  md:flex-row
-                  md:items-center
-                  justify-between
-                  gap-3
+                  sticky
+                  top-0
+                  z-10
+                  bg-[#14141A]
+                  py-2
+                  mb-2
+                  border-b border-[#24242C]
                 "
               >
 
-                {/* INFORMACIÓN PRINCIPAL */}
-                <div className="min-w-0 flex-1">
-
-                  <div className="flex items-center gap-2 flex-wrap">
-
-                    <span className="text-sm">
-                      🧾
-                    </span>
-
-                    <p className="text-sm text-white font-semibold">
-                      Venta #{sale.id.slice(0, 6)}
-                    </p>
-
-                    <span className="text-gray-700">
-                      •
-                    </span>
-
-                    <p className="text-xs text-gray-400">
-                      {getSaleDateLabel(sale.created_at)}
-                    </p>
-
-                  </div>
-
-
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
-
-                    <p className="text-xs text-gray-400">
-                      {sale.customers?.name || 'Venta directa'}
-                    </p>
-
-                    <span
-                      className={`
-                        text-xs
-                        px-2 py-0.5
-                        rounded-full
-                        ${
-                          sale.payment_method === 'paid'
-                            ? 'bg-green-500/10 text-green-400'
-                            : 'bg-yellow-500/10 text-yellow-400'
-                        }
-                      `}
-                    >
-                      {paymentLabel}
-                    </span>
-
-                    <p className="text-xs text-gray-500">
-                      {productsCount}{' '}
-                      {productsCount === 1
-                        ? 'producto'
-                        : 'productos'}
-                    </p>
-
-                    {totalUnits > 0 && (
-                      <p className="text-xs text-gray-500">
-                        {totalUnits} un
-                      </p>
-                    )}
-
-                    {totalWeightKg > 0 && (
-                      <p className="text-xs text-cyan-400">
-                        {Math.round(totalWeightKg * 1000)}g
-                      </p>
-                    )}
-
-                  </div>
-
-                </div>
-
-
-                {/* TOTAL + DETALLE */}
-                <div
+                <p
                   className="
-                    flex
-                    items-center
-                    justify-between
-                    md:justify-end
-                    gap-5
-                    shrink-0
+                    text-[11px]
+                    uppercase
+                    tracking-[0.12em]
+                    font-semibold
+                    text-gray-500
                   "
                 >
-
-                  <div className="text-left md:text-right">
-
-                    <p className="text-[10px] uppercase tracking-wide text-gray-600">
-                      Total
-                    </p>
-
-                    <p className="text-base font-bold text-green-400">
-                      {formatCurrency(sale.total_amount)}
-                    </p>
-
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setSelectedRecentSale(sale)
-                    }
-                    className="
-                      text-xs
-                      text-[#6EA8FF]
-                      hover:text-white
-                      bg-[#1F6BFF]/10
-                      hover:bg-[#1F6BFF]/20
-                      border border-[#1F6BFF]/20
-                      rounded-lg
-                      px-3 py-2
-                      transition
-                      whitespace-nowrap
-                    "
-                  >
-                    Ver detalle →
-                  </button>
-
-                </div>
+                  {getSaleDayLabel(firstSale.created_at)}
+                </p>
 
               </div>
 
-            </motion.div>
+
+              <div className="space-y-2">
+
+                <AnimatePresence>
+
+                  {daySales.map((sale: any) => {
+
+                    const totalUnits =
+                      sale.sale_items?.reduce(
+                        (acc: number, item: any) =>
+                          item.products?.sale_type !== 'weight'
+                            ? acc + Number(item.quantity || 0)
+                            : acc,
+                        0
+                      ) || 0
+
+                    const totalWeightKg =
+                      sale.sale_items?.reduce(
+                        (acc: number, item: any) =>
+                          item.products?.sale_type === 'weight'
+                            ? acc + Number(item.quantity || 0)
+                            : acc,
+                        0
+                      ) || 0
+
+                    const productsCount =
+                      sale.sale_items?.length || 0
+
+                    const paymentLabel =
+                      sale.payment_method === 'paid'
+                        ? sale.payment_type === 'cash'
+                          ? '💵 Efectivo'
+                          : sale.payment_type === 'transfer'
+                          ? '🏦 Transferencia'
+                          : sale.payment_type === 'card'
+                          ? '💳 Tarjeta'
+                          : 'Pago'
+                        : '🟡 Fiado'
+
+                    return (
+
+                      <motion.div
+                        key={sale.id}
+                        initial={{
+                          opacity: 0,
+                          y: 10
+                        }}
+                        animate={{
+                          opacity: 1,
+                          y: 0
+                        }}
+                        transition={{
+                          duration: 0.25
+                        }}
+                        className="
+                          bg-[#0E0E11]
+                          border border-[#1F1F24]
+                          rounded-xl
+                          px-4 py-3
+                          hover:border-[#30303A]
+                          transition
+                        "
+                      >
+
+                        <div
+                          className="
+                            flex
+                            flex-col
+                            md:flex-row
+                            md:items-center
+                            justify-between
+                            gap-3
+                          "
+                        >
+
+                          {/* DATOS PRINCIPALES */}
+                          <div className="min-w-0 flex-1">
+
+                            <div
+                              className="
+                                flex
+                                items-center
+                                gap-2
+                                flex-wrap
+                              "
+                            >
+
+                              <span className="text-sm">
+                                🧾
+                              </span>
+
+                              <p className="text-sm text-white font-semibold">
+                                Venta #{sale.id.slice(0, 6)}
+                              </p>
+
+                              <span className="text-gray-700">
+                                •
+                              </span>
+
+                              <p className="text-xs text-gray-400">
+                                {new Date(
+                                  sale.created_at
+                                ).toLocaleTimeString(
+                                  'es-AR',
+                                  {
+                                    timeZone:
+                                      'America/Argentina/Buenos_Aires',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  }
+                                )}
+                              </p>
+
+                            </div>
+
+
+                            <div
+                              className="
+                                flex
+                                flex-wrap
+                                items-center
+                                gap-x-4
+                                gap-y-1
+                                mt-2
+                              "
+                            >
+
+                              <p className="text-xs text-gray-400">
+                                {sale.customers?.name ||
+                                  'Venta directa'}
+                              </p>
+
+                              <span
+                                className={`
+                                  text-xs
+                                  px-2 py-0.5
+                                  rounded-full
+                                  ${
+                                    sale.payment_method === 'paid'
+                                      ? 'bg-green-500/10 text-green-400'
+                                      : 'bg-yellow-500/10 text-yellow-400'
+                                  }
+                                `}
+                              >
+                                {paymentLabel}
+                              </span>
+
+                              <p className="text-xs text-gray-500">
+
+                                {productsCount}{' '}
+
+                                {productsCount === 1
+                                  ? 'producto'
+                                  : 'productos'}
+
+                              </p>
+
+                              {totalUnits > 0 && (
+
+                                <p className="text-xs text-gray-500">
+                                  {totalUnits} un
+                                </p>
+
+                              )}
+
+                              {totalWeightKg > 0 && (
+
+                                <p className="text-xs text-cyan-400">
+                                  {Math.round(
+                                    totalWeightKg * 1000
+                                  )}
+                                  g
+                                </p>
+
+                              )}
+
+                            </div>
+
+                          </div>
+
+
+                          {/* TOTAL + BOTÓN */}
+                          <div
+                            className="
+                              flex
+                              items-center
+                              justify-between
+                              md:justify-end
+                              gap-5
+                              shrink-0
+                            "
+                          >
+
+                            <div className="text-left md:text-right">
+
+                              <p
+                                className="
+                                  text-[10px]
+                                  uppercase
+                                  tracking-wide
+                                  text-gray-600
+                                "
+                              >
+                                Total
+                              </p>
+
+                              <p className="text-base font-bold text-green-400">
+                                {formatCurrency(
+                                  sale.total_amount
+                                )}
+                              </p>
+
+                            </div>
+
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setSelectedRecentSale(
+                                  sale
+                                )
+                              }
+                              className="
+                                text-xs
+                                text-[#6EA8FF]
+                                hover:text-white
+                                bg-[#1F6BFF]/10
+                                hover:bg-[#1F6BFF]/20
+                                border border-[#1F6BFF]/20
+                                rounded-lg
+                                px-3 py-2
+                                transition
+                                whitespace-nowrap
+                              "
+                            >
+                              Ver detalle →
+                            </button>
+
+                          </div>
+
+                        </div>
+
+                      </motion.div>
+
+                    )
+
+                  })}
+
+                </AnimatePresence>
+
+              </div>
+
+            </div>
 
           )
-        })}
-      </AnimatePresence>
+
+        }
+      )}
 
     </div>
 
   )}
 
 
-  {/* PUERTA NATURAL HACIA IMPULSO */}
+  {/* ARCANA IMPULSO */}
   <div
     className="
       mt-5
@@ -1591,18 +1735,22 @@ placeholder="Ej: 1"
   >
 
     <div>
+
       <p className="text-xs text-gray-400">
-        ¿Necesitás consultar ventas anteriores?
+        ¿Querés encontrar una venta más rápido?
       </p>
 
       <p className="text-[11px] text-gray-600 mt-0.5">
-        El historial completo, búsqueda y filtros están disponibles con Arcana Impulso.
+        Búsqueda, filtros y herramientas avanzadas de historial están disponibles con Arcana Impulso.
       </p>
+
     </div>
+
 
     <span
       className="
-        self-start sm:self-auto
+        self-start
+        sm:self-auto
         text-[10px]
         font-semibold
         px-2.5 py-1
@@ -1618,7 +1766,6 @@ placeholder="Ej: 1"
   </div>
 
 </div>
-
 
 {/* DETALLE DE VENTA RECIENTE */}
 {selectedRecentSale && (
