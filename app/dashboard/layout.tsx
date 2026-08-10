@@ -8,6 +8,7 @@ import SupportButton from './components/SupportButton'
 import ErrorDetector from './components/ErrorDetector'
 import Link from 'next/link'
 import GlobalInsightsBanner from './components/GlobalInsightsBanner'
+import NotificationBell from './components/NotificationBell'
 
 type AccessState =
   | 'loading'
@@ -262,12 +263,19 @@ if (accessState === 'error') {
 </p>
   </div>
 
+  <div className="flex items-center gap-2">
+
+  <NotificationBell />
+
   <button
     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
     className="rounded-xl border border-white/10 bg-[#14141A] px-3 py-2 text-white"
   >
     ☰
   </button>
+
+</div>
+
 
 </div>
 
@@ -301,6 +309,37 @@ if (accessState === 'error') {
 )}
 
     <main className="relative flex-1 min-w-0 w-full md:ml-64 px-4 py-4 md:px-8 md:py-7 pb-24 md:pb-8">
+
+      {/* HEADER GLOBAL WEB */}
+<div className="hidden md:flex items-center justify-end gap-3 mb-4">
+
+  <NotificationBell />
+
+  {/* PERFIL DECORATIVO - funcionalidad futura */}
+  <div
+    className="
+      w-11 h-11
+      rounded-xl
+      bg-gradient-to-br
+      from-[#1F6BFF]
+      to-[#6C5CE7]
+      flex
+      items-center
+      justify-center
+      text-white
+      font-bold
+      border border-white/10
+      shadow-[0_0_18px_rgba(31,107,255,0.18)]
+    "
+    title="Perfil de usuario - próximamente"
+  >
+    👤
+  </div>
+
+</div>
+
+<GlobalInsightsBanner />
+
   <GlobalInsightsBanner />
   {children}
 </main>
