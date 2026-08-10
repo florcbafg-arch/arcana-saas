@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import * as XLSX from "xlsx"
 import { useRef } from "react"
@@ -54,6 +55,11 @@ type OpenFoodSuggestion = {
 }
 
 export default function ProductosPage() {
+    const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const productToEdit = searchParams.get('edit')
+
   const [products, setProducts] = useState<Product[]>([])
   const [newProductName, setNewProductName] = useState('')
   const [newMinStock, setNewMinStock] = useState('')
@@ -857,6 +863,42 @@ setNewCategory(product.category || '')
 setNewImageUrl(product.image_url || '')
 setNewQuantityLabel(product.quantity || '')
 }
+
+useEffect(() => {
+  if (!productToEdit) return
+
+  // Esperamos a que los productos hayan cargado
+  if (products.length === 0) return
+
+  const product = products.find(
+    (p) => p.id === productToEdit
+  )
+
+  if (!product) {
+    setToast({
+      type: 'error',
+      message: 'No encontramos el producto solicitado.'
+    })
+
+    router.replace(
+      '/dashboard/productos',
+      { scroll: false }
+    )
+
+    return
+  }
+
+  // Abre directamente el modal de edición
+  handleEdit(product)
+
+  // Limpiamos ?edit= de la URL.
+  // Así, al cerrar el modal, no vuelve a abrirse.
+  router.replace(
+    '/dashboard/productos',
+    { scroll: false }
+  )
+
+}, [productToEdit, products])
 
 useEffect(() => {
   if (!toast) return

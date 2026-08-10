@@ -340,7 +340,6 @@ if (accessState === 'error') {
 
 <GlobalInsightsBanner />
 
-  <GlobalInsightsBanner />
   {children}
 </main>
 
