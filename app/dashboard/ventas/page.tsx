@@ -736,8 +736,7 @@ const filteredProducts = products.filter((product) => {
 </div>
 
 {showScanner && (
- <BarcodeScanner
-  onScan={(code) => {
+ <BarcodeScanne  onScan={(code) => {
     const product = products.find(
       (p) => p.code === code || p.barcode === code
     )
@@ -764,12 +763,12 @@ const filteredProducts = products.filter((product) => {
 )}
 
       {/* GRID PRINCIPAL */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,42fr)_minmax(0,58fr)] gap-6 w-full">
 
         {/* PANEL IZQUIERDO */}
        
-        <div className="md:col-span-1 bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 
-transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
+        <div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 
+transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl
 
           <h2 className="text-lg font-medium">Registrar venta</h2>
 
@@ -1159,7 +1158,7 @@ placeholder="Ej: 1"
 </div>
 
 {/* PANEL DERECHO */}
-<div className="md:col-span-2 bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 shadow-md">
+<div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 shadow-md">
   <h2 className="text-lg font-medium">Carrito</h2>
 
 {cart.length === 0 ? (
