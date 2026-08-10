@@ -60,6 +60,7 @@ export default function VentasPage() {
   const [salePaid, setSalePaid] = useState(true)
   const [paymentType, setPaymentType] = useState("cash")
   const [sales, setSales] = useState<any[]>([])
+  const [selectedRecentSale, setSelectedRecentSale] = useState<any | null>(null)
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
   const [scannerActive, setScannerActive] = useState(true)
   const scannerRef = useRef<HTMLInputElement | null>(null)
@@ -555,6 +556,44 @@ const formatCurrency = (value: number) => {
     minimumFractionDigits: 0
   }).format(value)
 }
+
+const getSaleDateLabel = (createdAt: string) => {
+  const saleDate = new Date(createdAt)
+
+  const today = new Date().toLocaleDateString('en-CA', {
+    timeZone: 'America/Argentina/Buenos_Aires'
+  })
+
+  const saleDay = saleDate.toLocaleDateString('en-CA', {
+    timeZone: 'America/Argentina/Buenos_Aires'
+  })
+
+  const time = saleDate.toLocaleTimeString('es-AR', {
+    timeZone: 'America/Argentina/Buenos_Aires',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+
+  if (saleDay === today) {
+    return `Hoy · ${time}`
+  }
+
+  return `${saleDate.toLocaleDateString('es-AR', {
+    timeZone: 'America/Argentina/Buenos_Aires'
+  })} · ${time}`
+}
+
+const todaySales = sales.filter((sale) => {
+  const today = new Date().toLocaleDateString('en-CA', {
+    timeZone: 'America/Argentina/Buenos_Aires'
+  })
+
+  const saleDate = new Date(sale.created_at).toLocaleDateString('en-CA', {
+    timeZone: 'America/Argentina/Buenos_Aires'
+  })
+
+  return saleDate === today
+})
 
 const printTicket = () => {
   window.print()
@@ -1268,119 +1307,606 @@ placeholder="Ej: 1"
         </div>
 
       </div>
-  
-{/* VENTAS RECIENTES */}
+  {/* VENTAS RECIENTES - ARCANA BASE */}
 <div
   ref={salesRef}
-  className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 shadow-lg max-h-[500px] flex flex-col"
+  className="
+    bg-[#14141A]
+    border border-[#2A2A32]
+    rounded-2xl
+    p-6
+    shadow-lg
+  "
 >
-  <h2 className="text-lg font-semibold text-white mb-4">
-    Ventas recientes
-  </h2>
 
- {sales.length === 0 ? (
-  <p className="text-gray-500 text-sm">
-    No hay ventas registradas todavía.
-  </p>
-) : (
-  <div className="sales-scroll space-y-3 overflow-y-auto pr-2">
+  {/* HEADER */}
+  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
 
-    <AnimatePresence>
-      {sales.map((sale) => {
+    <div>
+      <h2 className="text-lg font-semibold text-white">
+        Ventas recientes
+      </h2>
 
-const hasWeightItems = sale.sale_items?.some(
-  (item: any) => item.products?.sale_type === 'weight'
-)
+      <p className="text-xs text-gray-500 mt-1">
+        Movimientos realizados durante el día de hoy.
+      </p>
+    </div>
 
-const totalUnits = sale.sale_items?.reduce(
-  (acc: number, item: any) =>
-    item.products?.sale_type !== 'weight'
-      ? acc + Number(item.quantity || 0)
-      : acc,
-  0
-)
-
-const totalWeightKg = sale.sale_items?.reduce(
-  (acc: number, item: any) =>
-    item.products?.sale_type === 'weight'
-      ? acc + Number(item.quantity || 0)
-      : acc,
-  0
-)
-
-  return (
-    <motion.div
-      key={sale.id}
-      initial={{ opacity: 0, y: 20, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -10 }}
-      transition={{ duration: 0.35, ease: "easeOut" }}
-      className="bg-[#0E0E11] border border-[#1F1F24] rounded-xl p-4 space-y-3"
+    <div
+      className="
+        self-start sm:self-auto
+        text-xs
+        px-3 py-1.5
+        rounded-full
+        bg-[#1F6BFF]/10
+        border border-[#1F6BFF]/20
+        text-[#6EA8FF]
+      "
     >
-      <div className="flex justify-between items-start">
-        <div>
-          <p className="text-white font-medium">
-            Venta #{sale.id.slice(0, 6)}
-          </p>
-          <p className="text-xs text-gray-400">
-            {sale.customers?.name || "Venta directa"}
-          </p>
-        </div>
+      Hoy · {todaySales.length} venta{todaySales.length === 1 ? '' : 's'}
+    </div>
 
-        <div className="text-right">
-          <p className="text-sm text-gray-300">
-           {hasWeightItems
-  ? `${Math.round(totalWeightKg * 1000)}g`
-  : `${totalUnits} unidad/es`} · {formatCurrency(sale.total_amount)}
-          </p>
+  </div>
 
-          <span
-            className={`text-xs px-3 py-1 rounded-full ${
-              sale.payment_method === "paid"
-                ? "bg-green-900 text-green-400"
-                : "bg-yellow-900 text-yellow-400"
-            }`}
-          >
-            {sale.payment_method === "paid"
-  ? (sale.payment_type === "cash"
-      ? "💵 Efectivo"
-      : sale.payment_type === "transfer"
-      ? "🏦 Transferencia"
-      : sale.payment_type === "card"
-      ? "💳 Tarjeta"
-      : "Pago")
-  : "Fiado"}
-          </span>
-        </div>
+
+  {todaySales.length === 0 ? (
+
+    <div
+      className="
+        bg-[#0E0E11]
+        border border-[#1F1F24]
+        rounded-xl
+        p-6
+        text-center
+      "
+    >
+      <div className="text-3xl mb-2">
+        🧾
       </div>
 
-      <div className="border-t border-[#1F1F24] pt-3 space-y-2">
-        {sale.sale_items?.map((item: any, index: number) => (
-          <div
-            key={index}
-            className="flex justify-between text-xs text-gray-400"
-          >
-            <span>
-              {item.products?.name || "Producto"}
-            </span>
+      <p className="text-sm text-white font-medium">
+        Todavía no hay ventas hoy
+      </p>
 
-            <span>
-              {item.products?.sale_type === 'weight'
-  ? `${Math.round(Number(item.quantity || 0) * 1000)}g · ${formatCurrency(item.price_unit)}`
-  : `${item.quantity} ${item.products?.unit} · ${formatCurrency(item.price_unit)}`}
-            </span>
+      <p className="text-xs text-gray-500 mt-1">
+        Las ventas que registres aparecerán acá.
+      </p>
+    </div>
+
+  ) : (
+
+    <div className="space-y-2">
+
+      <AnimatePresence>
+        {todaySales.map((sale) => {
+
+          const totalUnits = sale.sale_items?.reduce(
+            (acc: number, item: any) =>
+              item.products?.sale_type !== 'weight'
+                ? acc + Number(item.quantity || 0)
+                : acc,
+            0
+          ) || 0
+
+          const totalWeightKg = sale.sale_items?.reduce(
+            (acc: number, item: any) =>
+              item.products?.sale_type === 'weight'
+                ? acc + Number(item.quantity || 0)
+                : acc,
+            0
+          ) || 0
+
+          const productsCount =
+            sale.sale_items?.length || 0
+
+          const paymentLabel =
+            sale.payment_method === 'paid'
+              ? sale.payment_type === 'cash'
+                ? '💵 Efectivo'
+                : sale.payment_type === 'transfer'
+                ? '🏦 Transferencia'
+                : sale.payment_type === 'card'
+                ? '💳 Tarjeta'
+                : 'Pago'
+              : '🟡 Fiado'
+
+          return (
+
+            <motion.div
+              key={sale.id}
+              initial={{
+                opacity: 0,
+                y: 10
+              }}
+              animate={{
+                opacity: 1,
+                y: 0
+              }}
+              transition={{
+                duration: 0.25
+              }}
+              className="
+                bg-[#0E0E11]
+                border border-[#1F1F24]
+                rounded-xl
+                px-4 py-3
+                hover:border-[#30303A]
+                transition
+              "
+            >
+
+              <div
+                className="
+                  flex
+                  flex-col
+                  md:flex-row
+                  md:items-center
+                  justify-between
+                  gap-3
+                "
+              >
+
+                {/* INFORMACIÓN PRINCIPAL */}
+                <div className="min-w-0 flex-1">
+
+                  <div className="flex items-center gap-2 flex-wrap">
+
+                    <span className="text-sm">
+                      🧾
+                    </span>
+
+                    <p className="text-sm text-white font-semibold">
+                      Venta #{sale.id.slice(0, 6)}
+                    </p>
+
+                    <span className="text-gray-700">
+                      •
+                    </span>
+
+                    <p className="text-xs text-gray-400">
+                      {getSaleDateLabel(sale.created_at)}
+                    </p>
+
+                  </div>
+
+
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+
+                    <p className="text-xs text-gray-400">
+                      {sale.customers?.name || 'Venta directa'}
+                    </p>
+
+                    <span
+                      className={`
+                        text-xs
+                        px-2 py-0.5
+                        rounded-full
+                        ${
+                          sale.payment_method === 'paid'
+                            ? 'bg-green-500/10 text-green-400'
+                            : 'bg-yellow-500/10 text-yellow-400'
+                        }
+                      `}
+                    >
+                      {paymentLabel}
+                    </span>
+
+                    <p className="text-xs text-gray-500">
+                      {productsCount}{' '}
+                      {productsCount === 1
+                        ? 'producto'
+                        : 'productos'}
+                    </p>
+
+                    {totalUnits > 0 && (
+                      <p className="text-xs text-gray-500">
+                        {totalUnits} un
+                      </p>
+                    )}
+
+                    {totalWeightKg > 0 && (
+                      <p className="text-xs text-cyan-400">
+                        {Math.round(totalWeightKg * 1000)}g
+                      </p>
+                    )}
+
+                  </div>
+
+                </div>
+
+
+                {/* TOTAL + DETALLE */}
+                <div
+                  className="
+                    flex
+                    items-center
+                    justify-between
+                    md:justify-end
+                    gap-5
+                    shrink-0
+                  "
+                >
+
+                  <div className="text-left md:text-right">
+
+                    <p className="text-[10px] uppercase tracking-wide text-gray-600">
+                      Total
+                    </p>
+
+                    <p className="text-base font-bold text-green-400">
+                      {formatCurrency(sale.total_amount)}
+                    </p>
+
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSelectedRecentSale(sale)
+                    }
+                    className="
+                      text-xs
+                      text-[#6EA8FF]
+                      hover:text-white
+                      bg-[#1F6BFF]/10
+                      hover:bg-[#1F6BFF]/20
+                      border border-[#1F6BFF]/20
+                      rounded-lg
+                      px-3 py-2
+                      transition
+                      whitespace-nowrap
+                    "
+                  >
+                    Ver detalle →
+                  </button>
+
+                </div>
+
+              </div>
+
+            </motion.div>
+
+          )
+        })}
+      </AnimatePresence>
+
+    </div>
+
+  )}
+
+
+  {/* PUERTA NATURAL HACIA IMPULSO */}
+  <div
+    className="
+      mt-5
+      pt-4
+      border-t border-[#1F1F24]
+      flex
+      flex-col
+      sm:flex-row
+      sm:items-center
+      justify-between
+      gap-3
+    "
+  >
+
+    <div>
+      <p className="text-xs text-gray-400">
+        ¿Necesitás consultar ventas anteriores?
+      </p>
+
+      <p className="text-[11px] text-gray-600 mt-0.5">
+        El historial completo, búsqueda y filtros están disponibles con Arcana Impulso.
+      </p>
+    </div>
+
+    <span
+      className="
+        self-start sm:self-auto
+        text-[10px]
+        font-semibold
+        px-2.5 py-1
+        rounded-full
+        bg-[#6C5CE7]/10
+        border border-[#6C5CE7]/30
+        text-purple-300
+      "
+    >
+      IMPULSO
+    </span>
+
+  </div>
+
+</div>
+
+
+{/* DETALLE DE VENTA RECIENTE */}
+{selectedRecentSale && (
+
+  <div
+    className="
+      fixed inset-0
+      z-[1000]
+      bg-black/70
+      backdrop-blur-sm
+      flex
+      items-center
+      justify-center
+      p-4
+    "
+  >
+
+    <div
+      className="
+        w-full
+        max-w-lg
+        bg-[#14141A]
+        border border-[#2A2A32]
+        rounded-2xl
+        shadow-2xl
+        overflow-hidden
+      "
+    >
+
+      {/* HEADER */}
+      <div
+        className="
+          flex
+          items-start
+          justify-between
+          gap-4
+          p-5
+          border-b border-[#25252D]
+        "
+      >
+
+        <div>
+
+          <p className="text-xs text-gray-500">
+            Detalle de venta
+          </p>
+
+          <h3 className="text-lg font-semibold text-white mt-1">
+            Venta #{selectedRecentSale.id.slice(0, 6)}
+          </h3>
+
+          <p className="text-xs text-gray-400 mt-1">
+            {getSaleDateLabel(selectedRecentSale.created_at)}
+          </p>
+
+        </div>
+
+        <button
+          type="button"
+          onClick={() =>
+            setSelectedRecentSale(null)
+          }
+          className="
+            w-9 h-9
+            rounded-xl
+            bg-[#1A1A22]
+            hover:bg-[#23232D]
+            text-gray-400
+            hover:text-white
+            transition
+          "
+        >
+          ✕
+        </button>
+
+      </div>
+
+
+      {/* DATOS GENERALES */}
+      <div className="p-5">
+
+        <div
+          className="
+            grid
+            grid-cols-2
+            gap-3
+            mb-5
+          "
+        >
+
+          <div
+            className="
+              bg-[#0E0E11]
+              border border-[#1F1F24]
+              rounded-xl
+              p-3
+            "
+          >
+            <p className="text-[10px] uppercase text-gray-600">
+              Cliente
+            </p>
+
+            <p className="text-sm text-white mt-1">
+              {selectedRecentSale.customers?.name ||
+                'Venta directa'}
+            </p>
+          </div>
+
+
+          <div
+            className="
+              bg-[#0E0E11]
+              border border-[#1F1F24]
+              rounded-xl
+              p-3
+            "
+          >
+
+            <p className="text-[10px] uppercase text-gray-600">
+              Pago
+            </p>
+
+            <p className="text-sm text-white mt-1">
+
+              {selectedRecentSale.payment_method === 'paid'
+                ? selectedRecentSale.payment_type === 'cash'
+                  ? '💵 Efectivo'
+                  : selectedRecentSale.payment_type === 'transfer'
+                  ? '🏦 Transferencia'
+                  : selectedRecentSale.payment_type === 'card'
+                  ? '💳 Tarjeta'
+                  : 'Pago'
+                : '🟡 Fiado'}
+
+            </p>
 
           </div>
-        ))}
+
+        </div>
+
+
+        {/* PRODUCTOS */}
+        <div>
+
+          <p className="text-sm text-gray-400 mb-3">
+            Productos vendidos
+          </p>
+
+          <div
+            className="
+              max-h-[300px]
+              overflow-y-auto
+              space-y-2
+              pr-1
+            "
+          >
+
+            {selectedRecentSale.sale_items?.map(
+              (item: any, index: number) => (
+
+                <div
+                  key={index}
+                  className="
+                    flex
+                    items-center
+                    justify-between
+                    gap-4
+                    bg-[#0E0E11]
+                    border border-[#1F1F24]
+                    rounded-xl
+                    p-3
+                  "
+                >
+
+                  <div className="min-w-0">
+
+                    <p className="text-sm text-white font-medium truncate">
+                      {item.products?.name ||
+                        'Producto'}
+                    </p>
+
+                    <p className="text-xs text-gray-500 mt-1">
+
+                      {item.products?.sale_type ===
+                      'weight'
+                        ? `${Math.round(
+                            Number(
+                              item.quantity || 0
+                            ) * 1000
+                          )}g`
+                        : `${item.quantity} ${
+                            item.products?.unit ||
+                            'unidad'
+                          }`}
+
+                      {' × '}
+
+                      {formatCurrency(
+                        Number(item.price_unit || 0)
+                      )}
+
+                    </p>
+
+                  </div>
+
+
+                  <p className="text-sm font-semibold text-gray-200 shrink-0">
+
+                    {formatCurrency(
+                      Number(item.quantity || 0) *
+                        Number(item.price_unit || 0)
+                    )}
+
+                  </p>
+
+                </div>
+
+              )
+            )}
+
+          </div>
+
+        </div>
+
+
+        {/* TOTAL */}
+        <div
+          className="
+            flex
+            items-center
+            justify-between
+            mt-5
+            pt-4
+            border-t border-[#25252D]
+          "
+        >
+
+          <span className="text-sm text-gray-400">
+            Total de la venta
+          </span>
+
+          <span className="text-xl font-bold text-green-400">
+            {formatCurrency(
+              selectedRecentSale.total_amount
+            )}
+          </span>
+
+        </div>
 
       </div>
-    </motion.div>
-  )
-})}
-    </AnimatePresence>
-        </div>
-  )}
-</div>
+
+
+      {/* FOOTER */}
+      <div
+        className="
+          p-4
+          border-t border-[#25252D]
+          bg-[#111116]
+          flex
+          justify-end
+        "
+      >
+
+        <button
+          type="button"
+          onClick={() =>
+            setSelectedRecentSale(null)
+          }
+          className="
+            px-5 py-2.5
+            rounded-xl
+            bg-[#1A1A22]
+            border border-[#2A2A32]
+            text-white
+            hover:bg-[#22222B]
+            transition
+          "
+        >
+          Cerrar
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+)}
 
 {showTicket && lastSaleTicket && (
   <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
