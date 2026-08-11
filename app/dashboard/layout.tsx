@@ -132,17 +132,26 @@ setAccessState('authorized')
 
   const {
   data: { subscription },
-} = supabase.auth.onAuthStateChange((event) => {
-  console.log('Auth event:', event)
+} = supabase.auth.onAuthStateChange(
+  (event, session) => {
 
-  if (event === 'SIGNED_OUT') {
-    localStorage.removeItem('activeBusinessId')
-    localStorage.removeItem('businessName')
-    localStorage.removeItem('lastSessionCheck')
+    console.log('Auth event:', event)
 
-    router.replace('/login')
+    if (event === 'TOKEN_REFRESHED') {
+      console.log(
+        '✅ Sesión de Arcana renovada correctamente'
+      )
+    }
+
+    if (event === 'SIGNED_OUT') {
+      localStorage.removeItem('activeBusinessId')
+      localStorage.removeItem('businessName')
+      localStorage.removeItem('lastSessionCheck')
+
+      router.replace('/login')
+    }
   }
-})
+)
 
   validateAccess()
 
