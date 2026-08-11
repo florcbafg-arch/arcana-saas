@@ -980,24 +980,92 @@ const formatRelativeTime = (dateString: string) => {
         {/* COLUMNA DERECHA */}
         <div className="space-y-6">
 
-  {/* SITUACIONES CRÍTICAS */}
-  <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-6 space-y-4">
+  {/* ESTADO DE CLIENTES */}
+<div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-6">
+
+  <div className="flex items-center justify-between mb-4">
     <h2 className="text-white font-medium">
-      Situaciones críticas
+      👥 Estado de clientes
     </h2>
+
+    {highRiskCustomers.length > 0 && (
+      <span className="rounded-full bg-red-500/10 border border-red-500/20 px-2.5 py-1 text-xs font-semibold text-red-400">
+        {highRiskCustomers.length} en riesgo
+      </span>
+    )}
+  </div>
+
+  {highRiskCustomers.length === 0 ? (
+
+    <div className="bg-[#0F0F14] p-4 rounded-xl border border-green-500/20">
+
+      <p className="text-green-400 font-medium">
+        ✓ Todo en orden
+      </p>
+
+      <p className="text-gray-500 text-xs mt-2">
+        No hay clientes que hayan alcanzado su límite de crédito.
+      </p>
+
+    </div>
+
+  ) : (
 
     <div className="space-y-3">
 
-      {highRiskCustomers.length === 0 && (
-        <div className="bg-[#0F0F14] p-4 rounded-xl border border-green-500/20">
-          <p className="text-green-400 font-medium">
-            ✔️ Sin clientes en riesgo
-          </p>
-        </div>
+      {highRiskCustomers.slice(0, 3).map((customer) => {
+
+        const debt = Number(customer.debt_amount || 0)
+        const limit = Number(customer.credit_limit || 0)
+        const exceeded = Math.max(0, debt - limit)
+
+        return (
+          <div
+            key={customer.id}
+            className="bg-[#0F0F14] p-4 rounded-xl border border-red-500/20"
+          >
+
+            <div className="flex items-start gap-3">
+
+              <div className="w-9 h-9 shrink-0 rounded-xl bg-red-500/10 flex items-center justify-center">
+                👤
+              </div>
+
+              <div className="min-w-0">
+
+                <p className="text-white text-sm font-medium truncate">
+                  {customer.name}
+                </p>
+
+                <p className="text-gray-400 text-xs mt-1">
+                  Debe ${debt.toLocaleString('es-AR')} de ${limit.toLocaleString('es-AR')}
+                </p>
+
+                {exceeded > 0 && (
+                  <p className="text-red-400 text-xs font-medium mt-2">
+                    Superó su límite en ${exceeded.toLocaleString('es-AR')}
+                  </p>
+                )}
+
+              </div>
+
+            </div>
+
+          </div>
+        )
+      })}
+
+      {highRiskCustomers.length > 3 && (
+        <p className="text-xs text-gray-500 text-center pt-1">
+          + {highRiskCustomers.length - 3} clientes requieren atención
+        </p>
       )}
 
     </div>
-  </div>
+
+  )}
+
+</div>
 
   {/* PRODUCTO ESTRELLA POR CANTIDAD */}
   <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-6">
@@ -1093,19 +1161,7 @@ const formatRelativeTime = (dateString: string) => {
 
       </div>
 
-{highRiskCustomers.map((c) => (
-  <div
-    key={c.id}
-    className="bg-[#0F0F14] p-4 rounded-xl border border-red-500/20"
-  >
-    <p className="text-red-400 font-medium">
-      💳 {c.name} superó su límite
-    </p>
-    <p className="text-gray-400 text-sm mt-1">
-      Debe ${c.debt_amount} de ${c.credit_limit}
-    </p>
-  </div>
-))}
+
       </div>
   )
 }
