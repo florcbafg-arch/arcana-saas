@@ -11,19 +11,32 @@ export default function BarcodeScanner({ onScan }: Props) {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const codeReader = useRef(new BrowserMultiFormatReader())
   const controlsRef = useRef<any>(null)
-  const lastScanRef = useRef<string | null>(null)
-  const scanningRef = useRef(false)
-  const [message, setMessage] = useState("Apuntá el código dentro del marco")
-  const [status, setStatus] = useState<"ready" | "scanning" | "success" | "error">("ready")
+
+  const scanLockedRef = useRef(false)
+
+  const [message, setMessage] = useState(
+    "Apuntá el código dentro del marco"
+  )
+
+  const [status, setStatus] = useState<
+    "ready" | "scanning" | "success" | "error"
+  >("ready")
 
   const beep = () => {
     try {
-      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const ctx = new (
+        window.AudioContext ||
+        (window as any).webkitAudioContext
+      )()
+
       const oscillator = ctx.createOscillator()
       const gainNode = ctx.createGain()
 
       oscillator.type = "square"
-      oscillator.frequency.setValueAtTime(1000, ctx.currentTime)
+      oscillator.frequency.setValueAtTime(
+        1000,
+        ctx.currentTime
+      )
 
       oscillator.connect(gainNode)
       gainNode.connect(ctx.destination)
@@ -49,29 +62,42 @@ export default function BarcodeScanner({ onScan }: Props) {
   }
 
   useEffect(() => {
+    let mounted = true
+
     const startScanner = async () => {
       try {
         setStatus("scanning")
         setMessage("Buscando código...")
 
-        const controls = await codeReader.current.decodeFromConstraints(
-          {
-            video: {
-              facingMode: { ideal: "environment" },
-              width: { ideal: 1280 },
-              height: { ideal: 720 },
+        const controls =
+          await codeReader.current.decodeFromConstraints(
+            {
+              video: {
+                facingMode: {
+                  ideal: "environment"
+                },
+
+                width: {
+                  ideal: 1280
+                },
+
+                height: {
+                  ideal: 720
+                }
+              }
             },
-          },
-          videoRef.current!,
-          (result) => {
-            if (result && !scanningRef.current) {
+
+            videoRef.current!,
+
+            (result) => {
+              if (!result) return
+
+              // 🔒 Una sola lectura por apertura
+              if (scanLockedRef.current) return
+
+              scanLockedRef.current = true
+
               const code = result.getText()
-              const now = Date.now()
-
-             if (lastScanRef.current === code && scanningRef.current) return
-
-              scanningRef.current = true
-              lastScanRef.current = code
 
               setStatus("success")
               setMessage("✅ Código detectado")
@@ -79,37 +105,46 @@ export default function BarcodeScanner({ onScan }: Props) {
               vibrate()
               beep()
 
-              onScan(code)
+              // Detenemos inmediatamente la cámara
+              controlsRef.current?.stop()
 
-              setTimeout(() => {
-                scanningRef.current = false
-                setStatus("scanning")
-                setMessage("Buscando código...")
-              }, 1200)
-
-             onScan(code)
+              if (mounted) {
+                onScan(code)
+              }
             }
-          }
-        )
+          )
 
         controlsRef.current = controls
       } catch (err) {
-        console.error(err)
-        setStatus("error")
-        setMessage("No se pudo iniciar la cámara")
+        console.error(
+          "ERROR INICIANDO SCANNER:",
+          err
+        )
+
+        if (mounted) {
+          setStatus("error")
+          setMessage(
+            "No se pudo iniciar la cámara"
+          )
+        }
       }
     }
 
     startScanner()
 
     return () => {
+      mounted = false
+      scanLockedRef.current = true
       controlsRef.current?.stop()
     }
   }, [onScan])
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-black p-4 shadow-2xl">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <div className="flex h-full w-full flex-col">
+
+      {/* ESTADO */}
+      <div className="flex items-center justify-between px-1 pb-4">
+
         <p
           className={`text-sm font-semibold ${
             status === "success"
@@ -131,35 +166,91 @@ export default function BarcodeScanner({ onScan }: Props) {
               : "bg-yellow-400 animate-pulse"
           }`}
         />
+
       </div>
 
-      <div className="relative overflow-hidden rounded-2xl bg-black">
+
+      {/* CÁMARA */}
+      <div className="relative flex-1 min-h-0 overflow-hidden rounded-2xl bg-black">
+
         <video
           ref={videoRef}
-          className="h-[360px] w-full object-cover"
+          className="
+            absolute
+            inset-0
+            h-full
+            w-full
+            object-cover
+          "
           muted
           playsInline
         />
 
         {/* Oscurecedor */}
-        <div className="pointer-events-none absolute inset-0 bg-black/35" />
+        <div className="pointer-events-none absolute inset-0 bg-black/25" />
 
-        {/* Marco scanner */}
+
+        {/* MARCO */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="relative h-32 w-[82%] max-w-md rounded-2xl border border-green-400/30 bg-black/10">
-            <div className="absolute -left-1 -top-1 h-8 w-8 border-l-4 border-t-4 border-green-400 rounded-tl-xl" />
-            <div className="absolute -right-1 -top-1 h-8 w-8 border-r-4 border-t-4 border-green-400 rounded-tr-xl" />
-            <div className="absolute -bottom-1 -left-1 h-8 w-8 border-b-4 border-l-4 border-green-400 rounded-bl-xl" />
-            <div className="absolute -bottom-1 -right-1 h-8 w-8 border-b-4 border-r-4 border-green-400 rounded-br-xl" />
 
-            <div className="absolute left-4 right-4 top-1/2 h-[2px] -translate-y-1/2 bg-green-400 shadow-[0_0_18px_rgba(34,197,94,0.9)] animate-pulse" />
+          <div
+            className="
+              relative
+              h-36
+              w-[86%]
+              max-w-md
+              rounded-2xl
+              border
+              border-green-400/30
+              bg-black/10
+            "
+          >
 
-            <p className="absolute -bottom-8 left-0 right-0 text-center text-xs text-gray-300">
-              Centrá el código de barras dentro del marco
-            </p>
+            <div className="absolute -left-1 -top-1 h-9 w-9 rounded-tl-xl border-l-4 border-t-4 border-green-400" />
+
+            <div className="absolute -right-1 -top-1 h-9 w-9 rounded-tr-xl border-r-4 border-t-4 border-green-400" />
+
+            <div className="absolute -bottom-1 -left-1 h-9 w-9 rounded-bl-xl border-b-4 border-l-4 border-green-400" />
+
+            <div className="absolute -bottom-1 -right-1 h-9 w-9 rounded-br-xl border-b-4 border-r-4 border-green-400" />
+
+            <div
+              className="
+                absolute
+                left-4
+                right-4
+                top-1/2
+                h-[2px]
+                -translate-y-1/2
+                bg-green-400
+                shadow-[0_0_18px_rgba(34,197,94,0.9)]
+                animate-pulse
+              "
+            />
+
           </div>
+
         </div>
+
+
+        <div
+          className="
+            pointer-events-none
+            absolute
+            bottom-6
+            left-0
+            right-0
+            px-6
+            text-center
+          "
+        >
+          <p className="text-sm text-white drop-shadow-md">
+            Centrá el código de barras dentro del marco
+          </p>
+        </div>
+
       </div>
+
     </div>
   )
 }

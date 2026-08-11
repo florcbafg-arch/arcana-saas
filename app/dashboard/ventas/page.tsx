@@ -819,31 +819,166 @@ const filteredProducts = products.filter((product) => {
 </div>
 
 {showScanner && (
- <BarcodeScanner
-  onScan={(code) => {
-    const product = products.find(
-      (p) => p.code === code || p.barcode === code
-    )
+  <div
+    className="
+      fixed
+      inset-0
+      z-[2500]
+      bg-[#08080D]
+      flex
+      flex-col
+    "
+  >
 
-    if (product) {
-      addProductToCart(product, 1)
+    {/* HEADER SCANNER */}
+    <div
+      className="
+        shrink-0
+        flex
+        items-center
+        justify-between
+        gap-4
+        px-5
+        py-4
+        border-b
+        border-[#25252D]
+        bg-[#0B0B10]
+      "
+    >
 
-      setToast({
-        type: "success",
-        message: `${product.name} agregado al carrito`
-      })
+      <div>
 
-      beep()
-    } else {
-      setToast({
-        type: "error",
-        message: "Producto no encontrado"
-      })
-    }
+        <h2 className="text-lg font-semibold text-white">
+          📷 Escanear producto
+        </h2>
 
-    setShowScanner(false)
-  }}
-/>
+        <p className="text-xs text-gray-400 mt-1">
+          Apuntá al código de barras del producto.
+        </p>
+
+      </div>
+
+
+      <button
+        type="button"
+        onClick={() => setShowScanner(false)}
+        className="
+          w-10
+          h-10
+          rounded-xl
+          bg-[#181820]
+          border
+          border-[#2A2A32]
+          text-xl
+          text-gray-300
+          hover:text-white
+          flex
+          items-center
+          justify-center
+        "
+      >
+        ✕
+      </button>
+
+    </div>
+
+
+    {/* CÁMARA FULLSCREEN */}
+    <div
+      className="
+        flex-1
+        min-h-0
+        p-4
+        md:p-6
+      "
+    >
+
+      <div
+        className="
+          h-full
+          w-full
+          max-w-3xl
+          mx-auto
+        "
+      >
+
+        <BarcodeScanner
+          onScan={(code) => {
+
+            const product = products.find(
+              (p) =>
+                p.code === code ||
+                p.barcode === code
+            )
+
+            if (!product) {
+              setToast({
+                type: "error",
+                message:
+                  "Producto no encontrado en tu catálogo"
+              })
+
+              setShowScanner(false)
+
+              return
+            }
+
+            if (
+              Number(product.stock_quantity) <= 0
+            ) {
+              setToast({
+                type: "error",
+                message:
+                  `${product.name} no tiene stock disponible`
+              })
+
+              setShowScanner(false)
+
+              return
+            }
+
+            addProductToCart(
+              product,
+              1
+            )
+
+            setToast({
+              type: "success",
+              message:
+                `${product.name} agregado al carrito`
+            })
+
+            // El componente ya hace beep/vibración.
+            // Cerramos inmediatamente la cámara.
+            setShowScanner(false)
+          }}
+        />
+
+      </div>
+
+    </div>
+
+
+    {/* AYUDA */}
+    <div
+      className="
+        shrink-0
+        px-5
+        py-4
+        border-t
+        border-[#25252D]
+        bg-[#0B0B10]
+        text-center
+      "
+    >
+
+      <p className="text-xs text-gray-400">
+        Arcana agregará una unidad al carrito y cerrará la cámara automáticamente.
+      </p>
+
+    </div>
+
+  </div>
 )}
 
       {/* GRID PRINCIPAL */}
