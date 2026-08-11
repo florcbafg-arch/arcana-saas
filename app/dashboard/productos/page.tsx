@@ -2859,28 +2859,103 @@ const usagePercentage =
 )}
 
 {showScanner && (
-  <div className="fixed inset-0 z-[1000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div className="w-full max-w-lg space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-white font-semibold">
-            Escanear código
-          </p>
-          <p className="text-xs text-gray-400">
-            Apuntá al código de barras del producto.
-          </p>
-        </div>
+  <div
+    className="
+      fixed
+      inset-0
+      z-[2500]
+      bg-[#08080D]
+      flex
+      flex-col
+    "
+  >
 
-        <button
-          onClick={() => setShowScanner(false)}
-          className="text-white text-2xl"
-        >
-          ✕
-        </button>
+    {/* HEADER */}
+    <div
+      className="
+        shrink-0
+        flex
+        items-center
+        justify-between
+        gap-4
+        px-5
+        py-4
+        border-b
+        border-[#25252D]
+        bg-[#0B0B10]
+      "
+    >
+
+      <div>
+        <h2 className="text-lg font-semibold text-white">
+          📷 Escanear código
+        </h2>
+
+        <p className="text-xs text-gray-400 mt-1">
+          Apuntá al código de barras del producto.
+        </p>
       </div>
 
-      <BarcodeScanner onScan={handleProductScan} />
+      <button
+        type="button"
+        onClick={() => setShowScanner(false)}
+        className="
+          w-10
+          h-10
+          rounded-xl
+          bg-[#181820]
+          border
+          border-[#2A2A32]
+          text-xl
+          text-gray-300
+          hover:text-white
+          flex
+          items-center
+          justify-center
+        "
+      >
+        ✕
+      </button>
+
     </div>
+
+
+    {/* CÁMARA */}
+    <div className="flex-1 min-h-0 p-4 md:p-6">
+
+      <div className="h-full w-full max-w-3xl mx-auto">
+
+        <BarcodeScanner
+          onScan={async (code) => {
+            await handleProductScan(code)
+
+            // Cerramos la cámara después de una lectura
+            setShowScanner(false)
+          }}
+        />
+
+      </div>
+
+    </div>
+
+
+    {/* AYUDA */}
+    <div
+      className="
+        shrink-0
+        px-5
+        py-4
+        border-t
+        border-[#25252D]
+        bg-[#0B0B10]
+        text-center
+      "
+    >
+      <p className="text-xs text-gray-400">
+        Arcana buscará el producto automáticamente después de detectar el código.
+      </p>
+    </div>
+
   </div>
 )}
 
