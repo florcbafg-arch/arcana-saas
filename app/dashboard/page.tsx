@@ -477,11 +477,16 @@ if (recentSales?.length) {
     Number(p.cost_price || 0)
 
   return {
-    type: 'critical',
-    priority: 2,
-    message: `🛑 ${p.name} lleva 15 días sin venderse. Tenés $${stockValue.toLocaleString('es-AR')} inmovilizados.`,
-    created_at: new Date().toISOString()
-  }
+  type: 'suggestion',
+  priority: 2,
+  title: 'Sugerencia de Arcana',
+  message: `${p.name} lleva 15 días sin venderse.`,
+  detail:
+    stockValue > 0
+      ? `Tenés $${stockValue.toLocaleString('es-AR')} inmovilizados en este producto.`
+      : 'Este producto tiene stock disponible pero no registró ventas recientemente.',
+  created_at: new Date().toISOString()
+}
 }) || []
 }
 
@@ -777,67 +782,201 @@ const formatRelativeTime = (dateString: string) => {
       {/* GRID PRINCIPAL */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* ACTIVIDAD RECIENTE */}
-        <div className="lg:col-span-2 bg-[#14141A] border border-[#2A2A33] rounded-2xl p-6 space-y-4">
-          <h2 className="text-white font-medium">
-            Actividad reciente
-          </h2>
-<div className="space-y-3">
+       {/* ACTIVIDAD RECIENTE */}
+<div className="lg:col-span-2 bg-[#14141A] border border-[#2A2A33] rounded-2xl p-6">
 
-  {recentActivity.length === 0 ? (
-    <p className="text-gray-400 text-sm font-medium">
-      Sin actividad reciente.
+  <div className="mb-5">
+    <h2 className="text-white text-lg font-semibold">
+      Actividad reciente
+    </h2>
+
+    <p className="text-gray-500 text-sm mt-1">
+      Movimientos y observaciones importantes de tu negocio.
     </p>
-  ) : (
-    recentActivity.map((item, index) => (
-      <div
-        key={index}
-       className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 bg-[#111117] border border-[#1F1F24] p-4 rounded-xl transition-all duration-200 hover:border-[#2A2A33]"
-      >
-        <div className="flex items-center gap-3">
+  </div>
 
-          {/* Indicador visual más fuerte */}
-          <div
-            className={`w-3 h-3 rounded-full ${
-              item.type === 'critical'
-  ? 'bg-red-500'
-  : item.type === 'warning'
-  ? 'bg-yellow-400'
-  : item.type === 'insight'
-  ? 'bg-blue-500'
-  : 'bg-green-500'
-            }`}
-          />
 
-          {/* Mensaje con color fuerte */}
-          <p
-            className={`text-sm font-semibold ${
-              item.type === 'critical'
-  ? 'text-red-400'
-  : item.type === 'warning'
-  ? 'text-yellow-400'
-  : item.type === 'insight'
-  ? 'text-blue-400'
-  : 'text-white'
-            }`}
-          >
-            {item.message}
+  {/* SUGERENCIAS DE ARCANA */}
+  {recentActivity.some(item => item.type === 'suggestion') && (
+
+    <div className="mb-6">
+
+      <div className="flex items-center gap-2 mb-3">
+
+        <div className="w-8 h-8 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+          ✨
+        </div>
+
+        <div>
+          <p className="text-sm font-semibold text-violet-300">
+            Sugerencias de Arcana
+          </p>
+
+          <p className="text-xs text-gray-500">
+            Información que puede ayudarte a tomar decisiones.
+          </p>
+        </div>
+
+      </div>
+
+
+      <div className="space-y-3">
+
+        {recentActivity
+          .filter(item => item.type === 'suggestion')
+          .map((item, index) => (
+
+            <div
+              key={`suggestion-${index}`}
+              className="
+                rounded-xl
+                border
+                border-violet-500/20
+                bg-violet-500/[0.05]
+                p-4
+              "
+            >
+
+              <div className="flex gap-3">
+
+                <div className="
+                  shrink-0
+                  w-9
+                  h-9
+                  rounded-xl
+                  bg-violet-500/10
+                  flex
+                  items-center
+                  justify-center
+                ">
+                  💡
+                </div>
+
+                <div className="min-w-0">
+
+                  <p className="text-xs font-semibold text-violet-300 mb-1">
+                    {item.title}
+                  </p>
+
+                  <p className="text-sm font-medium text-white">
+                    {item.message}
+                  </p>
+
+                  {item.detail && (
+                    <p className="text-xs text-gray-400 mt-1">
+                      {item.detail}
+                    </p>
+                  )}
+
+                </div>
+
+              </div>
+
+            </div>
+
+          ))}
+
+      </div>
+
+    </div>
+
+  )}
+
+
+  {/* MOVIMIENTOS RECIENTES */}
+  <div>
+
+    <div className="flex items-center gap-2 mb-3">
+
+      <div className="w-2 h-2 rounded-full bg-green-400" />
+
+      <p className="text-sm font-semibold text-gray-300">
+        Movimientos recientes
+      </p>
+
+    </div>
+
+
+    <div className="space-y-2">
+
+      {recentActivity.filter(item => item.type !== 'suggestion').length === 0 ? (
+
+        <div className="rounded-xl border border-[#1F1F24] bg-[#111117] p-4">
+
+          <p className="text-gray-500 text-sm">
+            Todavía no hay movimientos recientes.
           </p>
 
         </div>
 
-        {/* Hora más visible */}
-        <span className="text-gray-300 text-sm font-medium self-start sm:self-auto">
-          {formatRelativeTime(item.created_at)}
-        </span>
-      </div>
-    ))
-  )}
+      ) : (
+
+        recentActivity
+          .filter(item => item.type !== 'suggestion')
+          .map((item, index) => (
+
+            <div
+              key={`activity-${index}`}
+              className="
+                flex
+                items-center
+                justify-between
+                gap-4
+                rounded-xl
+                border
+                border-[#1F1F24]
+                bg-[#111117]
+                px-4
+                py-3
+              "
+            >
+
+              <div className="flex items-center gap-3 min-w-0">
+
+                <div
+                  className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                    item.type === 'critical'
+                      ? 'bg-red-500'
+                      : item.type === 'warning'
+                      ? 'bg-yellow-400'
+                      : item.type === 'insight'
+                      ? 'bg-blue-500'
+                      : 'bg-green-500'
+                  }`}
+                />
+
+                <p
+                  className={`text-sm font-medium truncate ${
+                    item.type === 'critical'
+                      ? 'text-red-400'
+                      : item.type === 'warning'
+                      ? 'text-yellow-300'
+                      : item.type === 'insight'
+                      ? 'text-blue-300'
+                      : 'text-white'
+                  }`}
+                >
+                  {item.message}
+                </p>
+
+              </div>
+
+
+              <span className="text-xs text-gray-500 whitespace-nowrap">
+                {formatRelativeTime(item.created_at)}
+              </span>
+
+            </div>
+
+          ))
+
+      )}
+
+    </div>
+
+  </div>
 
 </div>
-     
-        </div>
-
         {/* COLUMNA DERECHA */}
         <div className="space-y-6">
 
