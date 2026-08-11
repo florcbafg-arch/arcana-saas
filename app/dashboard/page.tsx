@@ -491,9 +491,7 @@ if (recentSales?.length) {
 }
 
   // 🔹 3. Combinar y ordenar por prioridad + fecha
-  const combined = [
-  ...expirationAlerts,
-  ...stockAlerts,
+ const combined = [
   ...slowProducts,
   ...insights,
   ...salesFormatted
@@ -764,7 +762,7 @@ const formatRelativeTime = (dateString: string) => {
         </div>
 
         <div className="bg-[#14141A] border border-[#2A2A33] rounded-2xl p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-          <p className="text-gray-400 text-sm">En alerta</p>
+          <p className="text-gray-400 text-sm">Stock en alerta</p>
           <p className="text-3xl md:text-4xl font-semibold text-yellow-400 mt-3 tracking-tight">
             {alertProductsCount}
           </p>
