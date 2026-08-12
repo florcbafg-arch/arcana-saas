@@ -113,6 +113,13 @@ const [mobileAddMode, setMobileAddMode] = useState<
 } | null>(null)
 
 const openNewProduct = () => {
+  resetProductForm()
+
+  setMobileAddMode(null)
+  setMobileProductsView('add')
+}
+
+const resetProductForm = () => {
   setEditingId(null)
 
   setNewProductName('')
@@ -120,26 +127,30 @@ const openNewProduct = () => {
   setNewStock('')
   setNewMinStock('')
   setNewPrice('')
-  setNewActive(true)
-  setNewCode('')
-  setNewBarcode('')
-  setNewSupplierId('')
   setNewCostPrice('')
-  setNewPackageWeightKg('')
-  setNewPackageCost('')
-  setNewSaleType('unit')
-  setNewUnitBase('unidad')
-  setNewPriceBy('kg')
   setNewExpirationDate('')
+
   setNewBrand('')
   setNewCategory('')
   setNewImageUrl('')
   setNewQuantityLabel('')
+
+  setNewBarcode('')
+  setNewCode('')
+  setBarcodeWasGenerated(false)
+
+  setNewSupplierId('')
+
+  setNewSaleType('unit')
+  setNewUnitBase('unidad')
+  setNewPriceBy('kg')
+  setNewPackageWeightKg('')
+  setNewPackageCost('')
+
+  setNewActive(true)
+
   setOpenFoodSuggestions([])
-
-  setMobileAddMode(null)
-
-  setMobileProductsView('add')
+  setSearchingSuggestions(false)
 }
 
 const generateEAN13 = () => {
@@ -1526,10 +1537,11 @@ const usagePercentage =
     <button
       type="button"
       onClick={() => {
-        setMobileAddMode('scan')
-        setIsOpen(true)
-        setShowScanner(true)
-      }}
+  resetProductForm()
+  setMobileAddMode('scan')
+  setIsOpen(true)
+  setShowScanner(true)
+}}
       className="
         w-full
         rounded-2xl
@@ -1575,10 +1587,11 @@ const usagePercentage =
     {/* INGRESAR EAN */}
     <button
       type="button"
-      onClick={() => {
-        setMobileAddMode('ean')
-        setIsOpen(true)
-      }}
+     onClick={() => {
+  resetProductForm()
+  setMobileAddMode('ean')
+  setIsOpen(true)
+}}
       className="
         w-full
         rounded-2xl
@@ -1624,10 +1637,11 @@ const usagePercentage =
     {/* MANUAL */}
     <button
       type="button"
-      onClick={() => {
-        setMobileAddMode('manual')
-        setIsOpen(true)
-      }}
+    onClick={() => {
+  resetProductForm()
+  setMobileAddMode('manual')
+  setIsOpen(true)
+}}
       className="
         w-full
         rounded-2xl
