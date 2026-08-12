@@ -5709,25 +5709,34 @@ const usagePercentage =
       </div>
 
       <button
-        type="button"
-        onClick={() => setShowScanner(false)}
-        className="
-          w-10
-          h-10
-          rounded-xl
-          bg-[#181820]
-          border
-          border-[#2A2A32]
-          text-xl
-          text-gray-300
-          hover:text-white
-          flex
-          items-center
-          justify-center
-        "
-      >
-        ✕
-      </button>
+  type="button"
+  onClick={() => {
+    setShowScanner(false)
+
+    setIsOpen(false)
+
+    resetProductForm()
+
+    setMobileAddMode(null)
+    setMobileProductsView('add')
+  }}
+  className="
+    w-10
+    h-10
+    rounded-xl
+    bg-[#181820]
+    border
+    border-[#2A2A32]
+    text-xl
+    text-gray-300
+    hover:text-white
+    flex
+    items-center
+    justify-center
+  "
+>
+  ✕
+</button>
 
     </div>
 
