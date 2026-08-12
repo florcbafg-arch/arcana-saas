@@ -804,18 +804,22 @@ const handleDelete = async (id: string) => {
 
     // Si se pudo borrar, terminamos
     if (!deleteError) {
-      setProducts((currentProducts) =>
-        currentProducts.filter((p) => p.id !== id)
-      )
+  setProducts((currentProducts) =>
+    currentProducts.filter((p) => p.id !== id)
+  )
 
-      setToast({
-        type: 'success',
-        message: 'Producto eliminado correctamente.'
-      })
+  setToast({
+    type: 'success',
+    message: 'Producto eliminado correctamente.'
+  })
 
-      return
-    }
+  // Si veníamos desde edición mobile, volvemos a Mis productos
+  setIsOpen(false)
+  setEditingId(null)
+  setMobileProductsView('list')
 
+  return
+}
     // 23503 = el producto está referenciado por otro registro
     if (deleteError.code === '23503') {
       const { error: archiveError } = await supabase
@@ -846,13 +850,18 @@ const handleDelete = async (id: string) => {
         currentProducts.filter((p) => p.id !== id)
       )
 
-      setToast({
-        type: 'success',
-        message:
-          'Producto archivado. Arcana conservó su historial de movimientos.'
-      })
+     setToast({
+  type: 'success',
+  message:
+    'Producto archivado. Arcana conservó su historial de movimientos.'
+})
 
-      return
+// Cerramos edición y volvemos a Mis productos
+setIsOpen(false)
+setEditingId(null)
+setMobileProductsView('list')
+
+return
     }
 
     // Otro error diferente
