@@ -3250,6 +3250,712 @@ const usagePercentage =
   </div>
 )}
 
+{/* ================================================= */}
+{/* PRODUCTOS MOBILE — EDITAR PRODUCTO */}
+{/* ================================================= */}
+
+{isOpen && editingId && (
+  <div className="md:hidden fixed inset-0 z-[900] bg-[#08080D] flex flex-col">
+
+    {/* HEADER */}
+    <div
+      className="
+        shrink-0
+        flex
+        items-center
+        gap-3
+        px-5
+        py-4
+        border-b
+        border-[#25252D]
+        bg-[#0B0B10]
+      "
+    >
+      <button
+        type="button"
+        onClick={() => {
+          setIsOpen(false)
+          setEditingId(null)
+          setMobileProductsView('list')
+        }}
+        className="
+          w-10 h-10
+          shrink-0
+          rounded-xl
+          border border-[#25252D]
+          bg-[#14141A]
+          text-gray-300
+          flex items-center justify-center
+        "
+      >
+        ←
+      </button>
+
+      <div>
+        <h2 className="text-lg font-semibold text-white">
+          Editar producto
+        </h2>
+
+        <p className="text-xs text-gray-500 mt-0.5">
+          Actualizá la información del producto.
+        </p>
+      </div>
+    </div>
+
+
+    {/* CONTENIDO */}
+    <div className="flex-1 min-h-0 overflow-y-auto px-5 py-5 space-y-5">
+
+      {/* RESUMEN DEL PRODUCTO */}
+      <div
+        className="
+          rounded-2xl
+          border border-[#25252D]
+          bg-[#14141A]
+          p-4
+        "
+      >
+        <div className="flex gap-4">
+
+          <div
+            className="
+              w-20 h-20
+              shrink-0
+              overflow-hidden
+              rounded-xl
+              border border-[#25252D]
+              bg-[#101018]
+              flex items-center justify-center
+            "
+          >
+            {newImageUrl ? (
+              <img
+                src={newImageUrl}
+                alt={newProductName || 'Producto'}
+                className="w-full h-full object-contain bg-white p-1"
+              />
+            ) : (
+              <span className="text-3xl">
+                📦
+              </span>
+            )}
+          </div>
+
+
+          <div className="min-w-0 flex-1">
+
+            <p className="text-white font-semibold text-lg leading-5">
+              {newProductName || 'Producto'}
+            </p>
+
+            {newBrand && (
+              <p className="text-sm text-gray-400 mt-2">
+                {newBrand}
+              </p>
+            )}
+
+            {newQuantityLabel && (
+              <p className="text-sm text-gray-400">
+                {newQuantityLabel}
+              </p>
+            )}
+
+            {newBarcode && (
+              <p className="text-xs text-gray-500 mt-2 break-all">
+                EAN: {newBarcode}
+              </p>
+            )}
+
+            <span
+              className={`
+                inline-flex
+                mt-3
+                rounded-full
+                border
+                px-2.5 py-1
+                text-xs
+                ${
+                  newActive
+                    ? 'bg-green-500/10 border-green-500/20 text-green-400'
+                    : 'bg-gray-500/10 border-gray-500/20 text-gray-400'
+                }
+              `}
+            >
+              {newActive ? 'Activo' : 'Inactivo'}
+            </span>
+
+          </div>
+
+        </div>
+      </div>
+
+
+      {/* INFORMACIÓN PRINCIPAL */}
+      <div className="space-y-4">
+
+        <p className="text-xs uppercase tracking-wide text-gray-500">
+          Información del producto
+        </p>
+
+
+        <div className="space-y-1">
+          <label className="text-sm text-gray-400">
+            Nombre del producto
+          </label>
+
+          <input
+            value={newProductName}
+            onChange={(e) => setNewProductName(e.target.value)}
+            className="
+              w-full
+              bg-[#0B0B10]
+              border border-[#2A2A32]
+              rounded-xl
+              px-4 py-3
+              text-white
+            "
+          />
+        </div>
+
+
+        <div className="space-y-1">
+          <label className="text-sm text-gray-400">
+            Marca
+          </label>
+
+          <input
+            value={newBrand}
+            onChange={(e) => setNewBrand(e.target.value)}
+            placeholder="Ej: La Campagnola"
+            className="
+              w-full
+              bg-[#0B0B10]
+              border border-[#2A2A32]
+              rounded-xl
+              px-4 py-3
+              text-white
+            "
+          />
+        </div>
+
+
+        <div className="space-y-1">
+          <label className="text-sm text-gray-400">
+            Presentación
+          </label>
+
+          <input
+            value={newQuantityLabel}
+            onChange={(e) => setNewQuantityLabel(e.target.value)}
+            placeholder="Ej: 500 g"
+            className="
+              w-full
+              bg-[#0B0B10]
+              border border-[#2A2A32]
+              rounded-xl
+              px-4 py-3
+              text-white
+            "
+          />
+        </div>
+
+
+        <div className="space-y-1">
+          <label className="text-sm text-gray-400">
+            Código de barras (EAN)
+          </label>
+
+          <input
+            value={newBarcode}
+            inputMode="numeric"
+            onChange={(e) => {
+              setNewBarcode(e.target.value)
+              setBarcodeWasGenerated(false)
+            }}
+            className="
+              w-full
+              bg-[#0B0B10]
+              border border-[#2A2A32]
+              rounded-xl
+              px-4 py-3
+              text-white
+            "
+          />
+        </div>
+
+      </div>
+
+
+      {/* TIPO DE VENTA */}
+      <div className="space-y-3">
+
+        <p className="text-xs uppercase tracking-wide text-gray-500">
+          Tipo de venta
+        </p>
+
+
+        <label
+          className={`
+            block
+            rounded-2xl
+            border
+            p-4
+            ${
+              newSaleType === 'unit'
+                ? 'bg-[#122039] border-[#1F6BFF]/60'
+                : 'bg-[#101018] border-[#25252D]'
+            }
+          `}
+        >
+          <div className="flex items-start gap-3">
+
+            <input
+              type="radio"
+              checked={newSaleType === 'unit'}
+              onChange={() => {
+                setNewSaleType('unit')
+                setNewUnitBase('unidad')
+              }}
+              className="mt-1"
+            />
+
+            <div>
+              <p className="text-white font-medium">
+                Unidad / paquete
+              </p>
+
+              <p className="text-xs text-gray-400 mt-1">
+                Productos que se venden por unidad.
+              </p>
+            </div>
+
+          </div>
+        </label>
+
+
+        <label
+          className={`
+            block
+            rounded-2xl
+            border
+            p-4
+            ${
+              newSaleType === 'weight'
+                ? 'bg-[#122039] border-[#1F6BFF]/60'
+                : 'bg-[#101018] border-[#25252D]'
+            }
+          `}
+        >
+          <div className="flex items-start gap-3">
+
+            <input
+              type="radio"
+              checked={newSaleType === 'weight'}
+              onChange={() => {
+                setNewSaleType('weight')
+                setNewUnitBase('kg')
+                setNewUnit('kg')
+                setNewPriceBy('kg')
+              }}
+              className="mt-1"
+            />
+
+            <div>
+              <p className="text-white font-medium">
+                Peso fraccionado
+              </p>
+
+              <p className="text-xs text-gray-400 mt-1">
+                Quesos, fiambres, frutos secos y similares.
+              </p>
+            </div>
+
+          </div>
+        </label>
+
+      </div>
+
+
+      {/* PRECIO POR PESO */}
+      {newSaleType === 'weight' && (
+        <div className="space-y-3">
+
+          <label className="text-sm text-gray-400">
+            Precio cargado por
+          </label>
+
+          <div className="grid grid-cols-2 gap-3">
+
+            <label
+              className={`
+                rounded-xl
+                border
+                p-3
+                text-center
+                ${
+                  newPriceBy === 'kg'
+                    ? 'bg-[#122039] border-[#1F6BFF]/60'
+                    : 'bg-[#101018] border-[#25252D]'
+                }
+              `}
+            >
+              <input
+                type="radio"
+                checked={newPriceBy === 'kg'}
+                onChange={() => setNewPriceBy('kg')}
+                className="mr-2"
+              />
+
+              <span className="text-white text-sm">
+                Kilo
+              </span>
+            </label>
+
+
+            <label
+              className={`
+                rounded-xl
+                border
+                p-3
+                text-center
+                ${
+                  newPriceBy === '100g'
+                    ? 'bg-[#122039] border-[#1F6BFF]/60'
+                    : 'bg-[#101018] border-[#25252D]'
+                }
+              `}
+            >
+              <input
+                type="radio"
+                checked={newPriceBy === '100g'}
+                onChange={() => setNewPriceBy('100g')}
+                className="mr-2"
+              />
+
+              <span className="text-white text-sm">
+                100 gramos
+              </span>
+            </label>
+
+          </div>
+
+        </div>
+      )}
+
+
+      {/* VENTA */}
+      <div className="space-y-4">
+
+        <p className="text-xs uppercase tracking-wide text-gray-500">
+          Venta
+        </p>
+
+
+        <div className="space-y-1">
+          <label className="text-sm text-gray-400">
+            Unidad de venta
+          </label>
+
+          <select
+            value={newUnit}
+            onChange={(e) => setNewUnit(e.target.value)}
+            className="
+              w-full
+              bg-[#0B0B10]
+              border border-[#2A2A32]
+              rounded-xl
+              px-4 py-3
+              text-white
+            "
+          >
+            <option value="unidad">Unidad</option>
+            <option value="kg">Kilo</option>
+            <option value="litro">Litro</option>
+            <option value="pack">Pack</option>
+          </select>
+        </div>
+
+
+        <div className="space-y-1">
+          <label className="text-sm text-gray-400">
+            {newSaleType === 'weight'
+              ? `Precio de venta por ${
+                  newPriceBy === '100g'
+                    ? '100g'
+                    : 'kg'
+                }`
+              : 'Precio de venta'}
+          </label>
+
+          <div className="relative">
+
+            <span
+              className="
+                absolute
+                left-4
+                top-1/2
+                -translate-y-1/2
+                text-gray-400
+              "
+            >
+              $
+            </span>
+
+            <input
+              value={newPrice}
+              inputMode="numeric"
+              onChange={(e) =>
+                setNewPrice(
+                  formatMoneyInput(e.target.value)
+                )
+              }
+              className="
+                w-full
+                bg-[#0B0B10]
+                border border-[#2A2A32]
+                rounded-xl
+                py-3
+                pl-9 pr-4
+                text-white
+              "
+            />
+
+          </div>
+        </div>
+
+      </div>
+
+
+      {/* STOCK */}
+      <div className="space-y-4">
+
+        <p className="text-xs uppercase tracking-wide text-gray-500">
+          Stock
+        </p>
+
+
+        <div className="grid grid-cols-2 gap-3">
+
+          <div className="space-y-1">
+
+            <label className="text-sm text-gray-400">
+              {newSaleType === 'weight'
+                ? 'Stock actual (kg)'
+                : 'Stock actual'}
+            </label>
+
+            <input
+              type="number"
+              value={newStock}
+              onChange={(e) =>
+                setNewStock(e.target.value)
+              }
+              className="
+                w-full
+                bg-[#0B0B10]
+                border border-[#2A2A32]
+                rounded-xl
+                px-4 py-3
+                text-white
+              "
+            />
+
+          </div>
+
+
+          <div className="space-y-1">
+
+            <label className="text-sm text-gray-400">
+              Stock mínimo
+            </label>
+
+            <input
+              type="number"
+              min={1}
+              value={newMinStock}
+              onChange={(e) =>
+                setNewMinStock(e.target.value)
+              }
+              className="
+                w-full
+                bg-[#0B0B10]
+                border border-[#2A2A32]
+                rounded-xl
+                px-4 py-3
+                text-white
+              "
+            />
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      {/* OPCIONALES */}
+      <div className="space-y-4">
+
+        <p className="text-xs uppercase tracking-wide text-gray-500">
+          Opcional
+        </p>
+
+
+        <div className="space-y-1">
+          <label className="text-sm text-gray-400">
+            Fecha de vencimiento
+          </label>
+
+          <input
+            type="date"
+            value={newExpirationDate}
+            onChange={(e) =>
+              setNewExpirationDate(e.target.value)
+            }
+            className="
+              w-full
+              bg-[#0B0B10]
+              border border-[#2A2A32]
+              rounded-xl
+              px-4 py-3
+              text-white
+            "
+          />
+
+          <p className="text-xs text-gray-500">
+            Arcana te avisará antes de que venza.
+          </p>
+        </div>
+
+
+        <div className="space-y-1">
+          <label className="text-sm text-gray-400">
+            Código interno
+          </label>
+
+          <input
+            value={newCode}
+            onChange={(e) =>
+              setNewCode(e.target.value)
+            }
+            placeholder="Ej: VEL-202"
+            className="
+              w-full
+              bg-[#0B0B10]
+              border border-[#2A2A32]
+              rounded-xl
+              px-4 py-3
+              text-white
+            "
+          />
+        </div>
+
+      </div>
+
+
+      {/* PRODUCTO ACTIVO */}
+      <label
+        className="
+          flex
+          items-center
+          justify-between
+          gap-4
+          bg-[#101018]
+          border border-[#25252D]
+          rounded-2xl
+          p-4
+        "
+      >
+        <div>
+
+          <p className="text-white font-medium">
+            Producto activo
+          </p>
+
+          <p className="text-xs text-gray-500 mt-1">
+            Estará disponible para vender dentro de Arcana.
+          </p>
+
+        </div>
+
+        <input
+          type="checkbox"
+          checked={newActive}
+          onChange={(e) =>
+            setNewActive(e.target.checked)
+          }
+        />
+      </label>
+
+
+      {/* ARCHIVAR */}
+      <div className="pt-3">
+
+        <button
+          type="button"
+          onClick={() => {
+            if (!editingId) return
+
+            handleDelete(editingId)
+          }}
+          className="
+            w-full
+            rounded-2xl
+            border border-red-500/25
+            bg-red-500/5
+            py-4
+            text-red-400
+            font-medium
+          "
+        >
+          🗑 Archivar producto
+        </button>
+
+        <p className="text-xs text-gray-600 text-center mt-2">
+          Arcana conservará su historial si el producto tiene movimientos.
+        </p>
+
+      </div>
+
+
+      <div className="h-4" />
+
+    </div>
+
+
+    {/* FOOTER FIJO */}
+    <div
+      className="
+        shrink-0
+        border-t
+        border-[#25252D]
+        bg-[#111116]
+        px-5 py-4
+      "
+    >
+
+      <button
+        type="button"
+        onClick={createProduct}
+        className="
+          w-full
+          bg-[#1F6BFF]
+          hover:bg-[#2E7BFF]
+          rounded-2xl
+          py-4
+          text-white
+          font-semibold
+          text-base
+        "
+      >
+        Guardar cambios
+      </button>
+
+    </div>
+
+  </div>
+)}
+
 {isOpen && (
  <div className="hidden md:flex fixed inset-0 bg-black/70 backdrop-blur-sm items-center justify-center z-50 p-3 md:p-6">
 
