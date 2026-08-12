@@ -7,6 +7,8 @@ import * as XLSX from "xlsx"
 import { useRef } from "react"
 import BarcodeScanner from "../components/BarcodeScanner"
 
+const PRODUCT_LIMIT = 2000
+
 type Product = {
   id: string
   name: string
@@ -1425,6 +1427,45 @@ const usagePercentage =
 
       </div>
     </button>
+
+{/* CONTADOR DEL PLAN */}
+<div
+  className="
+    w-full
+    rounded-2xl
+    border border-[#25252D]
+    bg-[#101018]
+    px-5 py-4
+  "
+>
+  <div className="flex items-center justify-between gap-3">
+
+    <div>
+      <p className="text-sm font-semibold text-white">
+        Plan Base
+      </p>
+
+      <p className="text-sm text-gray-400 mt-1">
+        {products.length} de {PRODUCT_LIMIT} productos
+      </p>
+    </div>
+
+    <div
+      className="
+        rounded-xl
+        border border-[#1F6BFF]/30
+        bg-[#1F6BFF]/10
+        px-3 py-2
+        text-[#6EA8FF]
+        text-sm
+        font-medium
+      "
+    >
+      {Math.max(PRODUCT_LIMIT - products.length, 0)} disponibles
+    </div>
+
+  </div>
+</div>
 
   </div>
 )}
