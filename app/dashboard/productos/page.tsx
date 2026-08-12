@@ -3895,36 +3895,6 @@ const usagePercentage =
       </label>
 
 
-      {/* ARCHIVAR */}
-      <div className="pt-3">
-
-        <button
-          type="button"
-          onClick={() => {
-            if (!editingId) return
-
-            handleDelete(editingId)
-          }}
-          className="
-            w-full
-            rounded-2xl
-            border border-red-500/25
-            bg-red-500/5
-            py-4
-            text-red-400
-            font-medium
-          "
-        >
-          🗑 Archivar producto
-        </button>
-
-        <p className="text-xs text-gray-600 text-center mt-2">
-          Arcana conservará su historial si el producto tiene movimientos.
-        </p>
-
-      </div>
-
-
       <div className="h-4" />
 
     </div>
