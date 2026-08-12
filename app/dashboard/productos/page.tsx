@@ -314,15 +314,15 @@ const saveProductToArcanaCatalog = async (product: {
 }
 
 const fetchProduct = async (barcodeFromScanner?: string) => {
-  if (!newBarcode.trim()) {
+  const barcode = (barcodeFromScanner || newBarcode).trim()
+
+  if (!barcode) {
     setToast({
       type: "error",
       message: "Primero escaneá o escribí un código de barras"
     })
     return
   }
-
-  const barcode = barcodeFromScanner || newBarcode.trim()
 
   try {
     const { data: catalogProduct, error: catalogError } = await supabase
@@ -732,6 +732,8 @@ quantity: newQuantityLabel || null,
     setNewPrice('')
     setNewActive(true)
     setIsOpen(false)
+    setMobileProductsView('home')
+    setMobileAddMode(null)
     setNewCode('')
     setNewBarcode('')
     setNewSupplierId('')
@@ -2063,8 +2065,803 @@ const usagePercentage =
 )}
 
     </div>
+
+{/* ================================================= */}
+{/* PRODUCTOS MOBILE — NUEVO PRODUCTO */}
+{/* ================================================= */}
+
+{isOpen && !editingId && (
+  <div className="md:hidden fixed inset-0 z-[900] bg-[#08080D] flex flex-col">
+
+    {/* HEADER */}
+    <div className="
+      shrink-0
+      flex
+      items-center
+      gap-3
+      px-5
+      py-4
+      border-b
+      border-[#25252D]
+      bg-[#0B0B10]
+    ">
+
+      <button
+        type="button"
+        onClick={() => {
+          setIsOpen(false)
+          setMobileProductsView('add')
+        }}
+        className="
+          w-10 h-10
+          shrink-0
+          rounded-xl
+          border border-[#25252D]
+          bg-[#14141A]
+          text-gray-300
+          flex items-center justify-center
+        "
+      >
+        ←
+      </button>
+
+      <div>
+        <h2 className="text-lg font-semibold text-white">
+          Nuevo producto
+        </h2>
+
+        <p className="text-xs text-gray-500 mt-0.5">
+          Completá los datos necesarios para cargarlo.
+        </p>
+      </div>
+
+    </div>
+
+
+    {/* CONTENIDO */}
+    <div className="flex-1 min-h-0 overflow-y-auto px-5 py-5 space-y-5">
+
+
+      {/* ============================================== */}
+      {/* EAN — PRIMER PASO */}
+      {/* ============================================== */}
+
+      {mobileAddMode === 'ean' && (
+        <div className="
+          rounded-2xl
+          border border-[#1F6BFF]/30
+          bg-[#101522]
+          p-4
+        ">
+
+          <div className="mb-3">
+            <p className="text-white font-semibold">
+              Código de barras
+            </p>
+
+            <p className="text-xs text-gray-400 mt-1">
+              Escribí el EAN y Arcana buscará la información del producto.
+            </p>
+          </div>
+
+          <div className="flex gap-2">
+
+            <input
+              value={newBarcode}
+              inputMode="numeric"
+              onChange={(e) => {
+                setNewBarcode(e.target.value)
+                setBarcodeWasGenerated(false)
+              }}
+              placeholder="Ej: 7793046008008"
+              className="
+                flex-1
+                min-w-0
+                bg-[#0B0B10]
+                border border-[#2A2A32]
+                rounded-xl
+                px-4 py-3
+                text-white
+                focus:outline-none
+                focus:ring-2
+                focus:ring-[#1F6BFF]/40
+              "
+            />
+
+            <button
+              type="button"
+              onClick={() => fetchProduct()}
+              className="
+                shrink-0
+                bg-green-700
+                hover:bg-green-600
+                rounded-xl
+                px-4
+                text-white
+                font-semibold
+              "
+            >
+              Buscar
+            </button>
+
+          </div>
+
+        </div>
+      )}
+
+
+      {/* ============================================== */}
+      {/* PRODUCTO ENCONTRADO */}
+      {/* ============================================== */}
+
+      {(newImageUrl ||
+        newBrand ||
+        newQuantityLabel ||
+        (mobileAddMode !== 'manual' && newProductName)) && (
+
+        <div className="
+          rounded-2xl
+          border border-green-500/30
+          bg-green-500/10
+          overflow-hidden
+        ">
+
+          <div className="px-4 pt-4">
+            <p className="text-green-400 text-sm font-semibold">
+              ✓ Arcana encontró el producto
+            </p>
+          </div>
+
+          <div className="flex gap-4 p-4">
+
+            <div className="
+              w-20 h-20
+              shrink-0
+              rounded-xl
+              overflow-hidden
+              bg-[#101018]
+              border border-[#25252D]
+              flex items-center justify-center
+            ">
+
+              {newImageUrl ? (
+                <img
+                  src={newImageUrl}
+                  alt={newProductName || 'Producto'}
+                  className="w-full h-full object-contain bg-white p-1"
+                />
+              ) : (
+                <span className="text-3xl">
+                  📦
+                </span>
+              )}
+
+            </div>
+
+
+            <div className="min-w-0 flex-1">
+
+              {newProductName && (
+                <p className="text-white font-semibold">
+                  {newProductName}
+                </p>
+              )}
+
+              {newBrand && (
+                <p className="text-sm text-gray-400 mt-1">
+                  Marca: {newBrand}
+                </p>
+              )}
+
+              {newQuantityLabel && (
+                <p className="text-sm text-gray-400">
+                  Presentación: {newQuantityLabel}
+                </p>
+              )}
+
+              {newBarcode && (
+                <p className="text-xs text-gray-500 mt-1">
+                  EAN: {newBarcode}
+                </p>
+              )}
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* ============================================== */}
+      {/* INFORMACIÓN PRINCIPAL */}
+      {/* ============================================== */}
+
+      <div className="space-y-4">
+
+        <p className="text-xs uppercase tracking-wide text-gray-500">
+          Información del producto
+        </p>
+
+
+        {/* NOMBRE */}
+        <div className="space-y-1">
+
+          <label className="text-sm text-gray-400">
+            Nombre del producto
+          </label>
+
+          <input
+            value={newProductName}
+            onChange={(e) => setNewProductName(e.target.value)}
+            placeholder="Ej: Coca Cola 500cc"
+            className="
+              w-full
+              bg-[#0B0B10]
+              border border-[#2A2A32]
+              rounded-xl
+              px-4 py-3
+              text-white
+              focus:outline-none
+              focus:ring-2
+              focus:ring-[#1F6BFF]/40
+            "
+          />
+
+        </div>
+
+
+        {/* INFO ENCONTRADA */}
+        {(newBrand || newQuantityLabel || newCategory) && (
+
+          <div className="
+            rounded-xl
+            bg-[#101018]
+            border border-[#25252D]
+            p-4
+            space-y-3
+          ">
+
+            {newBrand && (
+              <div>
+                <p className="text-[11px] uppercase text-gray-600">
+                  Marca
+                </p>
+
+                <p className="text-sm text-gray-200 mt-1">
+                  {newBrand}
+                </p>
+              </div>
+            )}
+
+            {newQuantityLabel && (
+              <div>
+                <p className="text-[11px] uppercase text-gray-600">
+                  Presentación
+                </p>
+
+                <p className="text-sm text-gray-200 mt-1">
+                  {newQuantityLabel}
+                </p>
+              </div>
+            )}
+
+            {newCategory && (
+              <div>
+                <p className="text-[11px] uppercase text-gray-600">
+                  Categoría
+                </p>
+
+                <p className="text-sm text-gray-200 mt-1">
+                  {newCategory}
+                </p>
+              </div>
+            )}
+
+          </div>
+
+        )}
+
+
+        {/* EAN EN MANUAL */}
+        {mobileAddMode === 'manual' && (
+
+          <div className="space-y-1">
+
+            <label className="text-sm text-gray-400">
+              Código de barras (opcional)
+            </label>
+
+            <input
+              value={newBarcode}
+              inputMode="numeric"
+              onChange={(e) => {
+                setNewBarcode(e.target.value)
+                setBarcodeWasGenerated(false)
+              }}
+              placeholder="Si no tiene, Arcana puede generar uno"
+              className="
+                w-full
+                bg-[#0B0B10]
+                border border-[#2A2A32]
+                rounded-xl
+                px-4 py-3
+                text-white
+              "
+            />
+
+          </div>
+
+        )}
+
+      </div>
+
+
+      {/* ============================================== */}
+      {/* TIPO DE VENTA */}
+      {/* ============================================== */}
+
+      <div className="space-y-3">
+
+        <p className="text-xs uppercase tracking-wide text-gray-500">
+          Tipo de venta
+        </p>
+
+
+        <label
+          className={`
+            block
+            rounded-2xl
+            border
+            p-4
+            ${
+              newSaleType === 'unit'
+                ? 'bg-[#122039] border-[#1F6BFF]/60'
+                : 'bg-[#101018] border-[#25252D]'
+            }
+          `}
+        >
+
+          <div className="flex items-start gap-3">
+
+            <input
+              type="radio"
+              checked={newSaleType === 'unit'}
+              onChange={() => {
+                setNewSaleType('unit')
+                setNewUnitBase('unidad')
+              }}
+              className="mt-1"
+            />
+
+            <div>
+              <p className="text-white font-medium">
+                Unidad / paquete
+              </p>
+
+              <p className="text-xs text-gray-400 mt-1">
+                Bebidas, galletas, yerba, productos envasados.
+              </p>
+            </div>
+
+          </div>
+
+        </label>
+
+
+        <label
+          className={`
+            block
+            rounded-2xl
+            border
+            p-4
+            ${
+              newSaleType === 'weight'
+                ? 'bg-[#122039] border-[#1F6BFF]/60'
+                : 'bg-[#101018] border-[#25252D]'
+            }
+          `}
+        >
+
+          <div className="flex items-start gap-3">
+
+            <input
+              type="radio"
+              checked={newSaleType === 'weight'}
+              onChange={() => {
+                setNewSaleType('weight')
+                setNewUnitBase('kg')
+                setNewUnit('kg')
+                setNewPriceBy('kg')
+              }}
+              className="mt-1"
+            />
+
+            <div>
+              <p className="text-white font-medium">
+                Peso fraccionado
+              </p>
+
+              <p className="text-xs text-gray-400 mt-1">
+                Quesos, fiambres, frutos secos, caramelos.
+              </p>
+            </div>
+
+          </div>
+
+        </label>
+
+      </div>
+
+
+      {/* ============================================== */}
+      {/* PRECIO POR PESO */}
+      {/* ============================================== */}
+
+      {newSaleType === 'weight' && (
+
+        <div className="space-y-3">
+
+          <p className="text-sm text-gray-400">
+            Precio cargado por
+          </p>
+
+          <div className="grid grid-cols-2 gap-3">
+
+            <label className={`
+              rounded-xl
+              border
+              p-3
+              text-center
+              ${
+                newPriceBy === 'kg'
+                  ? 'bg-[#122039] border-[#1F6BFF]/60'
+                  : 'bg-[#101018] border-[#25252D]'
+              }
+            `}>
+
+              <input
+                type="radio"
+                checked={newPriceBy === 'kg'}
+                onChange={() => setNewPriceBy('kg')}
+                className="mr-2"
+              />
+
+              <span className="text-white text-sm">
+                Kilo
+              </span>
+
+            </label>
+
+
+            <label className={`
+              rounded-xl
+              border
+              p-3
+              text-center
+              ${
+                newPriceBy === '100g'
+                  ? 'bg-[#122039] border-[#1F6BFF]/60'
+                  : 'bg-[#101018] border-[#25252D]'
+              }
+            `}>
+
+              <input
+                type="radio"
+                checked={newPriceBy === '100g'}
+                onChange={() => setNewPriceBy('100g')}
+                className="mr-2"
+              />
+
+              <span className="text-white text-sm">
+                100 gramos
+              </span>
+
+            </label>
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* ============================================== */}
+      {/* VENTA */}
+      {/* ============================================== */}
+
+      <div className="space-y-4">
+
+        <p className="text-xs uppercase tracking-wide text-gray-500">
+          Venta
+        </p>
+
+
+        <div className="space-y-1">
+
+          <label className="text-sm text-gray-400">
+            Unidad de venta
+          </label>
+
+          <select
+            value={newUnit}
+            onChange={(e) => setNewUnit(e.target.value)}
+            className="
+              w-full
+              bg-[#0B0B10]
+              border border-[#2A2A32]
+              rounded-xl
+              px-4 py-3
+              text-white
+            "
+          >
+            <option value="unidad">Unidad</option>
+            <option value="kg">Kilo</option>
+            <option value="litro">Litro</option>
+            <option value="pack">Pack</option>
+          </select>
+
+        </div>
+
+
+        <div className="space-y-1">
+
+          <label className="text-sm text-gray-400">
+            {newSaleType === 'weight'
+              ? `Precio de venta por ${
+                  newPriceBy === '100g'
+                    ? '100g'
+                    : 'kg'
+                }`
+              : 'Precio de venta'}
+          </label>
+
+          <div className="relative">
+
+            <span className="
+              absolute
+              left-4
+              top-1/2
+              -translate-y-1/2
+              text-gray-400
+            ">
+              $
+            </span>
+
+            <input
+              value={newPrice}
+              inputMode="numeric"
+              onChange={(e) =>
+                setNewPrice(formatMoneyInput(e.target.value))
+              }
+              placeholder="Ej: 1.500"
+              className="
+                w-full
+                bg-[#0B0B10]
+                border border-[#2A2A32]
+                rounded-xl
+                py-3
+                pl-9 pr-4
+                text-white
+              "
+            />
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      {/* ============================================== */}
+      {/* STOCK */}
+      {/* ============================================== */}
+
+      <div className="space-y-4">
+
+        <p className="text-xs uppercase tracking-wide text-gray-500">
+          Stock
+        </p>
+
+
+        <div className="grid grid-cols-2 gap-3">
+
+          <div className="space-y-1">
+
+            <label className="text-sm text-gray-400">
+              {newSaleType === 'weight'
+                ? 'Stock inicial (kg)'
+                : 'Stock inicial'}
+            </label>
+
+            <input
+              type="number"
+              value={newStock}
+              onChange={(e) => setNewStock(e.target.value)}
+              placeholder="Ej: 24"
+              className="
+                w-full
+                bg-[#0B0B10]
+                border border-[#2A2A32]
+                rounded-xl
+                px-4 py-3
+                text-white
+              "
+            />
+
+          </div>
+
+
+          <div className="space-y-1">
+
+            <label className="text-sm text-gray-400">
+              Stock mínimo
+            </label>
+
+            <input
+              type="number"
+              min={1}
+              value={newMinStock}
+              onChange={(e) => setNewMinStock(e.target.value)}
+              placeholder="Ej: 5"
+              className="
+                w-full
+                bg-[#0B0B10]
+                border border-[#2A2A32]
+                rounded-xl
+                px-4 py-3
+                text-white
+              "
+            />
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      {/* ============================================== */}
+      {/* DATOS OPCIONALES */}
+      {/* ============================================== */}
+
+      <div className="space-y-4">
+
+        <p className="text-xs uppercase tracking-wide text-gray-500">
+          Opcional
+        </p>
+
+
+        <div className="space-y-1">
+
+          <label className="text-sm text-gray-400">
+            Fecha de vencimiento
+          </label>
+
+          <input
+            type="date"
+            value={newExpirationDate}
+            onChange={(e) =>
+              setNewExpirationDate(e.target.value)
+            }
+            className="
+              w-full
+              bg-[#0B0B10]
+              border border-[#2A2A32]
+              rounded-xl
+              px-4 py-3
+              text-white
+            "
+          />
+
+          <p className="text-xs text-gray-500">
+            Arcana te avisará antes de que venza.
+          </p>
+
+        </div>
+
+
+        <div className="space-y-1">
+
+          <label className="text-sm text-gray-400">
+            Código interno
+          </label>
+
+          <input
+            value={newCode}
+            onChange={(e) => setNewCode(e.target.value)}
+            placeholder="Ej: VEL-202"
+            className="
+              w-full
+              bg-[#0B0B10]
+              border border-[#2A2A32]
+              rounded-xl
+              px-4 py-3
+              text-white
+            "
+          />
+
+        </div>
+
+      </div>
+
+
+      {/* ============================================== */}
+      {/* ACTIVO */}
+      {/* ============================================== */}
+
+      <label className="
+        flex
+        items-center
+        justify-between
+        gap-4
+        bg-[#101018]
+        border border-[#25252D]
+        rounded-2xl
+        p-4
+      ">
+
+        <div>
+
+          <p className="text-white font-medium">
+            Producto activo
+          </p>
+
+          <p className="text-xs text-gray-500 mt-1">
+            Estará disponible para vender dentro de Arcana.
+          </p>
+
+        </div>
+
+        <input
+          type="checkbox"
+          checked={newActive}
+          onChange={(e) => setNewActive(e.target.checked)}
+        />
+
+      </label>
+
+
+      <div className="h-4" />
+
+    </div>
+
+
+    {/* FOOTER */}
+    <div className="
+      shrink-0
+      border-t
+      border-[#25252D]
+      bg-[#111116]
+      px-5 py-4
+    ">
+
+      <button
+        type="button"
+        onClick={createProduct}
+        disabled={isFreeLimitReached}
+        className="
+          w-full
+          bg-[#1F6BFF]
+          disabled:opacity-50
+          rounded-2xl
+          py-4
+          text-white
+          font-semibold
+          text-base
+        "
+      >
+        Guardar producto
+      </button>
+
+    </div>
+
+  </div>
+)}
+
 {isOpen && (
-  <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-3 md:p-6">
+ <div className="hidden md:flex fixed inset-0 bg-black/70 backdrop-blur-sm items-center justify-center z-50 p-3 md:p-6">
 
     <div
       className="
