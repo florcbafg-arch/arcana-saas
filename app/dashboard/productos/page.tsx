@@ -2569,94 +2569,224 @@ const usagePercentage =
   </div>
 )}
 
-{/* HEADER */}
-<div className="hidden md:flex md:flex-row md:justify-between md:items-center gap-4">
+{/* =============================== */}
+{/* HEADER WEB */}
+{/* =============================== */}
 
-  <div>
-    <h1 className="text-2xl font-semibold text-white">
-      📦 Productos
-    </h1>
-    <p className="text-gray-400 mt-1">
-      Gestioná tu catálogo y stock.
-    </p>
-  </div>
+<div className="hidden md:block">
 
-  <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+  <div className="flex items-start justify-between gap-4 mb-4">
 
-    <button
-      onClick={() => fileInputRef.current?.click()}
-     className="w-full sm:w-auto bg-[#6C5CE7] hover:bg-[#5A4BD1] transition rounded-xl px-5 py-3 font-semibold"
-      
-    >
-      📥 Importar
-    </button>
-
-    <button
-      onClick={() => setIsOpen(true)}
-      className="w-full sm:w-auto bg-[#1F6BFF] hover:bg-[#2E7BFF] transition rounded-xl px-5 py-3 font-semibold"
-    >
-      ➕ Nuevo producto
-    </button>
-
-  </div>
-
-</div>   {/* ← ACA SE CIERRA EL HEADER */}
-
-{/* BUSCADOR */}
-<div className="hidden md:block mt-4 mb-4">
-
-{/* PLAN FREE */}
-<div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-4 mb-4">
-  <div className="flex items-center justify-between mb-3">
     <div>
-      <p className="text-white font-semibold">
-        Plan Base
-      </p>
+      <h1 className="text-2xl font-semibold text-white">
+        📦 Productos
+      </h1>
 
-      <p className="text-sm text-gray-400">
-        {products.length} / {BASE_LIMIT} productos usados
+      <p className="text-gray-400 mt-1">
+        Gestioná tu catálogo y stock.
       </p>
     </div>
 
-    <span className="text-xs px-3 py-1 rounded-full bg-[#1F6BFF]/20 text-[#6EA8FF] border border-[#1F6BFF]/30">
-      BASE
-    </span>
+
+    <div className="flex items-center gap-3">
+
+      <button
+        type="button"
+        onClick={() => fileInputRef.current?.click()}
+        className="
+          bg-[#6C5CE7]
+          hover:bg-[#5A4BD1]
+          transition
+          rounded-xl
+          px-5 py-3
+          font-semibold
+          text-white
+        "
+      >
+        📥 Importar
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          resetProductForm()
+          setIsOpen(true)
+        }}
+        className="
+          bg-[#1F6BFF]
+          hover:bg-[#2E7BFF]
+          transition
+          rounded-xl
+          px-5 py-3
+          font-semibold
+          text-white
+        "
+      >
+        ➕ Nuevo producto
+      </button>
+
+    </div>
+
   </div>
 
-  <div className="w-full h-2 rounded-full bg-[#0F0F14] overflow-hidden">
-    <div
-      className={`h-full transition-all duration-500 ${
-        usagePercentage > 85
-          ? 'bg-red-500'
-          : usagePercentage > 70
-          ? 'bg-yellow-400'
-          : 'bg-[#1F6BFF]'
-      }`}
-      style={{
-        width: `${usagePercentage}%`
+
+  {/* BARRA OPERATIVA */}
+  <div
+    className="
+      grid
+      grid-cols-[minmax(280px,1fr)_260px_auto]
+      items-center
+      gap-3
+      mb-4
+    "
+  >
+
+    {/* BUSCADOR */}
+    <div className="relative">
+
+      <span
+        className="
+          absolute
+          left-4
+          top-1/2
+          -translate-y-1/2
+          text-gray-500
+        "
+      >
+        🔎
+      </span>
+
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={(e) =>
+          setSearchTerm(e.target.value)
+        }
+        placeholder="Buscar producto..."
+        className="
+          w-full
+          bg-[#0B0B10]
+          border border-[#2A2A32]
+          rounded-xl
+          py-3
+          pl-11 pr-4
+          text-white
+          focus:outline-none
+          focus:ring-2
+          focus:ring-[#1F6BFF]/40
+        "
+      />
+
+    </div>
+
+
+    {/* LECTOR */}
+    <button
+      type="button"
+      onMouseEnter={() => {
+        setToast({
+          type: 'success',
+          message:
+            'Conectá tu lector USB para escanear productos.'
+        })
       }}
-    />
+      onClick={() => {
+        setToast({
+          type: 'success',
+          message:
+            'Conectá tu lector USB y escaneá un producto. Arcana detectará el código automáticamente.'
+        })
+
+        // En el siguiente bloque conectamos el modal real del lector
+      }}
+      title="Usá un lector USB para escanear códigos de barras"
+      className="
+        h-full
+        rounded-xl
+        border border-[#6C5CE7]/40
+        bg-[#6C5CE7]/10
+        px-5
+        text-purple-300
+        font-medium
+        hover:bg-[#6C5CE7]/20
+        transition
+      "
+    >
+      ▥ Usar lector de código
+    </button>
+
+
+    {/* PLAN BASE COMPACTO */}
+    <div
+      className="
+        min-w-[300px]
+        flex
+        items-center
+        gap-3
+        rounded-xl
+        border border-[#25252D]
+        bg-[#101018]
+        px-4 py-3
+      "
+    >
+
+      <span
+        className="
+          text-[11px]
+          px-2.5 py-1
+          rounded-full
+          bg-[#1F6BFF]/15
+          border border-[#1F6BFF]/30
+          text-[#6EA8FF]
+          font-semibold
+        "
+      >
+        BASE
+      </span>
+
+
+      <span className="text-sm text-gray-300 whitespace-nowrap">
+        {products.length} / {BASE_LIMIT}
+      </span>
+
+
+      <div
+        className="
+          w-24
+          h-1.5
+          rounded-full
+          bg-[#0B0B10]
+          overflow-hidden
+        "
+      >
+        <div
+          className={`h-full transition-all ${
+            usagePercentage > 85
+              ? 'bg-red-500'
+              : usagePercentage > 70
+              ? 'bg-yellow-400'
+              : 'bg-[#1F6BFF]'
+          }`}
+          style={{
+            width: `${usagePercentage}%`
+          }}
+        />
+      </div>
+
+
+      <span
+        className="
+          text-xs
+          text-green-400
+          whitespace-nowrap
+        "
+      >
+        {remainingProducts} disp.
+      </span>
+
+    </div>
+
   </div>
-
-  <p className="text-xs text-gray-500 mt-3">
-    {remainingProducts > 0
-      ? `Te quedan ${remainingProducts} productos disponibles.`
-      : 'Llegaste al límite del Plan Base.'}
-  </p>
-
-  {usagePercentage >= 70 && (
-    <p className="text-xs text-[#6EA8FF] mt-1">
-      Arcana Impulso aumenta la capacidad de tu negocio.
-    </p>
-  )}
-</div>
-
-  <input
-    type="text"
-    placeholder="Buscar producto..."
-    className="bg-[#0B0B10] border border-[#2A2A32] rounded-xl px-4 py-3 text-white w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40"
-  onChange={(e) => setSearchTerm(e.target.value)}
-  />
 
 </div>
 
@@ -2671,9 +2801,6 @@ const usagePercentage =
   <tr className="text-left">
     <th className="p-4">Producto</th>
     <th className="p-4">Precio</th>
-    <th className="p-4">Costo</th>
-    <th className="p-4">Margen</th>
-    <th className="p-4">Proveedor</th>
     <th className="p-4">Stock</th>
     <th className="p-4">Estado</th>
     <th className="p-4">Código</th>
@@ -2711,18 +2838,6 @@ const usagePercentage =
 
 <td className="p-4 font-semibold text-[#1F6BFF]">
   ${Number(p.price).toLocaleString()}
-</td>
-
-<td className="p-4 text-gray-300">
-  ${Number(p.cost_price || 0).toLocaleString()}
-</td>
-
-<td className="p-4 font-semibold text-green-400">
-  ${Number((p.price || 0) - (p.cost_price || 0)).toLocaleString()}
-</td>
-
-<td className="p-4 text-gray-400">
-  {p.suppliers?.name || '—'}
 </td>
 
 <td className="p-4 font-bold text-lg text-white">
