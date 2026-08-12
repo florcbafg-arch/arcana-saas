@@ -660,14 +660,24 @@ const createProduct = async () => {
         }
 
         if (existingProduct) {
-          setToast({
-            type: 'error',
-            message:
-              `Este producto ya está en tu catálogo como "${existingProduct.name}".`
-          })
+  setToast({
+    type: 'error',
+    message:
+      `Este producto ya está en tu catálogo como "${existingProduct.name}".`
+  })
 
-          return
-        }
+  // Limpiar el intento actual
+  resetProductForm()
+
+  // Cerrar el formulario
+  setIsOpen(false)
+
+  // Volver a las opciones de carga
+  setMobileAddMode(null)
+  setMobileProductsView('add')
+
+  return
+}
       }
     }
 
