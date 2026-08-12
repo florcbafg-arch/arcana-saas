@@ -712,9 +712,9 @@ const formatRelativeTime = (dateString: string) => {
   )}
 </div>
 
-        {salesWarning && (
-  <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl">
-    ⚠️ Tus ventas bajaron más de un 20% respecto a ayer. 
+  {salesWarning && (
+  <div className="bg-amber-500/10 border border-amber-500/30 text-amber-300 px-4 py-3 rounded-xl">
+    ⚠️ Tus ventas bajaron más de un 20% respecto a ayer.
     Revisá promociones, stock o precios.
   </div>
 )}
