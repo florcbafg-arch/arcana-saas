@@ -96,10 +96,49 @@ export default function ProductosPage() {
   const [newPackageCost, setNewPackageCost] = useState('')
   const [showMobileTable, setShowMobileTable] = useState(false);
   const [mobileActionProduct, setMobileActionProduct] = useState<Product | null>(null)
+
+  const [mobileProductsView, setMobileProductsView] = useState<
+  'home' | 'add' | 'list'
+>('home')
+
+const [mobileAddMode, setMobileAddMode] = useState<
+  'scan' | 'ean' | 'manual' | null
+>(null)
+
   const [toast, setToast] = useState<{
   type: "success" | "error"
   message: string
 } | null>(null)
+
+const openNewProduct = () => {
+  setEditingId(null)
+
+  setNewProductName('')
+  setNewUnit('unidad')
+  setNewStock('')
+  setNewMinStock('')
+  setNewPrice('')
+  setNewActive(true)
+  setNewCode('')
+  setNewBarcode('')
+  setNewSupplierId('')
+  setNewCostPrice('')
+  setNewPackageWeightKg('')
+  setNewPackageCost('')
+  setNewSaleType('unit')
+  setNewUnitBase('unidad')
+  setNewPriceBy('kg')
+  setNewExpirationDate('')
+  setNewBrand('')
+  setNewCategory('')
+  setNewImageUrl('')
+  setNewQuantityLabel('')
+  setOpenFoodSuggestions([])
+
+  setMobileAddMode(null)
+
+  setMobileProductsView('add')
+}
 
 const generateEAN13 = () => {
 
@@ -1226,8 +1265,401 @@ const usagePercentage =
   </div>
 )}
 
+{/* ================================================= */}
+{/* PRODUCTOS MOBILE — PANTALLA PRINCIPAL */}
+{/* ================================================= */}
+
+{mobileProductsView === 'home' && (
+  <div className="md:hidden space-y-5">
+
+    <div className="pt-3">
+      <h1 className="text-3xl font-semibold text-white">
+        📦 Productos
+      </h1>
+
+      <p className="text-gray-400 mt-2">
+        Gestioná tu catálogo y stock.
+      </p>
+    </div>
+
+
+    {/* AGREGAR PRODUCTO */}
+    <button
+      type="button"
+      onClick={openNewProduct}
+      className="
+        w-full
+        rounded-2xl
+        border border-[#1F6BFF]/40
+        bg-gradient-to-r
+        from-[#1F6BFF]/90
+        to-[#6C5CE7]/90
+        p-5
+        text-left
+        shadow-lg
+        shadow-blue-500/10
+      "
+    >
+      <div className="flex items-center gap-4">
+
+        <div className="
+          w-12 h-12
+          shrink-0
+          rounded-2xl
+          bg-white/10
+          flex items-center justify-center
+          text-2xl
+        ">
+          ➕
+        </div>
+
+        <div className="flex-1">
+          <p className="text-white text-lg font-semibold">
+            Agregar producto
+          </p>
+
+          <p className="text-blue-100/70 text-sm mt-1">
+            Escaneá un código o cargalo manualmente.
+          </p>
+        </div>
+
+        <span className="text-white text-xl">
+          ›
+        </span>
+
+      </div>
+    </button>
+
+
+    {/* MIS PRODUCTOS */}
+    <button
+      type="button"
+      onClick={() => setShowMobileTable(true)}
+      className="
+        w-full
+        rounded-2xl
+        border border-[#2A2A32]
+        bg-[#14141A]
+        p-5
+        text-left
+      "
+    >
+      <div className="flex items-center gap-4">
+
+        <div className="
+          w-12 h-12
+          shrink-0
+          rounded-2xl
+          bg-[#1A1A22]
+          flex items-center justify-center
+          text-2xl
+        ">
+          📁
+        </div>
+
+        <div className="flex-1">
+
+          <p className="text-white text-lg font-semibold">
+            Mis productos
+          </p>
+
+          <p className="text-gray-400 text-sm mt-1">
+            {products.length} productos en tu catálogo
+          </p>
+
+          <p className="text-[#6EA8FF] text-sm mt-2">
+            Buscar, editar o eliminar
+          </p>
+
+        </div>
+
+        <span className="text-gray-400 text-xl">
+          ›
+        </span>
+
+      </div>
+    </button>
+
+
+    {/* IMPORTAR PRODUCTOS */}
+    <button
+      type="button"
+      onClick={() => fileInputRef.current?.click()}
+      className="
+        w-full
+        rounded-2xl
+        border border-[#6C5CE7]/30
+        bg-[#6C5CE7]/10
+        p-5
+        text-left
+      "
+    >
+      <div className="flex items-center gap-4">
+
+        <div className="
+          w-12 h-12
+          shrink-0
+          rounded-2xl
+          bg-[#6C5CE7]/20
+          flex items-center justify-center
+          text-2xl
+        ">
+          📥
+        </div>
+
+        <div className="flex-1">
+
+          <p className="text-white text-lg font-semibold">
+            Importar productos
+          </p>
+
+          <p className="text-gray-400 text-sm mt-1">
+            Agregá varios productos desde un archivo.
+          </p>
+
+        </div>
+
+        <span className="text-gray-400 text-xl">
+          ›
+        </span>
+
+      </div>
+    </button>
+
+  </div>
+)}
+
+
+{/* ================================================= */}
+{/* PRODUCTOS MOBILE — ELEGIR MÉTODO DE ALTA */}
+{/* ================================================= */}
+
+{mobileProductsView === 'add' && (
+  <div className="md:hidden space-y-5">
+
+    {/* VOLVER */}
+    <button
+      type="button"
+      onClick={() => setMobileProductsView('home')}
+      className="
+        flex
+        items-center
+        gap-2
+        text-gray-300
+        text-sm
+        pt-2
+      "
+    >
+      ← Volver a Productos
+    </button>
+
+
+    <div className="text-center pt-4 pb-2">
+
+      <div className="
+        mx-auto
+        w-16 h-16
+        rounded-2xl
+        bg-[#6C5CE7]/15
+        flex items-center justify-center
+        text-3xl
+        mb-4
+      ">
+        📦
+      </div>
+
+      <h2 className="text-2xl font-semibold text-white">
+        ¿Cómo querés agregar el producto?
+      </h2>
+
+      <p className="text-gray-400 text-sm mt-2">
+        Elegí la opción que te resulte más cómoda.
+      </p>
+
+    </div>
+
+
+    {/* ESCANEAR */}
+    <button
+      type="button"
+      onClick={() => {
+        setMobileAddMode('scan')
+        setIsOpen(true)
+        setShowScanner(true)
+      }}
+      className="
+        w-full
+        rounded-2xl
+        border border-[#6C5CE7]/40
+        bg-[#6C5CE7]/10
+        p-5
+        text-left
+      "
+    >
+      <div className="flex items-center gap-4">
+
+        <div className="
+          w-14 h-14
+          shrink-0
+          rounded-2xl
+          bg-[#6C5CE7]/25
+          flex items-center justify-center
+          text-2xl
+        ">
+          📷
+        </div>
+
+        <div className="flex-1">
+
+          <p className="text-white text-lg font-semibold">
+            Escanear código
+          </p>
+
+          <p className="text-gray-400 text-sm mt-1">
+            Usá la cámara para escanear el código de barras.
+          </p>
+
+        </div>
+
+        <span className="text-[#A99BFF] text-xl">
+          ›
+        </span>
+
+      </div>
+    </button>
+
+
+    {/* INGRESAR EAN */}
+    <button
+      type="button"
+      onClick={() => {
+        setMobileAddMode('ean')
+        setIsOpen(true)
+      }}
+      className="
+        w-full
+        rounded-2xl
+        border border-[#1F6BFF]/40
+        bg-[#1F6BFF]/10
+        p-5
+        text-left
+      "
+    >
+      <div className="flex items-center gap-4">
+
+        <div className="
+          w-14 h-14
+          shrink-0
+          rounded-2xl
+          bg-[#1F6BFF]/20
+          flex items-center justify-center
+          text-2xl
+        ">
+          ▥
+        </div>
+
+        <div className="flex-1">
+
+          <p className="text-white text-lg font-semibold">
+            Ingresar código EAN
+          </p>
+
+          <p className="text-gray-400 text-sm mt-1">
+            Escribí el código de barras del producto.
+          </p>
+
+        </div>
+
+        <span className="text-[#6EA8FF] text-xl">
+          ›
+        </span>
+
+      </div>
+    </button>
+
+
+    {/* MANUAL */}
+    <button
+      type="button"
+      onClick={() => {
+        setMobileAddMode('manual')
+        setIsOpen(true)
+      }}
+      className="
+        w-full
+        rounded-2xl
+        border border-[#2A2A32]
+        bg-[#14141A]
+        p-5
+        text-left
+      "
+    >
+      <div className="flex items-center gap-4">
+
+        <div className="
+          w-14 h-14
+          shrink-0
+          rounded-2xl
+          bg-[#1A1A22]
+          flex items-center justify-center
+          text-2xl
+        ">
+          ✏️
+        </div>
+
+        <div className="flex-1">
+
+          <p className="text-white text-lg font-semibold">
+            Cargar manualmente
+          </p>
+
+          <p className="text-gray-400 text-sm mt-1">
+            Completá vos mismo los datos del producto.
+          </p>
+
+        </div>
+
+        <span className="text-gray-400 text-xl">
+          ›
+        </span>
+
+      </div>
+    </button>
+
+
+    {/* AYUDA */}
+    <div className="
+      rounded-2xl
+      border border-[#25252D]
+      bg-[#101018]
+      p-4
+      flex gap-3
+    ">
+
+      <span className="text-xl">
+        💡
+      </span>
+
+      <div>
+
+        <p className="text-white text-sm font-medium">
+          Arcana puede ayudarte
+        </p>
+
+        <p className="text-gray-500 text-xs mt-1 leading-5">
+          Si escaneás o ingresás un código EAN,
+          Arcana buscará automáticamente la información disponible del producto.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+)}
+
 {/* HEADER */}
-<div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
+<div className="hidden md:flex md:flex-row md:justify-between md:items-center gap-4">
 
   <div>
     <h1 className="text-2xl font-semibold text-white">
@@ -1260,7 +1692,7 @@ const usagePercentage =
 </div>   {/* ← ACA SE CIERRA EL HEADER */}
 
 {/* BUSCADOR */}
-<div className="mt-4 mb-4">
+<div className="hidden md:block mt-4 mb-4">
 
 {/* PLAN FREE */}
 <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-4 mb-4">
@@ -1317,15 +1749,6 @@ const usagePercentage =
 
 </div>
 
-    {/* MOBILE ACTIONS */}
-<div className="md:hidden mb-4">
-  <button
-    onClick={() => setShowMobileTable(true)}
-    className="w-full bg-[#1F6BFF] hover:bg-[#1557D6] transition rounded-xl py-3 font-semibold text-white"
-  >
-    📋 Ver tabla compacta
-  </button>
-</div>
 
     {/* TABLA */}
     <div className="hidden md:block bg-[#14141A] border border-[#1F1F24] rounded-2xl overflow-hidden">
