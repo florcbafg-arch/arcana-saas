@@ -1349,7 +1349,10 @@ const usagePercentage =
     {/* MIS PRODUCTOS */}
     <button
       type="button"
-      onClick={() => setShowMobileTable(true)}
+      onClick={() => {
+  setSearchTerm('')
+  setMobileProductsView('list')
+}}
       className="
         w-full
         rounded-2xl
@@ -1709,6 +1712,379 @@ const usagePercentage =
         </p>
 
       </div>
+
+    </div>
+
+  </div>
+)}
+
+{/* ================================================= */}
+{/* PRODUCTOS MOBILE — MIS PRODUCTOS */}
+{/* ================================================= */}
+
+{mobileProductsView === 'list' && (
+  <div className="md:hidden min-h-[calc(100vh-180px)]">
+
+    {/* HEADER */}
+    <div className="mb-5">
+
+      <button
+        type="button"
+        onClick={() => {
+          setSearchTerm('')
+          setMobileProductsView('home')
+        }}
+        className="
+          flex
+          items-center
+          gap-2
+          text-gray-300
+          text-sm
+          mb-5
+        "
+      >
+        ← Volver a Productos
+      </button>
+
+      <h1 className="text-2xl font-semibold text-white">
+        Mis productos
+      </h1>
+
+      <p className="text-gray-400 text-sm mt-1">
+        Buscá, editá o eliminá productos de tu catálogo.
+      </p>
+
+    </div>
+
+
+    {/* BUSCADOR */}
+    <div className="relative mb-4">
+
+      <span
+        className="
+          absolute
+          left-4
+          top-1/2
+          -translate-y-1/2
+          text-gray-500
+        "
+      >
+        🔎
+      </span>
+
+      <input
+        type="text"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        placeholder="Buscar por nombre o código..."
+        className="
+          w-full
+          rounded-2xl
+          border border-[#2A2A32]
+          bg-[#0B0B10]
+          py-4
+          pl-11
+          pr-4
+          text-white
+          placeholder:text-gray-600
+          focus:outline-none
+          focus:ring-2
+          focus:ring-[#1F6BFF]/40
+        "
+      />
+
+    </div>
+
+
+    {/* CONTADOR */}
+    <div className="flex items-center justify-between mb-4">
+
+      <p className="text-sm text-gray-500">
+        {products.filter((p) =>
+          p.name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          (p.barcode &&
+            p.barcode.includes(searchTerm)) ||
+          (p.code &&
+            p.code.includes(searchTerm))
+        ).length}{' '}
+        productos
+      </p>
+
+      {searchTerm && (
+        <button
+          type="button"
+          onClick={() => setSearchTerm('')}
+          className="text-sm text-[#6EA8FF]"
+        >
+          Limpiar búsqueda
+        </button>
+      )}
+
+    </div>
+
+
+    {/* LISTA */}
+    <div className="space-y-3 pb-28">
+
+      {products
+        .filter((p) =>
+          p.name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          (p.barcode &&
+            p.barcode.includes(searchTerm)) ||
+          (p.code &&
+            p.code.includes(searchTerm))
+        )
+        .map((p) => {
+
+          let estado = 'Normal'
+          let estadoClasses =
+            'bg-green-500/10 text-green-400 border-green-500/20'
+
+          if (p.stock_quantity === 0) {
+            estado = 'Agotado'
+            estadoClasses =
+              'bg-red-500/10 text-red-400 border-red-500/20'
+          } else if (
+            p.stock_quantity <= p.min_stock_red
+          ) {
+            estado = 'Crítico'
+            estadoClasses =
+              'bg-red-500/10 text-red-400 border-red-500/20'
+          } else if (
+            p.stock_quantity <= p.min_stock_yellow
+          ) {
+            estado = 'Bajo stock'
+            estadoClasses =
+              'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+          }
+
+          return (
+            <div
+              key={p.id}
+              className="
+                rounded-2xl
+                border border-[#25252D]
+                bg-[#14141A]
+                p-4
+              "
+            >
+
+              <div className="flex gap-3">
+
+                {/* IMAGEN */}
+                <div
+                  className="
+                    w-16 h-16
+                    shrink-0
+                    overflow-hidden
+                    rounded-xl
+                    border border-[#25252D]
+                    bg-[#101018]
+                    flex
+                    items-center
+                    justify-center
+                  "
+                >
+
+                  {p.image_url ? (
+                    <img
+                      src={p.image_url}
+                      alt={p.name}
+                      className="
+                        w-full
+                        h-full
+                        object-contain
+                        bg-white
+                        p-1
+                      "
+                    />
+                  ) : (
+                    <span className="text-2xl">
+                      📦
+                    </span>
+                  )}
+
+                </div>
+
+
+                {/* INFORMACIÓN */}
+                <div className="min-w-0 flex-1">
+
+                  <p
+                    className="
+                      text-white
+                      font-semibold
+                      leading-5
+                    "
+                  >
+                    {p.name}
+                  </p>
+
+                  {(p.brand || p.quantity) && (
+                    <p
+                      className="
+                        text-xs
+                        text-gray-500
+                        mt-1
+                        truncate
+                      "
+                    >
+                      {[p.brand, p.quantity]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </p>
+                  )}
+
+
+                  <div
+                    className="
+                      flex
+                      items-center
+                      flex-wrap
+                      gap-2
+                      mt-2
+                    "
+                  >
+
+                    <span className="text-sm text-gray-300">
+                      Stock:{' '}
+                      <span className="text-white font-semibold">
+                        {p.stock_quantity}
+                      </span>
+                    </span>
+
+                    <span
+                      className={`
+                        rounded-full
+                        border
+                        px-2 py-0.5
+                        text-[11px]
+                        font-medium
+                        ${estadoClasses}
+                      `}
+                    >
+                      {estado}
+                    </span>
+
+                  </div>
+
+
+                  {/* PRECIO */}
+                  <p
+                    className="
+                      text-[#6EA8FF]
+                      font-semibold
+                      mt-2
+                    "
+                  >
+                    $
+                    {Number(
+                      p.price || 0
+                    ).toLocaleString('es-AR')}
+                  </p>
+
+                </div>
+
+              </div>
+
+
+              {/* ACCIONES */}
+              <div
+                className="
+                  grid
+                  grid-cols-2
+                  gap-3
+                  mt-4
+                  pt-4
+                  border-t
+                  border-[#25252D]
+                "
+              >
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleEdit(p)
+                  }}
+                  className="
+                    rounded-xl
+                    border border-[#1F6BFF]/30
+                    bg-[#1F6BFF]/10
+                    py-2.5
+                    text-sm
+                    font-medium
+                    text-[#6EA8FF]
+                  "
+                >
+                  ✏️ Editar
+                </button>
+
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleDelete(p.id)
+                  }}
+                  className="
+                    rounded-xl
+                    border border-red-500/20
+                    bg-red-500/5
+                    py-2.5
+                    text-sm
+                    font-medium
+                    text-red-400
+                  "
+                >
+                  🗑 Eliminar
+                </button>
+
+              </div>
+
+            </div>
+          )
+        })}
+
+
+      {/* SIN RESULTADOS */}
+      {products.filter((p) =>
+        p.name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (p.barcode &&
+          p.barcode.includes(searchTerm)) ||
+        (p.code &&
+          p.code.includes(searchTerm))
+      ).length === 0 && (
+
+        <div
+          className="
+            rounded-2xl
+            border border-[#25252D]
+            bg-[#101018]
+            px-5 py-10
+            text-center
+          "
+        >
+
+          <div className="text-4xl mb-3">
+            🔎
+          </div>
+
+          <p className="text-white font-medium">
+            No encontramos productos
+          </p>
+
+          <p className="text-gray-500 text-sm mt-2">
+            Probá buscando por otro nombre o código.
+          </p>
+
+        </div>
+
+      )}
 
     </div>
 
