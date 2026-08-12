@@ -1029,7 +1029,9 @@ useEffect(() => {
   return () => clearTimeout(timer)
 }, [toast])
 
-const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+const handleExcelUpload = async (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
   const file = e.target.files?.[0]
 
   if (!file) return
@@ -1046,7 +1048,9 @@ const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const data = await file.arrayBuffer()
     const workbook = XLSX.read(data)
     const sheet = workbook.Sheets[workbook.SheetNames[0]]
-    const rows: any[] = XLSX.utils.sheet_to_json(sheet)
+
+    const rows: any[] =
+      XLSX.utils.sheet_to_json(sheet)
 
     if (rows.length === 0) {
       setToast({
@@ -1056,17 +1060,29 @@ const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
       return
     }
 
-    const requiredFields = ["name", "price", "stock"]
+
+    // =========================================
+    // COLUMNAS OBLIGATORIAS
+    // =========================================
+
+    const requiredFields = [
+      "name",
+      "price",
+      "stock"
+    ]
 
     for (const field of requiredFields) {
       if (!(field in rows[0])) {
         setToast({
           type: "error",
-          message: `El Excel debe tener la columna "${field}".`
+          message:
+            `El Excel debe tener la columna "${field}".`
         })
+
         return
       }
     }
+
 
     const invalidRow = rows.find(
       (row) =>
@@ -1082,43 +1098,102 @@ const handleExcelUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         message:
           "Hay filas incompletas. Revisá que todos los productos tengan name, price y stock."
       })
+
       return
     }
 
-    /*
-     * Normalizamos los nombres para comparar productos existentes,
-     * sin importar mayúsculas, minúsculas o espacios.
-     */
-    const existingProductNames = new Set(
-      products.map((product) =>
-        product.name.trim().toLowerCase()
-      )
+
+    // =========================================
+    // MAPAS DE PRODUCTOS EXISTENTES
+    // =========================================
+
+    const productsByName = new Map(
+      products.map((product) => [
+        product.name
+          .trim()
+          .toLowerCase(),
+        product
+      ])
     )
 
-    /*
-     * Evitamos contar dos veces un mismo producto nuevo
-     * si aparece repetido dentro del propio Excel.
-     */
-    const newProductNames = new Set<string>()
+
+    const productsByBarcode = new Map(
+      products
+        .filter((product) => product.barcode)
+        .map((product) => [
+          String(product.barcode).trim(),
+          product
+        ])
+    )
+
+
+    // =========================================
+    // CALCULAR PRODUCTOS REALMENTE NUEVOS
+    // =========================================
+
+    const newProductKeys = new Set<string>()
 
     for (const row of rows) {
-      const productName = String(row.name).trim().toLowerCase()
+      const productName =
+        String(row.name)
+          .trim()
+          .toLowerCase()
 
+      const barcode =
+        row.barcode !== undefined &&
+        row.barcode !== null
+          ? String(row.barcode).trim()
+          : ""
+
+
+      // Si existe por EAN, no es nuevo
       if (
-        !existingProductNames.has(productName)
+        barcode &&
+        productsByBarcode.has(barcode)
       ) {
-        newProductNames.add(productName)
+        continue
       }
+
+
+      // Si no existe por EAN, buscamos por nombre
+      if (
+        productsByName.has(productName)
+      ) {
+        continue
+      }
+
+
+      // Evitar contar duplicados dentro del mismo Excel
+      const uniqueKey =
+        barcode
+          ? `barcode:${barcode}`
+          : `name:${productName}`
+
+      newProductKeys.add(uniqueKey)
     }
 
-    const newProductsCount = newProductNames.size
-const projectedTotal = products.length + newProductsCount
 
-if (newProductsCount > 0 && projectedTotal > BASE_LIMIT) {
-      const availableSlots = Math.max(
-        BASE_LIMIT - products.length,
-        0
-      )
+    const newProductsCount =
+      newProductKeys.size
+
+    const projectedTotal =
+      products.length +
+      newProductsCount
+
+
+    // =========================================
+    // LÍMITE PLAN BASE
+    // =========================================
+
+    if (
+      newProductsCount > 0 &&
+      projectedTotal > BASE_LIMIT
+    ) {
+      const availableSlots =
+        Math.max(
+          BASE_LIMIT - products.length,
+          0
+        )
 
       setToast({
         type: "error",
@@ -1126,132 +1201,457 @@ if (newProductsCount > 0 && projectedTotal > BASE_LIMIT) {
           `No se puede importar el archivo. Contiene ${newProductsCount} productos nuevos, pero solo te quedan ${availableSlots} lugares disponibles en el Plan Base. El límite es de 2.000 productos.`
       })
 
-      /*
-       * Permite volver a seleccionar el mismo archivo
-       * después de corregirlo.
-       */
       e.target.value = ""
+
       return
     }
 
+
     setLoading(true)
 
-    /*
-     * Creamos un mapa local para no consultar toda la tabla
-     * de productos en cada vuelta del ciclo.
-     */
-    const productsByName = new Map(
-      products.map((product) => [
-        product.name.trim().toLowerCase(),
-        product
-      ])
-    )
+
+    // =========================================
+    // IMPORTACIÓN
+    // =========================================
 
     for (const row of rows) {
+
       const generatedCode =
-        `PRD-${Date.now()}-${Math.floor(Math.random() * 100000)}`
+        `PRD-${Date.now()}-${Math.floor(
+          Math.random() * 100000
+        )}`
 
-      const productName = String(row.name)
-        .trim()
-        .toLowerCase()
 
-      const existing = productsByName.get(productName)
+      const productName =
+        String(row.name)
+          .trim()
+          .toLowerCase()
+
+
+      const barcode =
+        row.barcode !== undefined &&
+        row.barcode !== null
+          ? String(row.barcode).trim()
+          : ""
+
+
+      // =========================================
+      // BUSCAR PRODUCTO EXISTENTE
+      // Prioridad:
+      // 1. EAN
+      // 2. Nombre
+      // =========================================
+
+      let existing: Product | undefined
+
+      if (barcode) {
+        existing =
+          productsByBarcode.get(barcode)
+      }
+
+      if (!existing) {
+        existing =
+          productsByName.get(productName)
+      }
+
+
+      // =========================================
+      // ENRIQUECIMIENTO ACE
+      // =========================================
+
+      let enrichedData: {
+        name?: string | null
+        brand?: string | null
+        category?: string | null
+        image_url?: string | null
+        quantity?: string | null
+        unit?: string | null
+      } = {}
+
+
+      if (barcode) {
+        try {
+
+          // -----------------------------------------
+          // 1. CATÁLOGO GLOBAL ARCANA
+          // -----------------------------------------
+
+          const {
+            data: catalogProduct,
+            error: catalogError
+          } = await supabase
+            .from('arcana_catalog')
+            .select('*')
+            .eq('barcode', barcode)
+            .maybeSingle()
+
+
+          if (catalogError) {
+            console.error(
+              'ERROR CONSULTANDO ARCANA CATALOG:',
+              catalogError
+            )
+          }
+
+
+          if (catalogProduct) {
+
+            enrichedData = {
+              name:
+                catalogProduct.name,
+              brand:
+                catalogProduct.brand,
+              category:
+                catalogProduct.category,
+              image_url:
+                catalogProduct.image_url,
+              quantity:
+                catalogProduct.quantity,
+              unit:
+                catalogProduct.unit
+            }
+
+
+            // Registrar uso del catálogo
+            await supabase
+              .from('arcana_catalog')
+              .update({
+                times_used:
+                  (catalogProduct.times_used || 0) + 1,
+
+                last_used_at:
+                  new Date().toISOString(),
+
+                updated_at:
+                  new Date().toISOString()
+              })
+              .eq(
+                'id',
+                catalogProduct.id
+              )
+
+          } else {
+
+            // -----------------------------------------
+            // 2. OPEN FOOD FACTS
+            // -----------------------------------------
+
+            try {
+              const response = await fetch(
+                `https://world.openfoodfacts.org/api/v2/product/${barcode}?fields=product_name,brands,categories,image_url,quantity`
+              )
+
+              const openFoodData =
+                await response.json()
+
+
+              if (openFoodData.status === 1) {
+
+                const product =
+                  openFoodData.product
+
+
+                const detectedUnit =
+                  detectUnitFromQuantity(
+                    product.quantity || ''
+                  )
+
+
+                enrichedData = {
+                  name:
+                    product.product_name || null,
+
+                  brand:
+                    product.brands || null,
+
+                  category:
+                    product.categories || null,
+
+                  image_url:
+                    product.image_url || null,
+
+                  quantity:
+                    product.quantity || null,
+
+                  unit:
+                    detectedUnit || null
+                }
+
+
+                // Guardar aprendizaje en ACE
+                await saveProductToArcanaCatalog({
+                  barcode,
+                  name:
+                    product.product_name ||
+                    String(row.name).trim(),
+
+                  brand:
+                    product.brands || null,
+
+                  category:
+                    product.categories || null,
+
+                  image_url:
+                    product.image_url || null,
+
+                  quantity:
+                    product.quantity || null,
+
+                  unit:
+                    detectedUnit || null,
+
+                  source: 'openfood'
+                })
+              }
+
+            } catch (openFoodError) {
+              console.error(
+                'ERROR OPEN FOOD FACTS:',
+                openFoodError
+              )
+            }
+          }
+
+        } catch (catalogLookupError) {
+          console.error(
+            'ERROR ENRIQUECIENDO PRODUCTO:',
+            catalogLookupError
+          )
+        }
+      }
+
+
+      // =========================================
+      // DATOS FINALES
+      // =========================================
+
+      const finalName =
+        enrichedData.name ||
+        String(row.name).trim()
+
+
+      const finalUnit =
+        row.unit ||
+        enrichedData.unit ||
+        "unidad"
+
+
+      // =========================================
+      // PRODUCTO EXISTENTE → ACTUALIZAR
+      // =========================================
 
       if (existing) {
-        const { error } = await supabase
-          .from("products")
-          .update({
-            stock_quantity:
-              Number(existing.stock_quantity || 0) +
-              Number(row.stock || 0),
 
-            price:
-              row.price !== undefined
-                ? Number(row.price)
-                : existing.price,
+        const { error } =
+          await supabase
+            .from("products")
+            .update({
 
-            unit:
-              row.unit || existing.unit || "unidad",
+              stock_quantity:
+                Number(
+                  existing.stock_quantity || 0
+                ) +
+                Number(row.stock || 0),
 
-            min_stock_yellow:
-              row.min_stock_yellow !== undefined
-                ? Number(row.min_stock_yellow)
-                : existing.min_stock_yellow,
+              price:
+                row.price !== undefined
+                  ? Number(row.price)
+                  : existing.price,
 
-            min_stock_red:
-              row.min_stock_yellow !== undefined
-                ? Math.max(
-                    1,
-                    Math.floor(
-                      Number(row.min_stock_yellow) / 2
+              unit:
+                finalUnit,
+
+              min_stock_yellow:
+                row.min_stock_yellow !== undefined
+                  ? Number(
+                      row.min_stock_yellow
                     )
-                  )
-                : existing.min_stock_red,
+                  : existing.min_stock_yellow,
 
-            code:
-              row.code || existing.code
-          })
-          .eq("id", existing.id)
+              min_stock_red:
+                row.min_stock_yellow !== undefined
+                  ? Math.max(
+                      1,
+                      Math.floor(
+                        Number(
+                          row.min_stock_yellow
+                        ) / 2
+                      )
+                    )
+                  : existing.min_stock_red,
+
+              code:
+                row.code ||
+                existing.code,
+
+              barcode:
+                barcode ||
+                existing.barcode ||
+                null,
+
+              brand:
+                existing.brand ||
+                enrichedData.brand ||
+                null,
+
+              category:
+                existing.category ||
+                enrichedData.category ||
+                null,
+
+              image_url:
+                existing.image_url ||
+                enrichedData.image_url ||
+                null,
+
+              quantity:
+                existing.quantity ||
+                enrichedData.quantity ||
+                null
+            })
+            .eq(
+              "id",
+              existing.id
+            )
+
 
         if (error) throw error
+
+
       } else {
+
+        // =========================================
+        // PRODUCTO NUEVO
+        // =========================================
+
         const newProduct = {
-          name: String(row.name).trim(),
-          price: Number(row.price),
-          stock_quantity: Number(row.stock),
-          unit: row.unit || "unidad",
-          code: row.code || generatedCode,
+
+          name:
+            finalName,
+
+          price:
+            Number(row.price),
+
+          stock_quantity:
+            Number(row.stock),
+
+          unit:
+            finalUnit,
+
+          code:
+            row.code ||
+            generatedCode,
+
+          barcode:
+            barcode || null,
+
           min_stock_yellow:
             row.min_stock_yellow !== undefined
-              ? Number(row.min_stock_yellow)
+              ? Number(
+                  row.min_stock_yellow
+                )
               : 1,
+
           min_stock_red:
             row.min_stock_yellow !== undefined
               ? Math.max(
                   1,
                   Math.floor(
-                    Number(row.min_stock_yellow) / 2
+                    Number(
+                      row.min_stock_yellow
+                    ) / 2
                   )
                 )
               : 1,
-          business_id: selectedBusinessId,
-          active: true
+
+          business_id:
+            selectedBusinessId,
+
+          active:
+            true,
+
+          brand:
+            enrichedData.brand ||
+            null,
+
+          category:
+            enrichedData.category ||
+            null,
+
+          image_url:
+            enrichedData.image_url ||
+            null,
+
+          quantity:
+            enrichedData.quantity ||
+            null
         }
 
-        const { data: insertedProduct, error } =
-          await supabase
-            .from("products")
-            .insert(newProduct)
-            .select("*")
-            .single()
+
+        const {
+          data: insertedProduct,
+          error
+        } = await supabase
+          .from("products")
+          .insert(newProduct)
+          .select("*")
+          .single()
+
 
         if (error) throw error
 
-        /*
-         * Agregamos el producto recién creado al mapa.
-         * Así, si aparece repetido más adelante en el Excel,
-         * se actualizará en lugar de volver a insertarse.
-         */
+
+        // =========================================
+        // ACTUALIZAR MAPAS LOCALES
+        // =========================================
+
         if (insertedProduct) {
+
           productsByName.set(
-            productName,
+            insertedProduct.name
+              .trim()
+              .toLowerCase(),
             insertedProduct
           )
+
+
+          if (
+            insertedProduct.barcode
+          ) {
+            productsByBarcode.set(
+              String(
+                insertedProduct.barcode
+              ).trim(),
+              insertedProduct
+            )
+          }
         }
       }
     }
 
+
+    // =========================================
+    // REFRESCAR PRODUCTOS
+    // =========================================
+
     await fetchProducts()
+
 
     setToast({
       type: "success",
       message:
         newProductsCount > 0
-          ? `Importación completada. Se agregaron ${newProductsCount} productos nuevos sin superar el límite de 2.000.`
+          ? `Importación completada. Se agregaron ${newProductsCount} productos nuevos. Arcana utilizó los códigos EAN disponibles para enriquecer el catálogo.`
           : "Importación completada. Se actualizaron productos existentes."
     })
+
+
   } catch (error: any) {
-    console.error("ERROR IMPORTANDO EXCEL:", error)
+
+    console.error(
+      "ERROR IMPORTANDO EXCEL:",
+      error
+    )
 
     setToast({
       type: "error",
@@ -1259,13 +1659,12 @@ if (newProductsCount > 0 && projectedTotal > BASE_LIMIT) {
         error.message ||
         "Ocurrió un error al importar los productos."
     })
+
   } finally {
+
     setLoading(false)
 
-    /*
-     * Limpia el input para permitir importar nuevamente
-     * el mismo archivo.
-     */
+    // Permite seleccionar nuevamente el mismo archivo
     e.target.value = ""
   }
 }
@@ -1273,36 +1672,50 @@ if (newProductsCount > 0 && projectedTotal > BASE_LIMIT) {
 const downloadTemplate = () => {
   const rows = [
     {
-      name: "Blazer Negro Clásico",
-      price: 89900,
-      stock: 5,
+      name: "Coca Cola 500cc",
+      price: 2500,
+      stock: 12,
+      barcode: "7790895000997",
       unit: "unidad",
       code: "ARC-001",
-      min_stock_yellow: 3,
+      min_stock_yellow: 4,
     },
     {
-      name: "Traje Femenino Gris Perla",
-      price: 132500,
-      stock: 2,
+      name: "Producto sin código de barras",
+      price: 3500,
+      stock: 6,
+      barcode: "",
       unit: "unidad",
       code: "ARC-002",
       min_stock_yellow: 2,
     },
     {
-      name: "Pantalón Sastrero Nude",
-      price: 64500,
-      stock: 4,
+      name: "Otro producto",
+      price: 1800,
+      stock: 10,
+      barcode: "",
       unit: "unidad",
       code: "ARC-003",
-      min_stock_yellow: 2,
+      min_stock_yellow: 3,
     },
   ]
 
-  const worksheet = XLSX.utils.json_to_sheet(rows)
-  const workbook = XLSX.utils.book_new()
+  const worksheet =
+    XLSX.utils.json_to_sheet(rows)
 
-  XLSX.utils.book_append_sheet(workbook, worksheet, "productos")
-  XLSX.writeFile(workbook, "plantilla_productos_arcana.xlsx")
+  const workbook =
+    XLSX.utils.book_new()
+
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    "productos"
+  )
+
+  XLSX.writeFile(
+    workbook,
+    "plantilla_productos_arcana.xlsx"
+  )
 }
 const BASE_LIMIT = 2000
 
@@ -2460,6 +2873,14 @@ const usagePercentage =
     </p>
 
     <div className="flex flex-wrap gap-2 mb-3">
+
+<span
+  title="Código EAN o código de barras del producto"
+  className="px-3 py-1 rounded-full bg-[#0F1A14] text-green-300 text-xs border border-[#1F3A2A]"
+>
+  barcode
+</span>
+
       <span
         title="Unidad de venta, por ejemplo: unidad, kg, litro o pack"
         className="px-3 py-1 rounded-full bg-[#121826] text-blue-300 text-xs border border-[#24304A]"
@@ -2494,6 +2915,7 @@ const usagePercentage =
         <li><span className="text-white">name:</span> nombre del producto</li>
         <li><span className="text-white">price:</span> precio de venta</li>
         <li><span className="text-white">stock:</span> cantidad inicial</li>
+        <li><span className="text-white">barcode:</span> código EAN o código de barras del producto</li>
         <li><span className="text-white">unit:</span> unidad de venta</li>
         <li><span className="text-white">code:</span> código interno del producto</li>
         <li><span className="text-white">min_stock_yellow:</span> alerta de stock mínimo</li>
