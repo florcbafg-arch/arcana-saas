@@ -2832,8 +2832,53 @@ const usagePercentage =
                 key={p.id}
                 className="border-t border-[#1F1F24] hover:bg-[#101018] transition"
               >
-               <td className="p-4 text-white font-medium">
-  {p.name}
+     <td className="p-4">
+  <div className="flex items-center gap-3">
+
+    <div
+      className="
+        w-10 h-10
+        shrink-0
+        overflow-hidden
+        rounded-lg
+        border border-[#25252D]
+        bg-[#101018]
+        flex items-center justify-center
+      "
+    >
+      {p.image_url ? (
+        <img
+          src={p.image_url}
+          alt={p.name}
+          className="
+            w-full h-full
+            object-contain
+            bg-white
+            p-1
+          "
+        />
+      ) : (
+        <span className="text-lg">
+          📦
+        </span>
+      )}
+    </div>
+
+    <div className="min-w-0">
+      <p className="text-white font-medium truncate">
+        {p.name}
+      </p>
+
+      {(p.brand || p.quantity) && (
+        <p className="text-xs text-gray-500 truncate mt-0.5">
+          {[p.brand, p.quantity]
+            .filter(Boolean)
+            .join(' · ')}
+        </p>
+      )}
+    </div>
+
+  </div>
 </td>
 
 <td className="p-4 font-semibold text-[#1F6BFF]">
