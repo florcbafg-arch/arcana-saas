@@ -81,7 +81,15 @@ export default function ProductosPage() {
   const [businessType, setBusinessType] = useState('kiosco')
   const [barcodeWasGenerated, setBarcodeWasGenerated] = useState(false)
   const [showScanner, setShowScanner] = useState(false)
+const [showUsbScanner, setShowUsbScanner] = useState(false)
+const [usbScannerCode, setUsbScannerCode] = useState('')
+const [usbScannerStatus, setUsbScannerStatus] = useState<
+  'ready' | 'searching' | 'business' | 'catalog' | 'not_found'
+>('ready')
 
+const [usbScannerProduct, setUsbScannerProduct] = useState<any>(null)
+
+const usbScannerInputRef = useRef<HTMLInputElement | null>(null)
   const [newActive, setNewActive] = useState(true)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
@@ -1731,6 +1739,149 @@ const usagePercentage =
   const canGenerateInternalBarcode =
   ['indumentaria', 'bazar', 'libreria', 'otro'].includes(businessType)
 
+  const handleUsbScannerCode = async (rawCode: string) => {
+  const code = rawCode.trim()
+
+  if (!code) return
+
+  setUsbScannerStatus('searching')
+  setUsbScannerProduct(null)
+
+  try {
+
+    // =========================================
+    // 1. BUSCAR EN PRODUCTOS DEL NEGOCIO
+    // =========================================
+
+    const existingProduct = products.find(
+      (product) =>
+        String(product.barcode || '').trim() === code
+    )
+
+    if (existingProduct) {
+      setUsbScannerProduct(existingProduct)
+      setUsbScannerStatus('business')
+      return
+    }
+
+
+    // =========================================
+    // 2. BUSCAR EN CATÁLOGO GLOBAL ARCANA
+    // =========================================
+
+    const {
+      data: catalogProduct,
+      error: catalogError
+    } = await supabase
+      .from('arcana_catalog')
+      .select('*')
+      .eq('barcode', code)
+      .maybeSingle()
+
+
+    if (catalogError) {
+      console.error(
+        'ERROR BUSCANDO EN ARCANA CATALOG:',
+        catalogError
+      )
+    }
+
+
+    if (catalogProduct) {
+      setUsbScannerProduct({
+        ...catalogProduct,
+        barcode: code
+      })
+
+      setUsbScannerStatus('catalog')
+      return
+    }
+
+
+    // =========================================
+    // 3. OPEN FOOD FACTS
+    // =========================================
+
+    try {
+      const response = await fetch(
+        `https://world.openfoodfacts.org/api/v2/product/${code}?fields=product_name,brands,categories,image_url,quantity`
+      )
+
+      const data = await response.json()
+
+      if (data.status === 1 && data.product) {
+        const product = data.product
+
+        const detectedUnit =
+          detectUnitFromQuantity(
+            product.quantity || ''
+          )
+
+        const externalProduct = {
+          barcode: code,
+          name:
+            product.product_name ||
+            'Producto sin nombre',
+          brand:
+            product.brands || '',
+          category:
+            product.categories || '',
+          image_url:
+            product.image_url || '',
+          quantity:
+            product.quantity || '',
+          unit:
+            detectedUnit || 'unidad'
+        }
+
+        setUsbScannerProduct(externalProduct)
+        setUsbScannerStatus('catalog')
+
+        // ACE aprende este producto
+        await saveProductToArcanaCatalog({
+          barcode: code,
+          name: externalProduct.name,
+          brand: externalProduct.brand || null,
+          category: externalProduct.category || null,
+          image_url: externalProduct.image_url || null,
+          quantity: externalProduct.quantity || null,
+          unit: externalProduct.unit || null,
+          source: 'openfood'
+        })
+
+        return
+      }
+
+    } catch (openFoodError) {
+      console.error(
+        'ERROR OPEN FOOD FACTS:',
+        openFoodError
+      )
+    }
+
+
+    // =========================================
+    // 4. NO ENCONTRADO
+    // =========================================
+
+    setUsbScannerProduct({
+      barcode: code
+    })
+
+    setUsbScannerStatus('not_found')
+
+  } catch (error) {
+
+    console.error(
+      'ERROR PROCESANDO LECTOR USB:',
+      error
+    )
+
+    setUsbScannerStatus('not_found')
+
+  }
+}
+
   return (
   <div className="p-4 md:p-6 space-y-6 md:space-y-8">
 
@@ -2681,40 +2832,42 @@ const usagePercentage =
 
 
     {/* LECTOR */}
-    <button
-      type="button"
-      onMouseEnter={() => {
-        setToast({
-          type: 'success',
-          message:
-            'Conectá tu lector USB para escanear productos.'
-        })
-      }}
-      onClick={() => {
-        setToast({
-          type: 'success',
-          message:
-            'Conectá tu lector USB y escaneá un producto. Arcana detectará el código automáticamente.'
-        })
+<button
+  type="button"
+  onClick={() => {
+    setUsbScannerCode('')
+    setUsbScannerProduct(null)
+    setUsbScannerStatus('ready')
+    setShowUsbScanner(true)
 
-        // En el siguiente bloque conectamos el modal real del lector
-      }}
-      title="Usá un lector USB para escanear códigos de barras"
-      className="
-        h-full
-        rounded-xl
-        border border-[#6C5CE7]/40
-        bg-[#6C5CE7]/10
-        px-5
-        text-purple-300
-        font-medium
-        hover:bg-[#6C5CE7]/20
-        transition
-      "
-    >
-      ▥ Usar lector de código
-    </button>
+    setToast({
+      type: 'success',
+      message:
+        'Conectá tu lector USB y escaneá un producto.'
+    })
 
+    setTimeout(() => {
+      usbScannerInputRef.current?.focus()
+    }, 150)
+  }}
+  title="Usá un lector USB para escanear códigos de barras"
+  className="
+    h-full
+    rounded-xl
+    border
+    border-[#6C5CE7]/50
+    bg-[#15131F]
+    px-5
+    text-sm
+    font-medium
+    text-[#C8BFFF]
+    hover:bg-[#1B1730]
+    transition
+    whitespace-nowrap
+  "
+>
+  ▥ Usar lector de código
+</button>
 
     {/* PLAN BASE COMPACTO */}
     <div
@@ -5549,6 +5702,544 @@ const usagePercentage =
       <p className="text-xs text-gray-400">
         Arcana buscará el producto automáticamente después de detectar el código.
       </p>
+    </div>
+
+  </div>
+)}
+
+{showUsbScanner && (
+  <div className="
+    hidden md:flex
+    fixed inset-0
+    z-[2400]
+    bg-black/70
+    backdrop-blur-sm
+    items-center
+    justify-center
+    p-6
+  ">
+
+    <div className="
+      w-full
+      max-w-2xl
+      rounded-2xl
+      border border-[#25252D]
+      bg-[#14141A]
+      overflow-hidden
+      shadow-2xl
+    ">
+
+      {/* HEADER */}
+      <div className="
+        flex
+        items-center
+        justify-between
+        gap-4
+        border-b border-[#25252D]
+        px-6 py-5
+      ">
+
+        <div>
+          <h2 className="text-xl font-semibold text-white">
+            ▥ Lector de código
+          </h2>
+
+          <p className="text-sm text-gray-400 mt-1">
+            Conectá tu lector USB y escaneá un producto.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setShowUsbScanner(false)
+            setUsbScannerCode('')
+            setUsbScannerProduct(null)
+            setUsbScannerStatus('ready')
+          }}
+          className="
+            w-10 h-10
+            rounded-xl
+            border border-[#25252D]
+            bg-[#181820]
+            text-gray-400
+            hover:text-white
+          "
+        >
+          ✕
+        </button>
+
+      </div>
+
+
+      <div className="p-6 space-y-5">
+
+
+        {/* ESTADO LISTO */}
+        {usbScannerStatus === 'ready' && (
+          <>
+            <div className="
+              rounded-2xl
+              border border-green-500/30
+              bg-green-500/10
+              p-5
+            ">
+
+              <p className="text-green-400 font-semibold">
+                ✓ Lector listo
+              </p>
+
+              <p className="text-sm text-gray-400 mt-1">
+                Apuntá al código de barras y presioná el gatillo.
+              </p>
+
+            </div>
+
+
+            <div className="space-y-2">
+
+              <label className="text-sm text-gray-400">
+                Esperando código de barras...
+              </label>
+
+              <input
+                ref={usbScannerInputRef}
+                value={usbScannerCode}
+                onChange={(e) =>
+                  setUsbScannerCode(e.target.value)
+                }
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+
+                    handleUsbScannerCode(
+                      usbScannerCode
+                    )
+                  }
+                }}
+                autoFocus
+                placeholder="Escaneá con la pistola..."
+                className="
+                  w-full
+                  rounded-xl
+                  border border-[#6C5CE7]/40
+                  bg-[#0B0B10]
+                  px-4 py-4
+                  text-white
+                  text-lg
+                  focus:outline-none
+                  focus:ring-2
+                  focus:ring-[#6C5CE7]/40
+                "
+              />
+
+            </div>
+
+
+            <div className="
+              rounded-xl
+              border border-[#25252D]
+              bg-[#101018]
+              p-4
+            ">
+
+              <p className="text-sm text-white font-medium">
+                💡 ¿Cómo usarlo?
+              </p>
+
+              <p className="text-xs text-gray-500 mt-2 leading-5">
+                Conectá el lector USB, apuntá al código del producto
+                y presioná el gatillo. El lector funciona como un
+                teclado y Arcana procesará el código automáticamente.
+              </p>
+
+            </div>
+          </>
+        )}
+
+
+        {/* BUSCANDO */}
+        {usbScannerStatus === 'searching' && (
+          <div className="py-14 text-center">
+
+            <div className="text-4xl mb-4 animate-pulse">
+              🔎
+            </div>
+
+            <p className="text-white font-semibold">
+              Buscando producto...
+            </p>
+
+            <p className="text-sm text-gray-500 mt-2">
+              Arcana está consultando tu catálogo y ACE.
+            </p>
+
+          </div>
+        )}
+
+
+        {/* YA EXISTE EN EL NEGOCIO */}
+        {usbScannerStatus === 'business' &&
+          usbScannerProduct && (
+
+          <div className="space-y-4">
+
+            <div className="
+              rounded-2xl
+              border border-green-500/30
+              bg-green-500/10
+              p-5
+            ">
+
+              <p className="text-green-400 font-semibold">
+                ✓ Producto encontrado en tu catálogo
+              </p>
+
+
+              <div className="flex gap-4 mt-4">
+
+                <div className="
+                  w-20 h-20
+                  rounded-xl
+                  overflow-hidden
+                  bg-[#101018]
+                  border border-[#25252D]
+                  flex items-center justify-center
+                ">
+
+                  {usbScannerProduct.image_url ? (
+                    <img
+                      src={usbScannerProduct.image_url}
+                      alt={usbScannerProduct.name}
+                      className="
+                        w-full h-full
+                        object-contain
+                        bg-white p-1
+                      "
+                    />
+                  ) : (
+                    <span className="text-3xl">
+                      📦
+                    </span>
+                  )}
+
+                </div>
+
+
+                <div>
+
+                  <p className="text-white text-lg font-semibold">
+                    {usbScannerProduct.name}
+                  </p>
+
+                  <p className="text-sm text-gray-400 mt-1">
+                    EAN: {usbScannerProduct.barcode}
+                  </p>
+
+                  <p className="text-sm text-gray-400 mt-1">
+                    Stock: {usbScannerProduct.stock_quantity}
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div className="flex justify-end gap-3">
+
+              <button
+                type="button"
+                onClick={() => {
+                  setUsbScannerCode('')
+                  setUsbScannerProduct(null)
+                  setUsbScannerStatus('ready')
+
+                  setTimeout(() => {
+                    usbScannerInputRef.current?.focus()
+                  }, 100)
+                }}
+                className="
+                  rounded-xl
+                  border border-[#2A2A32]
+                  bg-[#1A1A22]
+                  px-5 py-3
+                  text-white
+                "
+              >
+                Escanear otro
+              </button>
+
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUsbScanner(false)
+
+                  handleEdit(
+                    usbScannerProduct
+                  )
+                }}
+                className="
+                  rounded-xl
+                  bg-[#6C5CE7]
+                  px-5 py-3
+                  text-white
+                  font-semibold
+                "
+              >
+                ✏️ Editar producto
+              </button>
+
+            </div>
+
+          </div>
+        )}
+
+
+        {/* ENCONTRADO EN ACE */}
+        {usbScannerStatus === 'catalog' &&
+          usbScannerProduct && (
+
+          <div className="space-y-4">
+
+            <div className="
+              rounded-2xl
+              border border-[#1F6BFF]/30
+              bg-[#1F6BFF]/10
+              p-5
+            ">
+
+              <p className="text-[#6EA8FF] font-semibold">
+                🔎 Producto encontrado por Arcana
+              </p>
+
+
+              <div className="flex gap-4 mt-4">
+
+                <div className="
+                  w-20 h-20
+                  rounded-xl
+                  overflow-hidden
+                  bg-[#101018]
+                  border border-[#25252D]
+                  flex items-center justify-center
+                ">
+
+                  {usbScannerProduct.image_url ? (
+                    <img
+                      src={usbScannerProduct.image_url}
+                      alt={
+                        usbScannerProduct.name ||
+                        'Producto'
+                      }
+                      className="
+                        w-full h-full
+                        object-contain
+                        bg-white p-1
+                      "
+                    />
+                  ) : (
+                    <span className="text-3xl">
+                      📦
+                    </span>
+                  )}
+
+                </div>
+
+
+                <div>
+
+                  <p className="text-white text-lg font-semibold">
+                    {usbScannerProduct.name}
+                  </p>
+
+                  {usbScannerProduct.brand && (
+                    <p className="text-sm text-gray-400 mt-1">
+                      Marca: {usbScannerProduct.brand}
+                    </p>
+                  )}
+
+                  {usbScannerProduct.quantity && (
+                    <p className="text-sm text-gray-400">
+                      Presentación: {usbScannerProduct.quantity}
+                    </p>
+                  )}
+
+                  <p className="text-xs text-gray-500 mt-2">
+                    EAN: {usbScannerProduct.barcode}
+                  </p>
+
+                </div>
+
+              </div>
+
+            </div>
+
+
+            <div className="flex justify-end gap-3">
+
+              <button
+                type="button"
+                onClick={() => {
+                  setUsbScannerCode('')
+                  setUsbScannerProduct(null)
+                  setUsbScannerStatus('ready')
+
+                  setTimeout(() => {
+                    usbScannerInputRef.current?.focus()
+                  }, 100)
+                }}
+                className="
+                  rounded-xl
+                  border border-[#2A2A32]
+                  bg-[#1A1A22]
+                  px-5 py-3
+                  text-white
+                "
+              >
+                Escanear otro
+              </button>
+
+
+              <button
+                type="button"
+                onClick={() => {
+
+                  resetProductForm()
+
+                  setNewBarcode(
+                    usbScannerProduct.barcode || ''
+                  )
+
+                  setNewProductName(
+                    usbScannerProduct.name || ''
+                  )
+
+                  setNewBrand(
+                    usbScannerProduct.brand || ''
+                  )
+
+                  setNewCategory(
+                    usbScannerProduct.category || ''
+                  )
+
+                  setNewImageUrl(
+                    usbScannerProduct.image_url || ''
+                  )
+
+                  setNewQuantityLabel(
+                    usbScannerProduct.quantity || ''
+                  )
+
+                  setNewUnit(
+                    usbScannerProduct.unit || 'unidad'
+                  )
+
+                  setShowUsbScanner(false)
+                  setIsOpen(true)
+                }}
+                className="
+                  rounded-xl
+                  bg-[#1F6BFF]
+                  px-5 py-3
+                  text-white
+                  font-semibold
+                "
+              >
+                ➕ Agregar a mi catálogo
+              </button>
+
+            </div>
+
+          </div>
+        )}
+
+
+        {/* NO ENCONTRADO */}
+        {usbScannerStatus === 'not_found' && (
+          <div className="space-y-4">
+
+            <div className="
+              rounded-2xl
+              border border-orange-500/30
+              bg-orange-500/10
+              p-5
+            ">
+
+              <p className="text-orange-400 font-semibold">
+                ⚠️ No encontramos información para este código
+              </p>
+
+              <p className="text-sm text-gray-400 mt-2">
+                EAN: {usbScannerProduct?.barcode}
+              </p>
+
+              <p className="text-sm text-gray-500 mt-3">
+                Podés completar los datos manualmente para agregar el producto.
+              </p>
+
+            </div>
+
+
+            <div className="flex justify-end gap-3">
+
+              <button
+                type="button"
+                onClick={() => {
+                  setUsbScannerCode('')
+                  setUsbScannerProduct(null)
+                  setUsbScannerStatus('ready')
+
+                  setTimeout(() => {
+                    usbScannerInputRef.current?.focus()
+                  }, 100)
+                }}
+                className="
+                  rounded-xl
+                  border border-[#2A2A32]
+                  bg-[#1A1A22]
+                  px-5 py-3
+                  text-white
+                "
+              >
+                Escanear otro
+              </button>
+
+
+              <button
+                type="button"
+                onClick={() => {
+                  const code =
+                    usbScannerProduct?.barcode || ''
+
+                  resetProductForm()
+
+                  setNewBarcode(code)
+
+                  setShowUsbScanner(false)
+                  setIsOpen(true)
+                }}
+                className="
+                  rounded-xl
+                  bg-orange-600
+                  hover:bg-orange-500
+                  px-5 py-3
+                  text-white
+                  font-semibold
+                "
+              >
+                ✏️ Completar datos
+              </button>
+
+            </div>
+
+          </div>
+        )}
+
+      </div>
+
     </div>
 
   </div>
