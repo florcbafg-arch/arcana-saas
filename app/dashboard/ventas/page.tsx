@@ -711,7 +711,7 @@ const filteredProducts = products.filter((product) => {
 </div>
 
 {/* RESUMEN CAJA */}
-<div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+<div className="grid grid-cols-2 md:grid-cols-3 gap-4">
 
   <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
     <p className="text-xs text-gray-400">Caja de hoy</p>
@@ -761,18 +761,7 @@ const filteredProducts = products.filter((product) => {
 </motion.div>
   </div>
 
-  <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
-    <p className="text-xs text-gray-400">Fiado</p>
-    <motion.p
-  key={salesSummary.debt}
-  initial={{ opacity: 0, y: 10 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.3 }}
-  className="text-lg font-semibold text-yellow-400"
->
-  {formatCurrency(salesSummary.debt)}
-</motion.p>
-  </div>
+
 
 </div>
 
@@ -1271,25 +1260,7 @@ placeholder="Ej: 1"
 </div>
 
           {/* Tipo venta */}
-          <div className="flex gap-6">
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                checked={salePaid}
-                onChange={() => setSalePaid(true)}
-              />
-              Venta paga
-            </label>
-
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                checked={!salePaid}
-                onChange={() => setSalePaid(false)}
-              />
-              Venta fiado
-            </label>
-          </div>
+          
 
 {/* Método de pago */}
 {salePaid && (
@@ -1328,27 +1299,7 @@ placeholder="Ej: 1"
 )}
 
           {/* Cliente */}
-          {!salePaid && (
-            <div className="space-y-2">
-              <label className="text-sm text-gray-400">Cliente</label>
-              <select
-                className="w-full bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white"
-                value={selectedCustomer?.id || ''}
-                onChange={(e) =>
-                  setSelectedCustomer(
-                    customers.find((c) => c.id === e.target.value) || null
-                  )
-                }
-              >
-                <option value="">Seleccioná cliente</option>
-                {customers.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+         
 
           {/* BOTÓN */}
           
