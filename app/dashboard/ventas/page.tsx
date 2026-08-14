@@ -765,47 +765,7 @@ const filteredProducts = products.filter((product) => {
 
 </div>
 
-{/* SCANNER BAR */}
-<div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-4 space-y-3">
 
-  <div className="flex items-center justify-between gap-3">
-    <div className="flex items-center gap-3 text-sm text-gray-400">
-      <span>Scanner</span>
-
-      <div
-        className={`w-4 h-4 rounded-full ${
-          scannerActive ? "bg-green-500" : "bg-gray-600"
-        }`}
-      />
-
-      <span className="text-xs text-green-400">
-        Listo
-      </span>
-    </div>
-
-    <span className="text-xs text-green-400">
-      Escaneá un producto...
-    </span>
-  </div>
-
-  <div className="flex flex-col md:flex-row gap-3">
-    <input
-      ref={scannerRef}
-      type="text"
-      placeholder="🔍 Escanear o escribir código..."
-      onKeyDown={handleScanner}
-      className="flex-1 bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white focus:outline-none focus:ring-2 focus:ring-[#1F6BFF]/40"
-    />
-
-    <button
-      type="button"
-      onClick={() => setShowScanner(true)}
-      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-3 rounded-xl"
-    >
-      📷 Cámara
-    </button>
-  </div>
-</div>
 
 {showScanner && (
   <div
@@ -1023,25 +983,67 @@ const filteredProducts = products.filter((product) => {
 
       </div>
 
+<div className="flex items-center gap-2">
 
-      {cart.length > 0 && (
-        <button
-          type="button"
-          onClick={() => setCart([])}
-          className="
-            text-xs
-            text-red-400
-            hover:text-red-300
-            border border-red-500/20
-            bg-red-500/5
-            rounded-lg
-            px-3 py-2
-            transition
-          "
-        >
-          🗑 Vaciar carrito
-        </button>
-      )}
+  {/* LECTOR USB — WEB */}
+  <button
+    type="button"
+    onClick={() => {
+      setToast({
+        type: 'success',
+        message:
+          'Conectá tu lector USB y escaneá un producto. Arcana detectará el código automáticamente.'
+      })
+
+      // En el siguiente paso abrimos el modal del lector
+    }}
+    className="
+      hidden
+      md:flex
+      items-center
+      gap-2
+      px-4
+      py-2
+      rounded-xl
+      border
+      border-[#6C5CE7]/40
+      bg-[#6C5CE7]/10
+      text-purple-300
+      hover:bg-[#6C5CE7]/20
+      transition
+      text-sm
+      font-medium
+    "
+  >
+    ▥ Usar lector USB
+  </button>
+
+
+  {/* VACIAR */}
+  {cart.length > 0 && (
+    <button
+      type="button"
+      onClick={() => setCart([])}
+      className="
+        text-xs
+        text-red-400
+        hover:text-red-300
+        border
+        border-red-500/20
+        bg-red-500/5
+        rounded-lg
+        px-3
+        py-2
+        transition
+      "
+    >
+      🗑 Vaciar carrito
+    </button>
+  )}
+
+</div>
+      
+     
 
     </div>
 
