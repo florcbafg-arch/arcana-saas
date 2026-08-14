@@ -65,6 +65,9 @@ export default function VentasPage() {
   const [scannerActive, setScannerActive] = useState(true)
   const scannerRef = useRef<HTMLInputElement | null>(null)
   const lastScanRef = useRef<number>(0)
+  const scanTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+const scanProcessingRef = useRef(false)
+const lastScannedCodeRef = useRef<string>('')
   const [showUsbScanner, setShowUsbScanner] = useState(false)
 const usbScannerInputRef = useRef<HTMLInputElement | null>(null)
   const [showScanner,setShowScanner] = useState(false)
@@ -491,64 +494,148 @@ const handleKeyDown = (e: React.KeyboardEvent) => {
   }
 }
 
-const handleScanner = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+const processScannerCode = async (
+  rawCode: string,
+  input?: HTMLInputElement
+) => {
+  const code = rawCode.trim()
+
+  if (!code || !selectedBusinessId) return
+
+  // Evita procesar dos eventos simultáneos
+  if (scanProcessingRef.current) return
 
   const now = Date.now()
 
-if (now - lastScanRef.current < 1000) return
+  // Protección contra una doble señal accidental
+  if (
+    lastScannedCodeRef.current === code &&
+    now - lastScanRef.current < 250
+  ) {
+    if (input) {
+      input.value = ''
+      input.focus()
+    }
 
-lastScanRef.current = now
-
-
-  if (e.key !== "Enter") return
-
-  const input = e.target as HTMLInputElement
-const code = input.value.trim()
-input.value = ""
-
-input.focus()
-
-  if (!code) return
-
-  const { data: product } = await supabase
-    .from("products")
-    .select("*")
-    .or(`barcode.eq.${code},code.eq.${code}`)
-    .eq("business_id", selectedBusinessId)
-    .eq("active", true)
-    .single()
-
-  if (!product) {
-    setToast({
-      type: "error",
-      message: "Producto no encontrado"
-    })
     return
   }
 
-  if (product.stock_quantity <= 0) {
-  setToast({
-    type: "error",
-    message: "Producto sin stock"
-  })
+  scanProcessingRef.current = true
+  lastScannedCodeRef.current = code
+  lastScanRef.current = now
 
-  input.value = ""
-  input.focus()
+  try {
+    const { data: product, error } = await supabase
+      .from('products')
+      .select('*')
+      .or(`barcode.eq.${code},code.eq.${code}`)
+      .eq('business_id', selectedBusinessId)
+      .eq('active', true)
+      .maybeSingle()
 
-  return
+    if (error) {
+      console.error(
+        'ERROR BUSCANDO PRODUCTO EN VENTAS:',
+        error
+      )
+
+      setToast({
+        type: 'error',
+        message:
+          'No pudimos leer el producto. Podés seguir escaneando.'
+      })
+
+      return
+    }
+
+    if (!product) {
+      setToast({
+        type: 'warning',
+        message:
+          'Este producto no está en tu catálogo. Podés seguir escaneando.'
+      })
+
+      return
+    }
+
+    if (Number(product.stock_quantity) <= 0) {
+      setToast({
+        type: 'warning',
+        message:
+          `${product.name} no tiene stock disponible.`
+      })
+
+      return
+    }
+
+    beep()
+
+    addProductToCart(product, 1)
+
+    setToast({
+      type: 'success',
+      message:
+        `${product.name} agregado al carrito`
+    })
+
+  } finally {
+    if (input) {
+      input.value = ''
+
+      setTimeout(() => {
+        input.focus()
+      }, 30)
+    }
+
+    scanProcessingRef.current = false
+  }
 }
 
 
-  beep()
+const handleScannerInput = (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const input = e.target
 
- addProductToCart(product, 1)
+  if (scanTimerRef.current) {
+    clearTimeout(scanTimerRef.current)
+  }
 
-setToast({
-  type: "success",
-  message: `${product.name} agregado al carrito`
-})
+  /*
+   * La pistola escribe el EAN muy rápido.
+   * Esperamos un instante desde el último carácter.
+   * Si no llega otro carácter, asumimos que terminó la lectura.
+   */
+  scanTimerRef.current = setTimeout(() => {
+    processScannerCode(
+      input.value,
+      input
+    )
+  }, 90)
+}
 
-  ;(e.target as HTMLInputElement).value = ""
+
+const handleScanner = async (
+  e: React.KeyboardEvent<HTMLInputElement>
+) => {
+  /*
+   * Enter queda como respaldo.
+   * Algunos lectores USB lo envían automáticamente.
+   */
+  if (e.key !== 'Enter') return
+
+  e.preventDefault()
+
+  if (scanTimerRef.current) {
+    clearTimeout(scanTimerRef.current)
+  }
+
+  const input = e.currentTarget
+
+  await processScannerCode(
+    input.value,
+    input
+  )
 }
 
 const formatCurrency = (value: number) => {
@@ -2310,6 +2397,7 @@ const filteredProducts = products.filter((product) => {
         <input
           ref={usbScannerInputRef}
           type="text"
+          onChange={handleScannerInput}
           onKeyDown={handleScanner}
           autoFocus
           placeholder="Esperando lectura del lector USB..."
