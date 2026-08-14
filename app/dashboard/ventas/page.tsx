@@ -970,473 +970,1240 @@ const filteredProducts = products.filter((product) => {
   </div>
 )}
 
-      {/* GRID PRINCIPAL */}
-      <div className="grid grid-cols-1 md:grid-cols-[minmax(0,42fr)_minmax(0,58fr)] gap-6 w-full">
+    {/* ================================================= */}
+{/* VENTA PRINCIPAL — ARCANA BASE */}
+{/* ================================================= */}
 
-        {/* PANEL IZQUIERDO */}
-       
-       <div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 
-transition-all duration-300 hover:border-[#3B3B44] hover:shadow-xl">
+<div
+  className="
+    grid
+    grid-cols-1
+    md:grid-cols-[minmax(0,1fr)_320px]
+    gap-5
+    w-full
+  "
+>
 
-          <h2 className="text-lg font-medium">Registrar venta</h2>
+  {/* ================================================= */}
+  {/* COLUMNA PRINCIPAL — BUSCAR + CARRITO */}
+  {/* ================================================= */}
 
-          {/* Producto */}
-          <div className="space-y-2">
-            <label className="text-sm text-gray-400">Producto</label>
-            <input
-  type="text"
-  value={productSearch}
-  onChange={(e) => {
-    setProductSearch(e.target.value)
-    setSelectedProduct(null)
-  }}
-  placeholder="Buscar producto..."
-  className="w-full bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white"
-/>
-
-{productSearch && !selectedProduct && (
-  <div className="bg-[#0F0F14] border border-[#2A2A32] rounded-xl overflow-hidden max-h-56 overflow-y-auto">
-    {filteredProducts.length === 0 ? (
-      <p className="p-3 text-sm text-gray-400">
-        No se encontraron productos
-      </p>
-    ) : (
-      filteredProducts.map((product) => (
-        <button
-          key={product.id}
-          type="button"
-          onClick={() => {
-            setSelectedProduct(product)
-            setProductSearch(product.name)
-          }}
-          className="w-full text-left p-3 hover:bg-[#1A1A22] transition border-b border-[#2A2A32] last:border-b-0"
-        >
-          <p className="text-sm font-medium text-white">
-            {product.name}
-          </p>
-          <p className="text-xs text-gray-400">
-            Stock: {product.stock_quantity} {product.unit} · {formatCurrency(product.price)}
-          </p>
-        </button>
-      ))
-    )}
-  </div>
-)}
-          </div>
-
-{/* PRODUCTO SELECCIONADO */}
-{selectedProduct && (
-  <motion.div
-    initial={{ opacity: 0, y: 8 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.25 }}
+  <div
     className="
-      bg-[#0B0B10]
-      border border-[#1F6BFF]/60
+      bg-[#14141A]
+      border border-[#2A2A32]
       rounded-2xl
-      p-4
-      shadow-[0_0_25px_rgba(31,107,255,0.08)]
+      overflow-hidden
     "
   >
 
-    <div className="flex gap-4">
-
-      {/* IMAGEN */}
-      <div
-        className="
-          w-28 h-28
-          shrink-0
-          rounded-xl
-          bg-white
-          overflow-hidden
-          flex items-center justify-center
-        "
-      >
-
-        {selectedProduct.image_url ? (
-          <img
-            src={selectedProduct.image_url}
-            alt={selectedProduct.name}
-            className="w-full h-full object-contain p-2"
-          />
-        ) : (
-          <div className="w-full h-full bg-[#17171F] flex flex-col items-center justify-center text-gray-500">
-            <span className="text-3xl">
-              📦
-            </span>
-
-            <span className="text-[10px] mt-2">
-              Sin imagen
-            </span>
-          </div>
-        )}
-
-      </div>
-
-
-      {/* INFORMACIÓN */}
-      <div className="flex-1 min-w-0">
-
-        <div className="flex items-start justify-between gap-2">
-
-          <div className="min-w-0">
-
-            <p className="text-base font-semibold text-white leading-tight">
-              {selectedProduct.name}
-            </p>
-
-            {(selectedProduct.brand || selectedProduct.quantity) && (
-              <p className="text-xs text-gray-400 mt-1">
-                {selectedProduct.brand && (
-                  <>
-                    {selectedProduct.brand}
-                  </>
-                )}
-
-                {selectedProduct.brand &&
-                  selectedProduct.quantity && (
-                    <span> · </span>
-                  )}
-
-                {selectedProduct.quantity}
-              </p>
-            )}
-
-          </div>
-
-
-          <span
-            className="
-              shrink-0
-              text-[10px]
-              px-2 py-1
-              rounded-full
-              bg-green-500/10
-              border border-green-500/20
-              text-green-400
-              font-medium
-            "
-          >
-            Disponible
-          </span>
-
-        </div>
-
-
-        {/* PRECIO */}
-        <div className="mt-3">
-
-          <p className="text-xl font-bold text-green-400">
-            {formatCurrency(selectedProduct.price)}
-          </p>
-
-          <p className="text-xs text-gray-500">
-            {selectedProduct.sale_type === 'weight'
-              ? selectedProduct.price_by === '100g'
-                ? 'por 100 gramos'
-                : 'por kilo'
-              : `por ${selectedProduct.unit || 'unidad'}`}
-          </p>
-
-        </div>
-
-
-        {/* STOCK */}
-        <div className="mt-3 flex flex-wrap gap-2">
-
-          <span
-            className="
-              text-xs
-              px-2.5 py-1
-              rounded-lg
-              bg-green-500/10
-              text-green-400
-              border border-green-500/20
-            "
-          >
-            Stock: {selectedProduct.stock_quantity}{' '}
-            {selectedProduct.sale_type === 'weight'
-              ? 'kg'
-              : selectedProduct.unit}
-          </span>
-
-          {selectedProduct.code && (
-            <span
-              className="
-                text-xs
-                px-2.5 py-1
-                rounded-lg
-                bg-[#17171F]
-                text-gray-400
-                border border-[#2A2A32]
-              "
-            >
-              {selectedProduct.code}
-            </span>
-          )}
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-    {/* CONFIRMACIÓN ARCANA */}
+    {/* HEADER */}
     <div
       className="
-        mt-4
-        pt-3
-        border-t border-[#25252D]
-        flex items-center gap-2
+        flex
+        items-center
+        justify-between
+        gap-4
+        px-5
+        py-4
+        border-b
+        border-[#25252D]
       "
     >
 
-      <div
-        className="
-          w-6 h-6
-          rounded-lg
-          bg-green-500/10
-          flex items-center justify-center
-          text-green-400
-          text-xs
-        "
-      >
-        ✓
+      <div>
+
+        <h2 className="text-lg font-semibold text-white">
+          Carrito de venta
+        </h2>
+
+        <p className="text-xs text-gray-500 mt-1">
+          Buscá productos o utilizá el lector para agregarlos.
+        </p>
+
       </div>
 
-      <p className="text-xs text-gray-400">
-        Producto seleccionado y listo para agregar al carrito.
+
+      {cart.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setCart([])}
+          className="
+            text-xs
+            text-red-400
+            hover:text-red-300
+            border border-red-500/20
+            bg-red-500/5
+            rounded-lg
+            px-3 py-2
+            transition
+          "
+        >
+          🗑 Vaciar carrito
+        </button>
+      )}
+
+    </div>
+
+
+    {/* ================================================= */}
+    {/* BÚSQUEDA MANUAL */}
+    {/* ================================================= */}
+
+    <div className="p-5 border-b border-[#25252D]">
+
+      <div className="relative">
+
+        <span
+          className="
+            absolute
+            left-4
+            top-1/2
+            -translate-y-1/2
+            text-gray-500
+          "
+        >
+          🔎
+        </span>
+
+        <input
+          type="text"
+          value={productSearch}
+          onChange={(e) => {
+            setProductSearch(e.target.value)
+            setSelectedProduct(null)
+          }}
+          placeholder="Buscar producto por nombre, código o EAN..."
+          className="
+            w-full
+            bg-[#0B0B10]
+            border border-[#2A2A32]
+            rounded-xl
+            py-3
+            pl-11
+            pr-4
+            text-white
+            placeholder:text-gray-600
+            focus:outline-none
+            focus:ring-2
+            focus:ring-[#1F6BFF]/40
+          "
+        />
+
+      </div>
+
+
+      {/* RESULTADOS */}
+      {productSearch && !selectedProduct && (
+        <div
+          className="
+            mt-2
+            bg-[#0B0B10]
+            border border-[#2A2A32]
+            rounded-xl
+            overflow-hidden
+            max-h-56
+            overflow-y-auto
+          "
+        >
+
+          {filteredProducts.length === 0 ? (
+
+            <div className="p-4">
+
+              <p className="text-sm text-gray-400">
+                No encontramos ese producto en tu catálogo.
+              </p>
+
+              <p className="text-xs text-gray-600 mt-1">
+                Podés seguir buscando o registrar otro producto.
+              </p>
+
+            </div>
+
+          ) : (
+
+            filteredProducts.map((product) => (
+
+              <button
+                key={product.id}
+                type="button"
+                onClick={() => {
+                  setSelectedProduct(product)
+                  setProductSearch(product.name)
+
+                  if (
+                    product.sale_type !== 'weight'
+                  ) {
+                    setSaleQuantity('1')
+                  }
+                }}
+                className="
+                  w-full
+                  flex
+                  items-center
+                  gap-3
+                  text-left
+                  p-3
+                  hover:bg-[#15151C]
+                  border-b
+                  border-[#1F1F24]
+                  last:border-b-0
+                  transition
+                "
+              >
+
+                {/* IMAGEN */}
+                <div
+                  className="
+                    w-11 h-11
+                    shrink-0
+                    rounded-lg
+                    overflow-hidden
+                    bg-[#17171F]
+                    flex items-center
+                    justify-center
+                  "
+                >
+
+                  {product.image_url ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      className="
+                        w-full
+                        h-full
+                        object-contain
+                        bg-white
+                        p-1
+                      "
+                    />
+                  ) : (
+                    <span>
+                      📦
+                    </span>
+                  )}
+
+                </div>
+
+
+                <div className="min-w-0 flex-1">
+
+                  <p
+                    className="
+                      text-sm
+                      text-white
+                      font-medium
+                      truncate
+                    "
+                  >
+                    {product.name}
+                  </p>
+
+                  <p className="text-xs text-gray-500 mt-0.5">
+
+                    Stock: {product.stock_quantity}{' '}
+
+                    {product.sale_type === 'weight'
+                      ? 'kg'
+                      : product.unit}
+
+                    {' · '}
+
+                    {formatCurrency(product.price)}
+
+                  </p>
+
+                </div>
+
+
+                <span className="text-[#6EA8FF] text-sm">
+                  Seleccionar
+                </span>
+
+              </button>
+
+            ))
+
+          )}
+
+        </div>
+      )}
+
+
+      {/* ================================================= */}
+      {/* PRODUCTO SELECCIONADO */}
+      {/* ================================================= */}
+
+      {selectedProduct && (
+
+        <motion.div
+          initial={{
+            opacity: 0,
+            y: 6
+          }}
+          animate={{
+            opacity: 1,
+            y: 0
+          }}
+          className="
+            mt-4
+            rounded-2xl
+            border border-[#1F6BFF]/30
+            bg-[#101522]
+            p-4
+          "
+        >
+
+          <div
+            className="
+              flex
+              items-center
+              gap-4
+            "
+          >
+
+            {/* IMAGEN */}
+            <div
+              className="
+                w-16 h-16
+                shrink-0
+                rounded-xl
+                overflow-hidden
+                bg-[#17171F]
+                flex items-center
+                justify-center
+              "
+            >
+
+              {selectedProduct.image_url ? (
+
+                <img
+                  src={selectedProduct.image_url}
+                  alt={selectedProduct.name}
+                  className="
+                    w-full
+                    h-full
+                    object-contain
+                    bg-white
+                    p-1
+                  "
+                />
+
+              ) : (
+
+                <span className="text-2xl">
+                  📦
+                </span>
+
+              )}
+
+            </div>
+
+
+            {/* INFO */}
+            <div className="min-w-0 flex-1">
+
+              <p
+                className="
+                  text-white
+                  font-semibold
+                  truncate
+                "
+              >
+                {selectedProduct.name}
+              </p>
+
+
+              {(selectedProduct.brand ||
+                selectedProduct.quantity) && (
+
+                <p className="text-xs text-gray-500 mt-1">
+
+                  {[
+                    selectedProduct.brand,
+                    selectedProduct.quantity
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+
+                </p>
+
+              )}
+
+
+              <div
+                className="
+                  flex
+                  items-center
+                  gap-3
+                  mt-2
+                "
+              >
+
+                <span
+                  className="
+                    text-green-400
+                    font-semibold
+                  "
+                >
+                  {formatCurrency(
+                    selectedProduct.price
+                  )}
+                </span>
+
+                <span className="text-xs text-gray-500">
+                  Stock: {selectedProduct.stock_quantity}{' '}
+                  {selectedProduct.sale_type === 'weight'
+                    ? 'kg'
+                    : selectedProduct.unit}
+                </span>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          {/* ============================================= */}
+          {/* CANTIDAD */}
+          {/* ============================================= */}
+
+          <div
+            className="
+              grid
+              grid-cols-[1fr_auto]
+              gap-3
+              mt-4
+              pt-4
+              border-t
+              border-[#25252D]
+            "
+          >
+
+            {selectedProduct.sale_type === 'weight' ? (
+
+              <div>
+
+                <label className="text-xs text-gray-500">
+                  Cantidad en gramos
+                </label>
+
+                <input
+                  type="number"
+                  min={1}
+                  value={weightGrams}
+                  onChange={(e) =>
+                    setWeightGrams(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Ej: 250"
+                  className="
+                    mt-1
+                    w-full
+                    bg-[#0B0B10]
+                    border
+                    border-[#2A2A32]
+                    rounded-xl
+                    px-4
+                    py-2.5
+                    text-white
+                  "
+                />
+
+              </div>
+
+            ) : (
+
+              <div>
+
+                <label className="text-xs text-gray-500">
+                  Cantidad
+                </label>
+
+                <input
+                  type="number"
+                  min={1}
+                  value={saleQuantity}
+                  onChange={(e) =>
+                    setSaleQuantity(
+                      e.target.value
+                    )
+                  }
+                  placeholder="Ej: 1"
+                  className="
+                    mt-1
+                    w-full
+                    bg-[#0B0B10]
+                    border
+                    border-[#2A2A32]
+                    rounded-xl
+                    px-4
+                    py-2.5
+                    text-white
+                  "
+                />
+
+              </div>
+
+            )}
+
+
+            <button
+              type="button"
+              onClick={addToCart}
+              className="
+                self-end
+                h-[42px]
+                px-5
+                bg-[#1F6BFF]
+                hover:bg-[#2E7BFF]
+                rounded-xl
+                text-white
+                font-medium
+                transition
+              "
+            >
+              ➕ Agregar
+            </button>
+
+          </div>
+
+        </motion.div>
+
+      )}
+
+    </div>
+
+
+    {/* ================================================= */}
+    {/* CARRITO */}
+    {/* ================================================= */}
+
+    <div className="p-5">
+
+      {cart.length === 0 ? (
+
+        <div
+          className="
+            rounded-2xl
+            border border-dashed border-[#2A2A32]
+            bg-[#101018]
+            py-12
+            text-center
+          "
+        >
+
+          <div className="text-4xl mb-3">
+            🛒
+          </div>
+
+          <p className="text-white font-medium">
+            Carrito vacío
+          </p>
+
+          <p className="text-sm text-gray-500 mt-1">
+            Buscá o escaneá productos para comenzar.
+          </p>
+
+        </div>
+
+      ) : (
+
+        <div className="space-y-2">
+
+          {/* ENCABEZADO TABLA */}
+          <div
+            className="
+              hidden
+              md:grid
+              grid-cols-[minmax(0,1fr)_110px_130px_110px_40px]
+              gap-3
+              px-3
+              pb-2
+              text-[11px]
+              uppercase
+              tracking-wide
+              text-gray-600
+            "
+          >
+            <span>Producto</span>
+            <span>Precio</span>
+            <span className="text-center">
+              Cantidad
+            </span>
+            <span className="text-right">
+              Subtotal
+            </span>
+            <span />
+          </div>
+
+
+          <AnimatePresence>
+
+            {cart.map((item, i) => {
+
+              const sourceProduct =
+                products.find(
+                  (p) =>
+                    p.id ===
+                    item.product_id
+                )
+
+              return (
+
+                <motion.div
+                  key={item.product_id}
+                  initial={{
+                    opacity: 0,
+                    y: 6
+                  }}
+                  animate={{
+                    opacity: 1,
+                    y: 0,
+                    boxShadow:
+                      item.product_id ===
+                      lastAddedId
+                        ? '0 0 18px rgba(34,197,94,0.18)'
+                        : '0 0 0 rgba(0,0,0,0)'
+                  }}
+                  exit={{
+                    opacity: 0,
+                    scale: 0.97
+                  }}
+                  className="
+                    grid
+                    grid-cols-1
+                    md:grid-cols-[minmax(0,1fr)_110px_130px_110px_40px]
+                    gap-3
+                    items-center
+                    rounded-xl
+                    border
+                    border-[#25252D]
+                    bg-[#0E0E11]
+                    px-3
+                    py-3
+                  "
+                >
+
+                  {/* PRODUCTO */}
+                  <div
+                    className="
+                      flex
+                      items-center
+                      gap-3
+                      min-w-0
+                    "
+                  >
+
+                    <div
+                      className="
+                        w-11 h-11
+                        shrink-0
+                        rounded-lg
+                        overflow-hidden
+                        bg-[#17171F]
+                        flex
+                        items-center
+                        justify-center
+                      "
+                    >
+
+                      {item.image_url ? (
+                        <img
+                          src={item.image_url}
+                          alt={item.name}
+                          className="
+                            w-full
+                            h-full
+                            object-contain
+                            bg-white
+                            p-1
+                          "
+                        />
+                      ) : (
+                        <span>
+                          📦
+                        </span>
+                      )}
+
+                    </div>
+
+
+                    <div className="min-w-0">
+
+                      <p
+                        className="
+                          text-sm
+                          text-white
+                          font-medium
+                          truncate
+                        "
+                      >
+                        {item.name}
+                      </p>
+
+                      {(item.brand ||
+                        item.product_quantity) && (
+
+                        <p
+                          className="
+                            text-[11px]
+                            text-gray-600
+                            truncate
+                          "
+                        >
+                          {[
+                            item.brand,
+                            item.product_quantity
+                          ]
+                            .filter(Boolean)
+                            .join(' · ')}
+                        </p>
+
+                      )}
+
+                    </div>
+
+                  </div>
+
+
+                  {/* PRECIO */}
+                  <p className="text-sm text-gray-300">
+
+                    {item.sale_type ===
+                    'weight'
+                      ? `${formatCurrency(
+                          item.price
+                        )}/kg`
+                      : formatCurrency(
+                          item.price
+                        )}
+
+                  </p>
+
+
+                  {/* CANTIDAD */}
+                  <div className="flex items-center justify-center">
+
+                    {item.sale_type ===
+                    'weight' ? (
+
+                      <span
+                        className="
+                          px-3
+                          py-1.5
+                          rounded-lg
+                          bg-[#17171F]
+                          text-sm
+                          text-gray-300
+                        "
+                      >
+                        {item.quantity_label ||
+                          `${Math.round(
+                            item.quantity *
+                              1000
+                          )}g`}
+                      </span>
+
+                    ) : (
+
+                      <div
+                        className="
+                          flex
+                          items-center
+                          gap-2
+                        "
+                      >
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setCart(
+                              (current) =>
+                                current
+                                  .map(
+                                    (
+                                      cartItem
+                                    ) =>
+                                      cartItem.product_id ===
+                                      item.product_id
+                                        ? {
+                                            ...cartItem,
+                                            quantity:
+                                              Math.max(
+                                                0,
+                                                Number(
+                                                  cartItem.quantity
+                                                ) -
+                                                  1
+                                              )
+                                          }
+                                        : cartItem
+                                  )
+                                  .filter(
+                                    (
+                                      cartItem
+                                    ) =>
+                                      cartItem.quantity >
+                                      0
+                                  )
+                            )
+                          }}
+                          className="
+                            w-8 h-8
+                            rounded-lg
+                            bg-[#181820]
+                            border
+                            border-[#2A2A32]
+                            text-gray-300
+                            hover:text-white
+                          "
+                        >
+                          −
+                        </button>
+
+
+                        <span
+                          className="
+                            min-w-[30px]
+                            text-center
+                            text-white
+                            font-semibold
+                          "
+                        >
+                          {item.quantity}
+                        </span>
+
+
+                        <button
+                          type="button"
+                          onClick={() => {
+
+                            if (
+                              sourceProduct &&
+                              Number(
+                                item.quantity
+                              ) + 1 >
+                                Number(
+                                  sourceProduct.stock_quantity
+                                )
+                            ) {
+
+                              setToast({
+                                type:
+                                  'error',
+                                message:
+                                  'Stock insuficiente'
+                              })
+
+                              return
+                            }
+
+
+                            setCart(
+                              (current) =>
+                                current.map(
+                                  (
+                                    cartItem
+                                  ) =>
+                                    cartItem.product_id ===
+                                    item.product_id
+                                      ? {
+                                          ...cartItem,
+                                          quantity:
+                                            Number(
+                                              cartItem.quantity
+                                            ) + 1
+                                        }
+                                      : cartItem
+                                )
+                            )
+                          }}
+                          className="
+                            w-8 h-8
+                            rounded-lg
+                            bg-[#181820]
+                            border
+                            border-[#2A2A32]
+                            text-gray-300
+                            hover:text-white
+                          "
+                        >
+                          +
+                        </button>
+
+                      </div>
+
+                    )}
+
+                  </div>
+
+
+                  {/* SUBTOTAL */}
+                  <p
+                    className="
+                      text-sm
+                      font-semibold
+                      text-right
+                      text-white
+                    "
+                  >
+                    {formatCurrency(
+                      item.quantity *
+                        item.price
+                    )}
+                  </p>
+
+
+                  {/* ELIMINAR */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCart(
+                        (current) =>
+                          current.filter(
+                            (
+                              cartItem
+                            ) =>
+                              cartItem.product_id !==
+                              item.product_id
+                          )
+                      )
+                    }
+                    className="
+                      text-red-400
+                      hover:text-red-300
+                      transition
+                    "
+                  >
+                    🗑
+                  </button>
+
+                </motion.div>
+
+              )
+
+            })}
+
+          </AnimatePresence>
+
+
+          {/* TOTAL CARRITO */}
+          <div
+            className="
+              flex
+              items-center
+              justify-between
+              gap-4
+              pt-4
+              mt-3
+              border-t
+              border-[#25252D]
+            "
+          >
+
+            <p className="text-sm text-gray-500">
+
+              {cart
+                .filter(
+                  (item) =>
+                    item.sale_type !==
+                    'weight'
+                )
+                .reduce(
+                  (acc, item) =>
+                    acc +
+                    Number(
+                      item.quantity ||
+                        0
+                    ),
+                  0
+                )}{' '}
+              unidades
+
+            </p>
+
+
+            <div className="text-right">
+
+              <p
+                className="
+                  text-[10px]
+                  uppercase
+                  tracking-wide
+                  text-gray-600
+                "
+              >
+                Total
+              </p>
+
+              <p
+                className="
+                  text-xl
+                  font-bold
+                  text-green-400
+                "
+              >
+                {formatCurrency(
+                  cartTotal
+                )}
+              </p>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      )}
+
+    </div>
+
+  </div>
+
+
+  {/* ================================================= */}
+  {/* COLUMNA DERECHA — COBRO */}
+  {/* ================================================= */}
+
+  <div
+    className="
+      bg-[#14141A]
+      border border-[#2A2A32]
+      rounded-2xl
+      p-5
+      h-fit
+      md:sticky
+      md:top-4
+    "
+  >
+
+    <div
+      className="
+        pb-4
+        border-b
+        border-[#25252D]
+      "
+    >
+
+      <p className="text-sm font-semibold text-white">
+        Cobro y finalización
+      </p>
+
+      <p className="text-xs text-gray-500 mt-1">
+        Revisá el total y elegí cómo paga.
       </p>
 
     </div>
 
-  </motion.div>
-)}
 
-         {/* Cantidad */}
-<div className="space-y-2">
+    {/* CANTIDAD */}
+    <div className="py-5 border-b border-[#25252D]">
 
-  {selectedProduct?.sale_type === 'weight' ? (
-    <>
-      <label className="text-sm text-gray-400">
-        Cantidad en gramos
-      </label>
+      <p
+        className="
+          text-[10px]
+          uppercase
+          tracking-wide
+          text-gray-600
+        "
+      >
+        Cantidad total
+      </p>
 
-      <input
-        type="number"
-        min={1}
-        value={weightGrams}
-        onChange={(e) => setWeightGrams(e.target.value)}
-        placeholder="Ej: 100"
-        className="w-full bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white"
-      />
+      <p className="text-lg text-white font-semibold mt-1">
 
-      {weightGrams && (
-        <p className="text-xs text-green-400">
-          Total aprox: {formatCurrency(
-            selectedProduct.price * (Number(weightGrams) / 1000)
-          )}
-        </p>
-      )}
-    </>
-  ) : (
-    <>
-      <label className="text-sm text-gray-400">
-        Cantidad
-      </label>
+        {cart
+          .filter(
+            (item) =>
+              item.sale_type !==
+              'weight'
+          )
+          .reduce(
+            (acc, item) =>
+              acc +
+              Number(
+                item.quantity ||
+                  0
+              ),
+            0
+          )}{' '}
+        unidades
 
-      <input
-        type="number"
-        min={1}
-        value={saleQuantity}
-onChange={(e) => setSaleQuantity(e.target.value)}
-placeholder="Ej: 1"
-        className="w-full bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3 text-white"
-      />
-    </>
-  )}
+      </p>
 
-</div>
-
-          {/* Tipo venta */}
-          
-
-{/* Método de pago */}
-{salePaid && (
-  <div className="space-y-2">
-    <label className="text-sm text-gray-400">Método de pago</label>
-
-    <div className="grid grid-cols-1 gap-2">
-      <label className="flex items-center gap-2 bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3">
-        <input
-          type="radio"
-          checked={paymentType === "cash"}
-          onChange={() => setPaymentType("cash")}
-        />
-        💵 Efectivo
-      </label>
-
-      <label className="flex items-center gap-2 bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3">
-        <input
-          type="radio"
-          checked={paymentType === "transfer"}
-          onChange={() => setPaymentType("transfer")}
-        />
-        🏦 Transferencia
-      </label>
-
-      <label className="flex items-center gap-2 bg-[#0F0F14] border border-[#2A2A32] rounded-xl p-3">
-        <input
-          type="radio"
-          checked={paymentType === "card"}
-          onChange={() => setPaymentType("card")}
-        />
-        💳 Tarjeta
-      </label>
     </div>
-  </div>
-)}
 
-          {/* Cliente */}
-         
 
-          {/* BOTÓN */}
-          
-  <div className="flex flex-col gap-3">
+    {/* TOTAL */}
+    <div className="py-5 border-b border-[#25252D]">
 
-  <button
-    type="button"
-    onClick={addToCart}
-    disabled={!selectedProduct}
-    className="w-full bg-yellow-600 hover:bg-yellow-700 rounded-xl p-4 font-semibold transition"
-  >
-    ➕ Agregar al carrito
-  </button>
+      <p
+        className="
+          text-[10px]
+          uppercase
+          tracking-wide
+          text-gray-600
+        "
+      >
+        Total a pagar
+      </p>
 
-  <button
-    type="button"
-    onClick={createCartSale}
-    disabled={cart.length === 0 || creating}
-    className="w-full bg-green-600 hover:bg-green-700 rounded-xl p-4 font-semibold transition"
-  >
-    🧾 Finalizar venta ({formatCurrency(cartTotal)})
-  </button>
+      <p
+        className="
+          text-3xl
+          font-bold
+          text-green-400
+          mt-1
+        "
+      >
+        {formatCurrency(
+          cartTotal
+        )}
+      </p>
 
-</div>
+    </div>
 
-</div>
 
-{/* PANEL DERECHO */}
-<div className="bg-[#14141A] border border-[#2A2A32] rounded-2xl p-6 space-y-5 shadow-md">
-  <h2 className="text-lg font-medium">Carrito</h2>
+    {/* MÉTODO */}
+    <div className="py-5 space-y-3">
 
-{cart.length === 0 ? (
-  <p className="text-gray-400 text-sm">Carrito vacío</p>
-) : (
-  <div className="space-y-3">
-   {cart.map((item, i) => (
-  <motion.div
-    key={i}
-    initial={{ opacity: 0, scale: 0.95 }}
-    animate={{
-      opacity: 1,
-      scale: 1,
-      boxShadow:
-        item.product_id === lastAddedId
-          ? "0 0 15px rgba(34,197,94,0.6)"
-          : "0 0 0px rgba(0,0,0,0)"
-    }}
-    transition={{ duration: 0.3 }}
-    className="flex justify-between items-center bg-[#0F0F14] p-3 rounded-xl"
-  >
-    
-   <div className="flex items-center gap-3 min-w-0">
+      <p className="text-sm text-gray-400">
+        Método de pago
+      </p>
 
-  {/* MINIATURA */}
-  <div
-    className="
-      w-12 h-12
-      shrink-0
-      rounded-lg
-      bg-white
-      overflow-hidden
-      flex items-center justify-center
-    "
-  >
 
-    {item.image_url ? (
-      <img
-        src={item.image_url}
-        alt={item.name}
-        className="w-full h-full object-contain p-1"
-      />
-    ) : (
-      <div className="w-full h-full bg-[#17171F] flex items-center justify-center text-gray-500">
-        📦
-      </div>
+      <button
+        type="button"
+        onClick={() =>
+          setPaymentType(
+            'cash'
+          )
+        }
+        className={`
+          w-full
+          rounded-xl
+          border
+          px-4
+          py-3
+          text-left
+          transition
+          ${
+            paymentType ===
+            'cash'
+              ? 'bg-green-500/10 border-green-500/40 text-green-400'
+              : 'bg-[#0E0E11] border-[#2A2A32] text-gray-300'
+          }
+        `}
+      >
+        💵 Efectivo
+      </button>
+
+
+      <button
+        type="button"
+        onClick={() =>
+          setPaymentType(
+            'transfer'
+          )
+        }
+        className={`
+          w-full
+          rounded-xl
+          border
+          px-4
+          py-3
+          text-left
+          transition
+          ${
+            paymentType ===
+            'transfer'
+              ? 'bg-[#1F6BFF]/10 border-[#1F6BFF]/40 text-[#6EA8FF]'
+              : 'bg-[#0E0E11] border-[#2A2A32] text-gray-300'
+          }
+        `}
+      >
+        🏦 Transferencia
+      </button>
+
+
+      <button
+        type="button"
+        onClick={() =>
+          setPaymentType(
+            'card'
+          )
+        }
+        className={`
+          w-full
+          rounded-xl
+          border
+          px-4
+          py-3
+          text-left
+          transition
+          ${
+            paymentType ===
+            'card'
+              ? 'bg-[#6C5CE7]/10 border-[#6C5CE7]/40 text-purple-300'
+              : 'bg-[#0E0E11] border-[#2A2A32] text-gray-300'
+          }
+        `}
+      >
+        💳 Tarjeta
+      </button>
+
+    </div>
+
+
+    {/* FINALIZAR */}
+    <button
+      type="button"
+      onClick={createCartSale}
+      disabled={
+        cart.length === 0 ||
+        creating
+      }
+      className="
+        w-full
+        bg-green-600
+        hover:bg-green-500
+        disabled:opacity-40
+        disabled:cursor-not-allowed
+        rounded-xl
+        py-4
+        text-white
+        font-semibold
+        transition
+      "
+    >
+      {creating
+        ? 'Procesando...'
+        : `✓ Finalizar venta · ${formatCurrency(
+            cartTotal
+          )}`}
+    </button>
+
+
+    {cart.length === 0 && (
+      <p
+        className="
+          text-center
+          text-xs
+          text-gray-600
+          mt-3
+        "
+      >
+        Agregá productos para finalizar la venta.
+      </p>
     )}
 
   </div>
 
-
-  {/* INFORMACIÓN */}
-  <div className="min-w-0">
-
-    <p className="text-sm font-medium text-white truncate">
-      {item.name}
-    </p>
-
-    <p className="text-xs text-gray-400">
-
-      {item.sale_type === 'weight' ? (
-        <>
-          {item.quantity_label ||
-            `${Math.round(item.quantity * 1000)}g`}
-          {' · '}
-          {formatCurrency(
-            item.price_by === '100g'
-              ? item.price / 10
-              : item.price
-          )}
-          /{item.price_by === '100g'
-            ? '100g'
-            : 'kg'}
-        </>
-      ) : (
-        <>
-          {item.quantity} {item.unit}
-          {' · '}
-          {formatCurrency(item.price)}
-        </>
-      )}
-
-    </p>
-
-  </div>
-
-</div>
-    <button
-      onClick={() =>
-        setCart(prev => prev.filter((_, idx) => idx !== i))
-      }
-      className="text-red-400 text-xs"
-    >
-      ✖
-    </button>
-
-  </motion.div>
-))}
-
-    <div className="text-right text-lg font-semibold text-green-400">
-      Total: {formatCurrency(cartTotal)}
-    </div>
-  </div>
-)}
-
-        </div>
-
-      </div>
+</div>  
   {/* HISTORIAL DE VENTAS - ARCANA BASE */}
 <div
   ref={salesRef}
