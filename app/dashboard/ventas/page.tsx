@@ -65,6 +65,8 @@ export default function VentasPage() {
   const [scannerActive, setScannerActive] = useState(true)
   const scannerRef = useRef<HTMLInputElement | null>(null)
   const lastScanRef = useRef<number>(0)
+  const [showUsbScanner, setShowUsbScanner] = useState(false)
+const usbScannerInputRef = useRef<HTMLInputElement | null>(null)
   const [showScanner,setShowScanner] = useState(false)
   const beep = () => {
   const audio = new Audio("/beep.mp3")
@@ -504,7 +506,7 @@ lastScanRef.current = now
 const code = input.value.trim()
 input.value = ""
 
-scannerRef.current?.focus()
+input.focus()
 
   if (!code) return
 
@@ -531,7 +533,7 @@ scannerRef.current?.focus()
   })
 
   input.value = ""
-  scannerRef.current?.focus()
+  input.focus()
 
   return
 }
@@ -989,14 +991,18 @@ const filteredProducts = products.filter((product) => {
   <button
     type="button"
     onClick={() => {
-      setToast({
-        type: 'success',
-        message:
-          'Conectá tu lector USB y escaneá un producto. Arcana detectará el código automáticamente.'
-      })
+  setShowUsbScanner(true)
 
-      // En el siguiente paso abrimos el modal del lector
-    }}
+  setToast({
+    type: 'success',
+    message:
+      'Conectá tu lector USB y comenzá a escanear productos.'
+  })
+
+  setTimeout(() => {
+    usbScannerInputRef.current?.focus()
+  }, 150)
+}}
     className="
       hidden
       md:flex
@@ -2206,6 +2212,552 @@ const filteredProducts = products.filter((product) => {
   </div>
 
 </div>  
+
+{showUsbScanner && (
+  <div
+    className="
+      hidden md:flex
+      fixed inset-0
+      z-[2500]
+      bg-black/70
+      backdrop-blur-sm
+      items-center
+      justify-center
+      p-6
+    "
+  >
+
+    <div
+      className="
+        w-full
+        max-w-5xl
+        max-h-[90vh]
+        bg-[#14141A]
+        border border-[#2A2A32]
+        rounded-2xl
+        shadow-2xl
+        overflow-hidden
+        flex
+        flex-col
+      "
+    >
+
+      {/* HEADER */}
+      <div
+        className="
+          shrink-0
+          flex
+          items-center
+          justify-between
+          gap-4
+          px-6 py-5
+          border-b
+          border-[#25252D]
+        "
+      >
+
+        <div>
+
+          <div className="flex items-center gap-3">
+
+            <h2 className="text-xl font-semibold text-white">
+              ▥ Lector USB — Ventas
+            </h2>
+
+            <span
+              className="
+                flex
+                items-center
+                gap-2
+                text-xs
+                text-green-400
+              "
+            >
+              <span className="w-2.5 h-2.5 rounded-full bg-green-500" />
+              Lector listo
+            </span>
+
+          </div>
+
+          <p className="text-sm text-gray-400 mt-1">
+            Escaneá productos para agregarlos directamente al carrito.
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          onClick={() => setShowUsbScanner(false)}
+          className="
+            w-10 h-10
+            rounded-xl
+            bg-[#181820]
+            border border-[#2A2A32]
+            text-gray-400
+            hover:text-white
+          "
+        >
+          ✕
+        </button>
+
+      </div>
+
+
+      {/* INPUT DEL LECTOR */}
+      <div className="shrink-0 px-6 py-4 border-b border-[#25252D]">
+
+        <input
+          ref={usbScannerInputRef}
+          type="text"
+          onKeyDown={handleScanner}
+          autoFocus
+          placeholder="Esperando lectura del lector USB..."
+          className="
+            w-full
+            bg-[#0B0B10]
+            border border-[#6C5CE7]/40
+            rounded-xl
+            px-4 py-3
+            text-white
+            focus:outline-none
+            focus:ring-2
+            focus:ring-[#6C5CE7]/40
+          "
+        />
+
+        <p className="text-xs text-gray-500 mt-2">
+          Apuntá al código de barras y presioná el gatillo. Arcana agregará una unidad automáticamente.
+        </p>
+
+      </div>
+
+
+      {/* CONTENIDO */}
+      <div
+        className="
+          flex-1
+          min-h-0
+          overflow-y-auto
+          p-6
+          grid
+          grid-cols-[minmax(0,1fr)_300px]
+          gap-5
+        "
+      >
+
+        {/* ================================= */}
+        {/* CARRITO */}
+        {/* ================================= */}
+
+        <div
+          className="
+            rounded-2xl
+            border border-[#25252D]
+            bg-[#101018]
+            overflow-hidden
+          "
+        >
+
+          <div
+            className="
+              flex
+              items-center
+              justify-between
+              px-5 py-4
+              border-b border-[#25252D]
+            "
+          >
+
+            <div>
+
+              <p className="text-white font-semibold">
+                Productos escaneados
+              </p>
+
+              <p className="text-xs text-gray-500 mt-1">
+                Podés seguir escaneando sin cerrar esta ventana.
+              </p>
+
+            </div>
+
+
+            {cart.length > 0 && (
+              <button
+                type="button"
+                onClick={() => {
+                  setCart([])
+
+                  setTimeout(() => {
+                    usbScannerInputRef.current?.focus()
+                  }, 50)
+                }}
+                className="
+                  text-xs
+                  text-red-400
+                  border border-red-500/20
+                  bg-red-500/5
+                  rounded-lg
+                  px-3 py-2
+                "
+              >
+                🗑 Vaciar
+              </button>
+            )}
+
+          </div>
+
+
+          {cart.length === 0 ? (
+
+            <div className="py-20 text-center">
+
+              <div className="text-4xl mb-3">
+                ▥
+              </div>
+
+              <p className="text-white font-medium">
+                Listo para escanear
+              </p>
+
+              <p className="text-sm text-gray-500 mt-1">
+                Escaneá el primer producto para comenzar la venta.
+              </p>
+
+            </div>
+
+          ) : (
+
+            <div className="p-4 space-y-2">
+
+              {cart.map((item) => (
+
+                <motion.div
+                  key={item.product_id}
+                  initial={{
+                    opacity: 0,
+                    y: 6
+                  }}
+                  animate={{
+                    opacity: 1,
+                    y: 0
+                  }}
+                  className="
+                    flex
+                    items-center
+                    gap-4
+                    rounded-xl
+                    border border-[#25252D]
+                    bg-[#0E0E11]
+                    p-3
+                  "
+                >
+
+                  {/* IMAGEN */}
+                  <div
+                    className="
+                      w-12 h-12
+                      shrink-0
+                      rounded-lg
+                      overflow-hidden
+                      bg-[#17171F]
+                      flex
+                      items-center
+                      justify-center
+                    "
+                  >
+
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        className="
+                          w-full h-full
+                          object-contain
+                          bg-white
+                          p-1
+                        "
+                      />
+                    ) : (
+                      <span>
+                        📦
+                      </span>
+                    )}
+
+                  </div>
+
+
+                  {/* INFORMACIÓN */}
+                  <div className="flex-1 min-w-0">
+
+                    <p className="text-sm text-white font-medium truncate">
+                      {item.name}
+                    </p>
+
+                    <p className="text-xs text-gray-500 mt-1">
+
+                      {item.sale_type === 'weight'
+                        ? item.quantity_label ||
+                          `${Math.round(item.quantity * 1000)}g`
+                        : `${item.quantity} ${
+                            item.unit || 'unidad'
+                          }`}
+
+                      {' · '}
+
+                      {formatCurrency(item.price)}
+
+                    </p>
+
+                  </div>
+
+
+                  {/* CANTIDAD */}
+                  <div className="text-center">
+
+                    <p className="text-xs text-gray-600">
+                      Cant.
+                    </p>
+
+                    <p className="text-white font-semibold">
+                      {item.sale_type === 'weight'
+                        ? item.quantity_label ||
+                          `${Math.round(item.quantity * 1000)}g`
+                        : item.quantity}
+                    </p>
+
+                  </div>
+
+
+                  {/* SUBTOTAL */}
+                  <div className="text-right min-w-[95px]">
+
+                    <p className="text-xs text-gray-600">
+                      Subtotal
+                    </p>
+
+                    <p className="text-white font-semibold">
+                      {formatCurrency(
+                        Number(item.quantity) *
+                          Number(item.price)
+                      )}
+                    </p>
+
+                  </div>
+
+
+                  <button
+                    type="button"
+                    onClick={() => {
+
+                      setCart((current) =>
+                        current.filter(
+                          (cartItem) =>
+                            cartItem.product_id !==
+                            item.product_id
+                        )
+                      )
+
+                      setTimeout(() => {
+                        usbScannerInputRef.current?.focus()
+                      }, 50)
+                    }}
+                    className="
+                      text-red-400
+                      hover:text-red-300
+                    "
+                  >
+                    🗑
+                  </button>
+
+                </motion.div>
+
+              ))}
+
+            </div>
+
+          )}
+
+        </div>
+
+
+        {/* ================================= */}
+        {/* COBRO */}
+        {/* ================================= */}
+
+        <div
+          className="
+            rounded-2xl
+            border border-[#25252D]
+            bg-[#101018]
+            p-5
+            h-fit
+          "
+        >
+
+          <p className="text-white font-semibold">
+            Cobro
+          </p>
+
+
+          <div className="py-5 border-b border-[#25252D]">
+
+            <p
+              className="
+                text-[10px]
+                uppercase
+                tracking-wide
+                text-gray-600
+              "
+            >
+              Total a pagar
+            </p>
+
+            <p
+              className="
+                text-3xl
+                font-bold
+                text-green-400
+                mt-1
+              "
+            >
+              {formatCurrency(cartTotal)}
+            </p>
+
+          </div>
+
+
+          <div className="py-5 space-y-3">
+
+            <p className="text-sm text-gray-400">
+              Método de pago
+            </p>
+
+
+            <button
+              type="button"
+              onClick={() => {
+                setPaymentType('cash')
+
+                setTimeout(() => {
+                  usbScannerInputRef.current?.focus()
+                }, 50)
+              }}
+              className={`
+                w-full
+                rounded-xl
+                border
+                px-4 py-3
+                text-left
+                ${
+                  paymentType === 'cash'
+                    ? 'bg-green-500/10 border-green-500/40 text-green-400'
+                    : 'bg-[#0E0E11] border-[#2A2A32] text-gray-300'
+                }
+              `}
+            >
+              💵 Efectivo
+            </button>
+
+
+            <button
+              type="button"
+              onClick={() => {
+                setPaymentType('transfer')
+
+                setTimeout(() => {
+                  usbScannerInputRef.current?.focus()
+                }, 50)
+              }}
+              className={`
+                w-full
+                rounded-xl
+                border
+                px-4 py-3
+                text-left
+                ${
+                  paymentType === 'transfer'
+                    ? 'bg-[#1F6BFF]/10 border-[#1F6BFF]/40 text-[#6EA8FF]'
+                    : 'bg-[#0E0E11] border-[#2A2A32] text-gray-300'
+                }
+              `}
+            >
+              🏦 Transferencia
+            </button>
+
+
+            <button
+              type="button"
+              onClick={() => {
+                setPaymentType('card')
+
+                setTimeout(() => {
+                  usbScannerInputRef.current?.focus()
+                }, 50)
+              }}
+              className={`
+                w-full
+                rounded-xl
+                border
+                px-4 py-3
+                text-left
+                ${
+                  paymentType === 'card'
+                    ? 'bg-[#6C5CE7]/10 border-[#6C5CE7]/40 text-purple-300'
+                    : 'bg-[#0E0E11] border-[#2A2A32] text-gray-300'
+                }
+              `}
+            >
+              💳 Tarjeta
+            </button>
+
+          </div>
+
+
+          <button
+            type="button"
+            disabled={
+              cart.length === 0 ||
+              creating
+            }
+            onClick={async () => {
+
+              await createCartSale()
+
+              /*
+               * No cerramos acá el ticket.
+               * createCartSale ya abre el ticket existente.
+               */
+
+              setShowUsbScanner(false)
+            }}
+            className="
+              w-full
+              rounded-xl
+              bg-green-600
+              hover:bg-green-500
+              disabled:opacity-40
+              py-4
+              text-white
+              font-semibold
+            "
+          >
+            {creating
+              ? 'Procesando...'
+              : `✓ Finalizar venta · ${formatCurrency(
+                  cartTotal
+                )}`}
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+)}
+
   {/* HISTORIAL DE VENTAS - ARCANA BASE */}
 <div
   ref={salesRef}
