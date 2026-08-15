@@ -798,62 +798,113 @@ const filteredProducts = products.filter((product) => {
   </div>
 
 </div>
-
 {/* RESUMEN CAJA */}
-<div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-
-  <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
-    <p className="text-xs text-gray-400">Caja de hoy</p>
-    <motion.p
-  key={salesSummary.total}
-  initial={{ opacity: 0, y: 10 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.3 }}
-  className="text-lg font-semibold text-green-400"
+<div
+  className="
+    grid
+    grid-cols-3
+    gap-2
+    md:gap-4
+  "
 >
-  {formatCurrency(salesSummary.total)}
-</motion.p>
-    
-  </div>
 
-  <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
-    <p className="text-xs text-gray-400">Ventas</p>
-    <motion.p
-  key={salesSummary.count}
-  initial={{ opacity: 0, y: 10 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.3 }}
-  className="text-lg font-semibold"
->
-  {salesSummary.count}
-</motion.p>
-  </div>
-
-  <div className="bg-[#14141A] border border-[#2A2A32] rounded-xl p-4">
-    <p className="text-xs text-gray-400">Unidades</p>
-  <motion.div
-  key={`${salesSummary.units}-${salesSummary.weightKg}`}
-  initial={{ opacity: 0, y: 10 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.3 }}
-  className="space-y-1"
->
-  <p className="text-lg font-semibold">
-    {salesSummary.units} un
-  </p>
-
-  {salesSummary.weightKg > 0 && (
-    <p className="text-xs text-cyan-400">
-      {salesSummary.weightKg.toFixed(2)} kg vendidos
+  {/* CAJA DE HOY */}
+  <div
+    className="
+      bg-[#14141A]
+      border border-[#2A2A32]
+      rounded-xl
+      px-3 py-3
+      md:p-4
+    "
+  >
+    <p className="text-[10px] md:text-xs text-gray-400">
+      Caja de hoy
     </p>
-  )}
-</motion.div>
+
+    <motion.p
+      key={salesSummary.total}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="
+        text-sm
+        md:text-lg
+        font-semibold
+        text-green-400
+        mt-1
+      "
+    >
+      {formatCurrency(salesSummary.total)}
+    </motion.p>
   </div>
 
 
+  {/* VENTAS */}
+  <div
+    className="
+      bg-[#14141A]
+      border border-[#2A2A32]
+      rounded-xl
+      px-3 py-3
+      md:p-4
+    "
+  >
+    <p className="text-[10px] md:text-xs text-gray-400">
+      Ventas
+    </p>
+
+    <motion.p
+      key={salesSummary.count}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="
+        text-sm
+        md:text-lg
+        font-semibold
+        mt-1
+      "
+    >
+      {salesSummary.count}
+    </motion.p>
+  </div>
+
+
+  {/* UNIDADES */}
+  <div
+    className="
+      bg-[#14141A]
+      border border-[#2A2A32]
+      rounded-xl
+      px-3 py-3
+      md:p-4
+    "
+  >
+    <p className="text-[10px] md:text-xs text-gray-400">
+      Unidades
+    </p>
+
+    <motion.div
+      key={`${salesSummary.units}-${salesSummary.weightKg}`}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="mt-1"
+    >
+      <p className="text-sm md:text-lg font-semibold">
+        {salesSummary.units} un
+      </p>
+
+      {salesSummary.weightKg > 0 && (
+        <p className="text-[9px] md:text-xs text-cyan-400 mt-0.5">
+          {salesSummary.weightKg.toFixed(2)} kg
+        </p>
+      )}
+    </motion.div>
+  </div>
 
 </div>
-
 
 
 {showScanner && (
