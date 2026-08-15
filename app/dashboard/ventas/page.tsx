@@ -1787,6 +1787,289 @@ const filteredProducts = products.filter((product) => {
 
 
           <AnimatePresence>
+            {/* MOBILE */}
+<div className="md:hidden">
+
+  <motion.div
+    key={`mobile-${item.product_id}`}
+    initial={{
+      opacity: 0,
+      y: 6
+    }}
+    animate={{
+      opacity: 1,
+      y: 0,
+      boxShadow:
+        item.product_id === lastAddedId
+          ? '0 0 18px rgba(34,197,94,0.18)'
+          : '0 0 0 rgba(0,0,0,0)'
+    }}
+    exit={{
+      opacity: 0,
+      scale: 0.97
+    }}
+    className="
+      rounded-2xl
+      border
+      border-[#25252D]
+      bg-[#0E0E11]
+      p-3
+    "
+  >
+
+    <div className="flex items-start gap-3">
+
+      {/* IMAGEN */}
+      <div
+        className="
+          w-14
+          h-14
+          shrink-0
+          overflow-hidden
+          rounded-xl
+          bg-[#17171F]
+          flex
+          items-center
+          justify-center
+        "
+      >
+        {item.image_url ? (
+          <img
+            src={item.image_url}
+            alt={item.name}
+            className="
+              w-full
+              h-full
+              object-contain
+              bg-white
+              p-1
+            "
+          />
+        ) : (
+          <span className="text-xl">
+            📦
+          </span>
+        )}
+      </div>
+
+
+      {/* INFO */}
+      <div className="min-w-0 flex-1">
+
+        <div className="flex items-start justify-between gap-2">
+
+          <div className="min-w-0">
+
+            <p className="text-sm font-semibold text-white truncate">
+              {item.name}
+            </p>
+
+            {(item.brand || item.product_quantity) && (
+              <p className="text-[11px] text-gray-500 truncate mt-0.5">
+                {[item.brand, item.product_quantity]
+                  .filter(Boolean)
+                  .join(' · ')}
+              </p>
+            )}
+
+          </div>
+
+
+          <button
+            type="button"
+            onClick={() =>
+              setCart((current) =>
+                current.filter(
+                  (cartItem) =>
+                    cartItem.product_id !== item.product_id
+                )
+              )
+            }
+            className="
+              shrink-0
+              text-red-400
+              text-sm
+              px-1
+            "
+          >
+            🗑
+          </button>
+
+        </div>
+
+
+        {/* PRECIO */}
+        <p className="text-sm text-gray-400 mt-1">
+
+          {item.sale_type === 'weight'
+            ? `${formatCurrency(item.price)}/kg`
+            : formatCurrency(item.price)}
+
+        </p>
+
+      </div>
+
+    </div>
+
+
+    {/* CONTROLES / SUBTOTAL */}
+    <div
+      className="
+        mt-3
+        pt-3
+        border-t
+        border-[#25252D]
+        flex
+        items-center
+        justify-between
+        gap-3
+      "
+    >
+
+      {item.sale_type === 'weight' ? (
+
+        <div
+          className="
+            px-3
+            py-2
+            rounded-xl
+            bg-[#17171F]
+            text-sm
+            text-gray-300
+          "
+        >
+          {item.quantity_label ||
+            `${Math.round(
+              Number(item.quantity) * 1000
+            )}g`}
+        </div>
+
+      ) : (
+
+        <div className="flex items-center gap-2">
+
+          <button
+            type="button"
+            onClick={() => {
+              setCart((current) =>
+                current
+                  .map((cartItem) =>
+                    cartItem.product_id === item.product_id
+                      ? {
+                          ...cartItem,
+                          quantity: Math.max(
+                            0,
+                            Number(cartItem.quantity) - 1
+                          )
+                        }
+                      : cartItem
+                  )
+                  .filter(
+                    (cartItem) =>
+                      Number(cartItem.quantity) > 0
+                  )
+              )
+            }}
+            className="
+              w-9
+              h-9
+              rounded-xl
+              bg-[#181820]
+              border
+              border-[#2A2A32]
+              text-gray-300
+            "
+          >
+            −
+          </button>
+
+
+          <span
+            className="
+              min-w-[34px]
+              text-center
+              text-white
+              font-semibold
+            "
+          >
+            {item.quantity}
+          </span>
+
+
+          <button
+            type="button"
+            onClick={() => {
+
+              if (
+                sourceProduct &&
+                Number(item.quantity) + 1 >
+                  Number(sourceProduct.stock_quantity)
+              ) {
+                setToast({
+                  type: 'error',
+                  message: 'Stock insuficiente'
+                })
+
+                return
+              }
+
+              setCart((current) =>
+                current.map((cartItem) =>
+                  cartItem.product_id === item.product_id
+                    ? {
+                        ...cartItem,
+                        quantity:
+                          Number(cartItem.quantity) + 1
+                      }
+                    : cartItem
+                )
+              )
+            }}
+            className="
+              w-9
+              h-9
+              rounded-xl
+              bg-[#181820]
+              border
+              border-[#2A2A32]
+              text-gray-300
+            "
+          >
+            +
+          </button>
+
+        </div>
+
+      )}
+
+
+      <div className="text-right">
+
+        <p
+          className="
+            text-[10px]
+            uppercase
+            tracking-wide
+            text-gray-600
+          "
+        >
+          Subtotal
+        </p>
+
+        <p className="text-base font-bold text-white">
+          {formatCurrency(
+            Number(item.quantity) *
+              Number(item.price)
+          )}
+        </p>
+
+      </div>
+
+    </div>
+
+  </motion.div>
+
+</div>
 
             {cart.map((item, i) => {
 
