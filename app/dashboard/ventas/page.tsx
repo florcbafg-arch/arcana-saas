@@ -1096,100 +1096,199 @@ const filteredProducts = products.filter((product) => {
       overflow-hidden
     "
   >
+{/* ================================================= */}
+{/* HEADER MOBILE */}
+{/* ================================================= */}
 
-    {/* HEADER */}
-    <div
-      className="
-        flex
-        items-center
-        justify-between
-        gap-4
-        px-5
-        py-4
-        border-b
-        border-[#25252D]
-      "
-    >
+<div className="md:hidden">
 
-      <div>
+  {/* BOTÓN FINO DE CÁMARA */}
+  <div className="p-4 pb-3">
 
-        <h2 className="text-lg font-semibold text-white">
-          Carrito de venta
-        </h2>
-
-        <p className="text-xs text-gray-500 mt-1">
-          Buscá productos o utilizá el lector para agregarlos.
-        </p>
-
-      </div>
-
-<div className="flex items-center gap-2">
-
-  {/* LECTOR USB — WEB */}
-  <button
-    type="button"
-    onClick={() => {
-  setShowUsbScanner(true)
-
-  setToast({
-    type: 'success',
-    message:
-      'Conectá tu lector USB y comenzá a escanear productos.'
-  })
-
-  setTimeout(() => {
-    usbScannerInputRef.current?.focus()
-  }, 150)
-}}
-    className="
-      hidden
-      md:flex
-      items-center
-      gap-2
-      px-4
-      py-2
-      rounded-xl
-      border
-      border-[#6C5CE7]/40
-      bg-[#6C5CE7]/10
-      text-purple-300
-      hover:bg-[#6C5CE7]/20
-      transition
-      text-sm
-      font-medium
-    "
-  >
-    ▥ Usar lector USB
-  </button>
-
-
-  {/* VACIAR */}
-  {cart.length > 0 && (
     <button
       type="button"
-      onClick={() => setCart([])}
+      onClick={() => setShowScanner(true)}
       className="
-        text-xs
-        text-red-400
-        hover:text-red-300
+        w-full
+        flex
+        items-center
+        justify-center
+        gap-2
+        rounded-xl
         border
-        border-red-500/20
-        bg-red-500/5
-        rounded-lg
-        px-3
-        py-2
+        border-[#6C5CE7]/40
+        bg-[#6C5CE7]/10
+        px-4
+        py-3
+        text-sm
+        font-semibold
+        text-purple-300
+        active:scale-[0.99]
         transition
       "
     >
-      🗑 Vaciar carrito
+      📷 Escanear producto
     </button>
-  )}
 
-</div>
-      
-     
+  </div>
+
+
+  {/* HEADER CARRITO MOBILE */}
+  <div
+    className="
+      flex
+      items-center
+      justify-between
+      gap-3
+      px-4
+      pb-3
+    "
+  >
+
+    <div className="flex items-center gap-2">
+
+      <h2 className="text-base font-semibold text-white">
+        Carrito de venta
+      </h2>
+
+      <span
+        className="
+          min-w-[24px]
+          h-6
+          px-2
+          rounded-full
+          bg-[#6C5CE7]/15
+          border
+          border-[#6C5CE7]/30
+          text-purple-300
+          text-xs
+          font-semibold
+          flex
+          items-center
+          justify-center
+        "
+      >
+        {cart.length}
+      </span>
 
     </div>
+
+
+    {cart.length > 0 && (
+      <button
+        type="button"
+        onClick={() => setCart([])}
+        className="
+          text-xs
+          text-red-400
+          px-2
+          py-1
+        "
+      >
+        Vaciar
+      </button>
+    )}
+
+  </div>
+
+</div>
+
+
+{/* ================================================= */}
+{/* HEADER WEB */}
+{/* ================================================= */}
+
+<div
+  className="
+    hidden
+    md:flex
+    items-center
+    justify-between
+    gap-4
+    px-5
+    py-4
+    border-b
+    border-[#25252D]
+  "
+>
+
+  <div>
+
+    <h2 className="text-lg font-semibold text-white">
+      Carrito de venta
+    </h2>
+
+    <p className="text-xs text-gray-500 mt-1">
+      Buscá productos o utilizá el lector para agregarlos.
+    </p>
+
+  </div>
+
+
+  <div className="flex items-center gap-2">
+
+    {/* LECTOR USB — WEB */}
+    <button
+      type="button"
+      onClick={() => {
+        setShowUsbScanner(true)
+
+        setToast({
+          type: 'success',
+          message:
+            'Conectá tu lector USB y comenzá a escanear productos.'
+        })
+
+        setTimeout(() => {
+          usbScannerInputRef.current?.focus()
+        }, 150)
+      }}
+      className="
+        flex
+        items-center
+        gap-2
+        px-4
+        py-2
+        rounded-xl
+        border
+        border-[#6C5CE7]/40
+        bg-[#6C5CE7]/10
+        text-purple-300
+        hover:bg-[#6C5CE7]/20
+        transition
+        text-sm
+        font-medium
+      "
+    >
+      ▥ Usar lector USB
+    </button>
+
+
+    {/* VACIAR */}
+    {cart.length > 0 && (
+      <button
+        type="button"
+        onClick={() => setCart([])}
+        className="
+          text-xs
+          text-red-400
+          hover:text-red-300
+          border
+          border-red-500/20
+          bg-red-500/5
+          rounded-lg
+          px-3
+          py-2
+          transition
+        "
+      >
+        🗑 Vaciar carrito
+      </button>
+    )}
+
+  </div>
+
+</div>
 
 
     {/* ================================================= */}
