@@ -71,6 +71,7 @@ const lastScannedCodeRef = useRef<string>('')
   const [showUsbScanner, setShowUsbScanner] = useState(false)
 const usbScannerInputRef = useRef<HTMLInputElement | null>(null)
   const [showScanner,setShowScanner] = useState(false)
+  const [showMobileCheckout, setShowMobileCheckout] = useState(false)
   const beep = () => {
   const audio = new Audio("/beep.mp3")
   audio.play()
@@ -2283,6 +2284,29 @@ const filteredProducts = products.filter((product) => {
 
           </div>
 
+          {/* CONTINUAR AL COBRO — MOBILE */}
+          <button
+            type="button"
+            onClick={() => setShowMobileCheckout(true)}
+            className="
+              md:hidden
+              w-full
+              mt-4
+              rounded-xl
+              bg-green-600
+              active:bg-green-500
+              py-4
+              px-4
+              text-white
+              text-base
+              font-semibold
+              transition
+              active:scale-[0.99]
+            "
+          >
+            Continuar al cobro · {formatCurrency(cartTotal)}
+          </button>
+
         </div>
 
       )}
@@ -2298,6 +2322,8 @@ const filteredProducts = products.filter((product) => {
 
   <div
     className="
+     hidden
+      md:block
       bg-[#14141A]
       border border-[#2A2A32]
       rounded-2xl
