@@ -1914,13 +1914,20 @@ const filteredProducts = products.filter((product) => {
 
                       )}
 
+{/* PRECIO MOBILE */}
+<p className="md:hidden text-sm text-[#6EA8FF] font-semibold mt-1">
+  {item.sale_type === 'weight'
+    ? `${formatCurrency(item.price)}/kg`
+    : formatCurrency(item.price)}
+</p>
+
                     </div>
 
                   </div>
 
 
                   {/* PRECIO */}
-                  <p className="text-sm text-gray-300">
+                  <p className="hidden md:block text-sm text-gray-300">
 
                     {item.sale_type ===
                     'weight'
