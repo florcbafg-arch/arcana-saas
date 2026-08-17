@@ -1787,6 +1787,18 @@ const filteredProducts = products.filter((product) => {
           </div>
 
 
+<div
+            className="
+              max-h-[360px]
+              md:max-h-none
+              overflow-y-auto
+              md:overflow-visible
+              space-y-2
+              pr-1
+              md:pr-0
+            "
+          >
+
           <AnimatePresence>
             
 
@@ -2217,7 +2229,7 @@ const filteredProducts = products.filter((product) => {
             })}
 
           </AnimatePresence>
-
+   </div>
 
           {/* TOTAL CARRITO */}
           <div
@@ -2287,13 +2299,7 @@ const filteredProducts = products.filter((product) => {
           {/* CONTINUAR AL COBRO — MOBILE */}
           <button
             type="button"
-            onClick={() => {
-  setShowMobileCheckout(true)
-  setToast({
-    type: "success",
-    message: "Abriendo cobro..."
-  })
-}}
+            onClick={() => setShowMobileCheckout(true)}
             className="
               md:hidden
               w-full
