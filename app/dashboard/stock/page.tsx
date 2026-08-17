@@ -11,7 +11,10 @@ type Product = {
   min_stock_red: number
   unit: string
   price: number
-  code?: string
+    code?: string
+  barcode?: string
+  brand?: string | null
+  quantity?: string | null
   cost_price?: number
   sale_type?: 'unit' | 'weight'
   price_by?: string
@@ -50,6 +53,24 @@ export default function StockPage() {
   }
 
   return 'green'
+}
+
+const matchesProductSearch = (product: Product) => {
+  const term = search.trim().toLowerCase()
+
+  if (!term) return true
+
+  return [
+    product.name,
+    product.brand,
+    product.quantity,
+    product.code,
+    product.barcode
+  ].some((value) =>
+    String(value ?? '')
+      .toLowerCase()
+      .includes(term)
+  )
 }
 
 useEffect(() => {
@@ -138,6 +159,7 @@ const { data } = await supabase
   .from('products')
   .select('*')
   .eq('id', selectedProduct.id)
+  .eq('active', true)
   .single()
 
 if (data) {
@@ -163,9 +185,7 @@ useEffect(() => {
 
   const stillVisible = products
     .filter((product) => {
-      const matchesSearch = product.name
-        .toLowerCase()
-        .includes(search.toLowerCase())
+      const matchesSearch = matchesProductSearch(product)
 
       if (!matchesSearch) return false
 
