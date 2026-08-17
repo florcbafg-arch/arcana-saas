@@ -103,6 +103,12 @@ const [salesSummary, setSalesSummary] = useState({
   fetchBusiness()
 }, [selectedBusinessId])
 
+useEffect(() => {
+  if (showTicket) {
+    setShowMobileCheckout(false)
+  }
+}, [showTicket])
+
   useEffect(() => {
   if (!toast) return
 
@@ -2680,7 +2686,145 @@ const filteredProducts = products.filter((product) => {
           </div>
 
         </div>
+        
       </div>
+
+      {/* MÉTODO DE PAGO */}
+      <div className="mt-5">
+
+        <p className="text-sm font-semibold text-white">
+          Método de pago
+        </p>
+
+        <p className="text-xs text-gray-500 mt-1">
+          Seleccioná cómo paga el cliente.
+        </p>
+
+        <div className="grid grid-cols-3 gap-2 mt-3">
+
+          {/* EFECTIVO */}
+          <button
+            type="button"
+            onClick={() => setPaymentType('cash')}
+            className={`
+              min-h-[82px]
+              rounded-xl
+              border
+              px-2
+              py-3
+              flex
+              flex-col
+              items-center
+              justify-center
+              gap-1.5
+              text-xs
+              font-medium
+              transition
+              active:scale-[0.98]
+              ${
+                paymentType === 'cash'
+                  ? 'bg-green-500/10 border-green-500/40 text-green-400'
+                  : 'bg-[#14141A] border-[#2A2A32] text-gray-400'
+              }
+            `}
+          >
+            <span className="text-xl">💵</span>
+            <span>Efectivo</span>
+          </button>
+
+          {/* TRANSFERENCIA */}
+          <button
+            type="button"
+            onClick={() => setPaymentType('transfer')}
+            className={`
+              min-h-[82px]
+              rounded-xl
+              border
+              px-2
+              py-3
+              flex
+              flex-col
+              items-center
+              justify-center
+              gap-1.5
+              text-xs
+              font-medium
+              transition
+              active:scale-[0.98]
+              ${
+                paymentType === 'transfer'
+                  ? 'bg-[#1F6BFF]/10 border-[#1F6BFF]/40 text-[#6EA8FF]'
+                  : 'bg-[#14141A] border-[#2A2A32] text-gray-400'
+              }
+            `}
+          >
+            <span className="text-xl">🏦</span>
+            <span>Transferencia</span>
+          </button>
+
+          {/* TARJETA */}
+          <button
+            type="button"
+            onClick={() => setPaymentType('card')}
+            className={`
+              min-h-[82px]
+              rounded-xl
+              border
+              px-2
+              py-3
+              flex
+              flex-col
+              items-center
+              justify-center
+              gap-1.5
+              text-xs
+              font-medium
+              transition
+              active:scale-[0.98]
+              ${
+                paymentType === 'card'
+                  ? 'bg-[#6C5CE7]/10 border-[#6C5CE7]/40 text-purple-300'
+                  : 'bg-[#14141A] border-[#2A2A32] text-gray-400'
+              }
+            `}
+          >
+            <span className="text-xl">💳</span>
+            <span>Tarjeta</span>
+          </button>
+
+        </div>
+      </div>
+
+      {/* FINALIZAR VENTA */}
+      <button
+        type="button"
+        onClick={createCartSale}
+        disabled={cart.length === 0 || creating}
+        className="
+          w-full
+          mt-6
+          rounded-xl
+          bg-green-600
+          active:bg-green-500
+          disabled:opacity-40
+          disabled:cursor-not-allowed
+          py-4
+          px-4
+          text-white
+          text-base
+          font-semibold
+          transition
+          active:scale-[0.99]
+        "
+      >
+        {creating
+          ? 'Procesando...'
+          : `✓ Finalizar venta · ${formatCurrency(cartTotal)}`}
+      </button>
+
+      <p className="text-center text-xs text-gray-600 mt-3">
+        La venta se registrará y se actualizará el stock.
+      </p>
 
     </div>
   </div>
