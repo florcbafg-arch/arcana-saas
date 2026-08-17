@@ -2287,7 +2287,13 @@ const filteredProducts = products.filter((product) => {
           {/* CONTINUAR AL COBRO — MOBILE */}
           <button
             type="button"
-            onClick={() => setShowMobileCheckout(true)}
+            onClick={() => {
+  setShowMobileCheckout(true)
+  setToast({
+    type: "success",
+    message: "Abriendo cobro..."
+  })
+}}
             className="
               md:hidden
               w-full
