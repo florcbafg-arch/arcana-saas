@@ -1823,18 +1823,24 @@ const filteredProducts = products.filter((product) => {
                     scale: 0.97
                   }}
                   className="
-                    grid
-                    grid-cols-1
-                    md:grid-cols-[minmax(0,1fr)_110px_130px_110px_40px]
-                    gap-3
-                    items-center
-                    rounded-xl
-                    border
-                    border-[#25252D]
-                    bg-[#0E0E11]
-                    px-3
-                    py-3
-                  "
+  grid
+  grid-cols-1
+  md:grid-cols-[minmax(0,1fr)_110px_130px_110px_40px]
+
+  gap-3
+  md:items-center
+
+  rounded-2xl
+  md:rounded-xl
+
+  border
+  border-[#25252D]
+  bg-[#0E0E11]
+
+  p-3
+  md:px-3
+  md:py-3
+"
                 >
 
                   {/* PRODUCTO */}
@@ -1913,6 +1919,8 @@ const filteredProducts = products.filter((product) => {
                         </p>
 
                       )}
+
+<div className="md:hidden h-px bg-[#25252D]" />
 
 {/* PRECIO MOBILE */}
 <p className="md:hidden text-sm text-[#6EA8FF] font-semibold mt-1">
@@ -2107,18 +2115,66 @@ const filteredProducts = products.filter((product) => {
 
                   </div>
 
+<div className="md:hidden h-px bg-[#25252D]" />
+
+{/* FOOTER MOBILE */}
+<div
+  className="
+    md:hidden
+    flex
+    items-center
+    justify-between
+    gap-3
+  "
+>
+  <div>
+    <p className="text-[10px] uppercase tracking-wide text-gray-600">
+      Subtotal
+    </p>
+
+    <p className="text-base font-bold text-white mt-0.5">
+      {formatCurrency(
+        Number(item.quantity) *
+        Number(item.price)
+      )}
+    </p>
+  </div>
+
+  <button
+    type="button"
+    onClick={() =>
+      setCart((current) =>
+        current.filter(
+          (cartItem) =>
+            cartItem.product_id !== item.product_id
+        )
+      )
+    }
+    className="
+      text-xs
+      text-red-400
+      border
+      border-red-500/20
+      bg-red-500/5
+      rounded-lg
+      px-3
+      py-2
+    "
+  >
+    🗑 Eliminar
+  </button>
+</div>
 
                   {/* SUBTOTAL */}
                   <p
   className="
-    text-base
-    md:text-sm
-    font-semibold
-    text-right
-    text-white
-    mt-1
-    md:mt-0
-  "
+  hidden
+  md:block
+  text-sm
+  font-semibold
+  text-right
+  text-white
+"
 >
                     {formatCurrency(
                       item.quantity *
@@ -2142,13 +2198,12 @@ const filteredProducts = products.filter((product) => {
                           )
                       )
                     }
-                    className="
+    className="
+  hidden
+  md:block
   text-red-400
   hover:text-red-300
   transition
-  self-end
-  md:self-auto
-  text-sm
 "
                   >
                     🗑
