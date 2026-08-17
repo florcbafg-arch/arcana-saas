@@ -1942,7 +1942,16 @@ const filteredProducts = products.filter((product) => {
 
 
                   {/* CANTIDAD */}
-                  <div className="flex items-center justify-center">
+                  <div
+  className="
+    flex
+    items-center
+    justify-between
+    md:justify-center
+    w-full
+    md:w-auto
+  "
+>
 
                     {item.sale_type ===
                     'weight' ? (
@@ -1967,12 +1976,13 @@ const filteredProducts = products.filter((product) => {
                     ) : (
 
                       <div
-                        className="
-                          flex
-                          items-center
-                          gap-2
-                        "
-                      >
+  className="
+    flex
+    items-center
+    gap-2
+    md:justify-center
+  "
+>
 
                         <button
                           type="button"
@@ -2100,13 +2110,16 @@ const filteredProducts = products.filter((product) => {
 
                   {/* SUBTOTAL */}
                   <p
-                    className="
-                      text-sm
-                      font-semibold
-                      text-right
-                      text-white
-                    "
-                  >
+  className="
+    text-base
+    md:text-sm
+    font-semibold
+    text-right
+    text-white
+    mt-1
+    md:mt-0
+  "
+>
                     {formatCurrency(
                       item.quantity *
                         item.price
@@ -2130,10 +2143,13 @@ const filteredProducts = products.filter((product) => {
                       )
                     }
                     className="
-                      text-red-400
-                      hover:text-red-300
-                      transition
-                    "
+  text-red-400
+  hover:text-red-300
+  transition
+  self-end
+  md:self-auto
+  text-sm
+"
                   >
                     🗑
                   </button>
