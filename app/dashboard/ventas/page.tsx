@@ -2558,6 +2558,122 @@ const filteredProducts = products.filter((product) => {
 
 </div>  
 
+{/* ================================================= */}
+{/* COBRO MOBILE */}
+{/* ================================================= */}
+
+{showMobileCheckout && (
+  <div
+    className="
+      md:hidden
+      fixed
+      inset-0
+      z-50
+      bg-[#0B0B0F]
+      overflow-y-auto
+    "
+  >
+    <div className="min-h-full px-4 py-5">
+
+      {/* ENCABEZADO */}
+      <div
+        className="
+          flex
+          items-center
+          gap-3
+          pb-4
+          border-b
+          border-[#25252D]
+        "
+      >
+        <button
+          type="button"
+          onClick={() => setShowMobileCheckout(false)}
+          className="
+            w-10
+            h-10
+            shrink-0
+            rounded-xl
+            bg-[#17171F]
+            border
+            border-[#2A2A32]
+            text-white
+            flex
+            items-center
+            justify-center
+            active:scale-95
+            transition
+          "
+          aria-label="Volver al carrito"
+        >
+          ←
+        </button>
+
+        <div>
+          <h2 className="text-lg font-semibold text-white">
+            Cobrar venta
+          </h2>
+
+          <p className="text-xs text-gray-500 mt-0.5">
+            Revisá el total y elegí cómo paga.
+          </p>
+        </div>
+      </div>
+
+      {/* RESUMEN */}
+      <div
+        className="
+          mt-5
+          rounded-2xl
+          border
+          border-[#2A2A32]
+          bg-[#14141A]
+          p-5
+        "
+      >
+        <div className="flex items-center justify-between gap-4">
+
+          <div>
+            <p
+              className="
+                text-[10px]
+                uppercase
+                tracking-wide
+                text-gray-600
+              "
+            >
+              Productos
+            </p>
+
+            <p className="text-sm text-gray-300 mt-1">
+              {cart.length} diferentes
+            </p>
+          </div>
+
+          <div className="text-right">
+            <p
+              className="
+                text-[10px]
+                uppercase
+                tracking-wide
+                text-gray-600
+              "
+            >
+              Total a pagar
+            </p>
+
+            <p className="text-2xl font-bold text-green-400 mt-1">
+              {formatCurrency(cartTotal)}
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+)}
+
 {showUsbScanner && (
   <div
     className="
