@@ -215,9 +215,9 @@ useEffect(() => {
         <h1 className="text-2xl md:text-3xl font-semibold text-white">
           📦 Control de Stock
         </h1>
-        <p className="text-gray-400 mt-1">
-          Consultá el estado de tu inventario en tiempo real.
-        </p>
+       <p className="text-gray-400 mt-1">
+  Revisá productos, alertas y existencias en tiempo real.
+</p>
       </div>
 
       {/* ================= KPI CARDS ================= */}
