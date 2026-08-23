@@ -170,15 +170,20 @@ if (data) {
 await fetchMovements(selectedProduct.id)
   
 }
-const alertProducts = products.filter(
-  (p) =>
-    p.stock_quantity > p.min_stock_red &&
-    p.stock_quantity <= p.min_stock_yellow
+const outOfStockProducts = products.filter(
+  (product) => product.stock_quantity <= 0
 ).length
 
 const criticalProducts = products.filter(
-  (p) =>
-    p.stock_quantity <= p.min_stock_red
+  (product) =>
+    product.stock_quantity > 0 &&
+    product.stock_quantity <= product.min_stock_red
+).length
+
+const alertProducts = products.filter(
+  (product) =>
+    product.stock_quantity > product.min_stock_red &&
+    product.stock_quantity <= product.min_stock_yellow
 ).length
 
 useEffect(() => {
