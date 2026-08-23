@@ -58,6 +58,40 @@ export default function StockPage() {
   return 'green'
 }
 
+const getStockStatusInfo = (product: Product) => {
+  if (product.stock_quantity <= 0) {
+    return {
+      label: 'Sin stock',
+      textClass: 'text-red-400',
+      badgeClass: 'text-red-400 bg-red-500/10 border-red-500/20'
+    }
+  }
+
+  const status = getStockStatus(product)
+
+  if (status === 'red') {
+    return {
+      label: 'Stock crítico',
+      textClass: 'text-orange-400',
+      badgeClass: 'text-orange-400 bg-orange-500/10 border-orange-500/20'
+    }
+  }
+
+  if (status === 'yellow') {
+    return {
+      label: 'Bajo stock',
+      textClass: 'text-yellow-400',
+      badgeClass: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
+    }
+  }
+
+  return {
+    label: 'Stock normal',
+    textClass: 'text-green-400',
+    badgeClass: 'text-green-400 bg-green-500/10 border-green-500/20'
+  }
+}
+
 const matchesStockFilter = (product: Product) => {
   const status = getStockStatus(product)
 
@@ -242,9 +276,12 @@ const attentionProducts = products
   })
   .slice(0, 3)
 
-const formatStockQuantity = (product: Product) => {
+const formatQuantityValue = (
+  value: number,
+  product: Product
+) => {
   if (product.sale_type === 'weight') {
-    const totalGrams = Math.round(product.stock_quantity * 1000)
+    const totalGrams = Math.round(value * 1000)
     const kilograms = Math.floor(totalGrams / 1000)
     const grams = totalGrams % 1000
 
@@ -254,13 +291,15 @@ const formatStockQuantity = (product: Product) => {
     return `${kilograms} kg ${grams} g`
   }
 
-  const quantity = product.stock_quantity.toLocaleString('es-AR', {
+  const quantity = value.toLocaleString('es-AR', {
     maximumFractionDigits: 3
   })
 
-  return `${quantity} ${
-    product.stock_quantity === 1 ? 'unidad' : 'unidades'
-  }`
+  return `${quantity} ${value === 1 ? 'unidad' : 'unidades'}`
+}
+
+const formatStockQuantity = (product: Product) => {
+  return formatQuantityValue(product.stock_quantity, product)
 }
 
 const formatProductPrice = (product: Product) => {
@@ -665,91 +704,73 @@ const statusTextColor =
   </div>
 </div>
 
-      {/* Stock grande */}
-      <div>
-        <p className="text-gray-400 text-sm">Stock actual</p>
-        <p className="text-4xl font-bold text-white">
-          {formatStockQuantity(selectedProduct)}
-        </p>
+    {/* Stock y datos principales */}
+<div className="space-y-4">
+  {(() => {
+    const statusInfo = getStockStatusInfo(selectedProduct)
 
-        <p className="text-xs text-gray-500 mt-1">
-  Umbral amarillo: {selectedProduct.min_stock_yellow} · 
-  Umbral rojo: {selectedProduct.min_stock_red}
-</p>
+    return (
+      <>
+        <div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-4">
+          <p className="text-gray-400 text-sm">
+            Stock actual
+          </p>
 
-{/* Precio unitario */}
-<div className="mt-4">
-  <p className="text-gray-400 text-sm">
-    Precio unitario
-  </p>
-  <p className="text-xl font-semibold text-white">
-    {formatProductPrice(selectedProduct)}
-  </p>
+          <div className="flex items-end justify-between gap-3 mt-2">
+            <p className="text-3xl font-bold text-white leading-none">
+              {formatStockQuantity(selectedProduct)}
+            </p>
+
+            <span
+              className={`text-xs font-medium border px-2.5 py-1 rounded-full shrink-0 ${statusInfo.badgeClass}`}
+            >
+              {statusInfo.label}
+            </span>
+          </div>
+        </div>
+
+        <div className="bg-[#111827] border border-[#1F2937] rounded-2xl divide-y divide-[#1F2937]">
+          <div className="flex items-center justify-between gap-4 px-4 py-3">
+            <p className="text-gray-400 text-sm">
+              Stock mínimo
+            </p>
+
+            <p className="text-white text-sm font-medium text-right">
+              {formatQuantityValue(
+                selectedProduct.min_stock_yellow,
+                selectedProduct
+              )}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 px-4 py-3">
+            <p className="text-gray-400 text-sm">
+              Crítico desde
+            </p>
+
+            <p className="text-white text-sm font-medium text-right">
+              {formatQuantityValue(
+                selectedProduct.min_stock_red,
+                selectedProduct
+              )}
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between gap-4 px-4 py-3">
+            <p className="text-gray-400 text-sm">
+              Precio de venta
+            </p>
+
+            <p className="text-white text-sm font-medium text-right">
+              {formatProductPrice(selectedProduct)}
+            </p>
+          </div>
+        </div>
+      </>
+    )
+  })()}
 </div>
 
-{/* Valor total */}
-<div className="mt-3">
-  <p className="text-gray-400 text-sm flex items-center gap-2">
-    <span>💰</span> Valor total en stock
-  </p>
-  <p className="text-lg font-semibold text-blue-400">
-    ${(selectedProduct.stock_quantity * selectedProduct.price).toLocaleString()}
-  </p>
-</div>
-
-      </div>
-
-{/* Rentabilidad */}
-<div className="mt-3 bg-gray-800/70 border border-gray-700 rounded-xl p-4">
-  <p className="text-gray-400 text-sm mb-2">
-    Rentabilidad
-  </p>
-
-  <p
-    className={`text-lg font-bold ${
-      getProfitStatus(selectedProduct) === 'loss'
-        ? 'text-red-400'
-        : getProfitStatus(selectedProduct) === 'low' ||
-          getProfitStatus(selectedProduct) === 'zero'
-        ? 'text-yellow-400'
-        : 'text-green-400'
-    }`}
-  >
-    {getProfitLabel(selectedProduct)}
-  </p>
-
-  <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
-    <div>
-      <p className="text-gray-500">
-        Costo real
-      </p>
-      <p className="text-white font-semibold">
-        ${(selectedProduct.cost_price || 0).toLocaleString()}
-      </p>
-    </div>
-
-    <div>
-      <p className="text-gray-500">
-        Margen
-      </p>
-      <p
-        className={`font-semibold ${
-          (selectedProduct.price || 0) - (selectedProduct.cost_price || 0) < 0
-            ? 'text-red-400'
-            : 'text-green-400'
-        }`}
-      >
-        ${((selectedProduct.price || 0) - (selectedProduct.cost_price || 0)).toLocaleString()}
-      </p>
-    </div>
-  </div>
-
-  <p className="text-xs text-gray-500 mt-3">
-    {selectedProduct.sale_type === 'weight'
-      ? 'Valores calculados por 100g.'
-      : 'Valores calculados por unidad.'}
-  </p>
-</div>
 
 {/* Ganancia potencial */}
 <div className="mt-4 bg-[#0F172A] border border-[#1E293B] rounded-xl p-4">
