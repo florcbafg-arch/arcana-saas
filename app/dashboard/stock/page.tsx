@@ -212,6 +212,24 @@ useEffect(() => {
   }
 }, [search, filter])
 
+const attentionProducts = products
+  .filter((product) => getStockStatus(product) !== 'green')
+  .sort((a, b) => {
+    const priority = {
+      red: 0,
+      yellow: 1,
+      green: 2
+    }
+
+    const statusDifference =
+      priority[getStockStatus(a)] - priority[getStockStatus(b)]
+
+    if (statusDifference !== 0) return statusDifference
+
+    return a.stock_quantity - b.stock_quantity
+  })
+  .slice(0, 3)
+
 const formatStockQuantity = (product: Product) => {
   if (product.sale_type === 'weight') {
     const totalGrams = Math.round(product.stock_quantity * 1000)
@@ -333,6 +351,92 @@ const formatProductPrice = (product: Product) => {
   </div>
 </div>
 
+</div>
+
+{/* ================= NECESITAN TU ATENCIÓN WEB ================= */}
+<div className="hidden md:block bg-gray-900 border border-gray-800 rounded-2xl p-5">
+  <div className="flex items-center justify-between gap-4 mb-4">
+    <div>
+      <h2 className="text-white text-lg font-semibold">
+        Necesitan tu atención
+      </h2>
+
+      <p className="text-gray-400 text-sm mt-1">
+        Productos que conviene revisar primero.
+      </p>
+    </div>
+
+    <span className="text-xs text-gray-400 bg-gray-800 px-3 py-1.5 rounded-full">
+      {attentionProducts.length} prioritarios
+    </span>
+  </div>
+
+  {attentionProducts.length === 0 ? (
+    <div className="border border-green-500/20 bg-green-500/5 rounded-xl p-4">
+      <p className="text-green-400 font-medium">
+        Todo bajo control
+      </p>
+
+      <p className="text-gray-400 text-sm mt-1">
+        No hay productos con stock crítico o bajo.
+      </p>
+    </div>
+  ) : (
+    <div className="space-y-2">
+      {attentionProducts.map((product) => {
+        const status = getStockStatus(product)
+        const isOutOfStock = product.stock_quantity <= 0
+
+        const statusLabel = isOutOfStock
+          ? 'Sin stock'
+          : status === 'red'
+          ? 'Stock crítico'
+          : 'Bajo stock'
+
+        const statusClasses = isOutOfStock
+          ? 'text-red-400 bg-red-500/10 border-red-500/20'
+          : status === 'red'
+          ? 'text-orange-400 bg-orange-500/10 border-orange-500/20'
+          : 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
+
+        return (
+          <button
+            key={product.id}
+            type="button"
+            onClick={() => {
+              setSelectedProduct(product)
+              fetchMovements(product.id)
+            }}
+            className="w-full flex items-center justify-between gap-4 bg-[#111827] border border-[#1F2937] rounded-xl px-4 py-3 text-left hover:bg-[#1A2233] transition"
+          >
+            <div className="min-w-0">
+              <p className="text-white font-medium truncate">
+                {product.name}
+              </p>
+
+              <p className="text-gray-400 text-sm mt-1">
+                {isOutOfStock
+                  ? 'No quedan existencias'
+                  : `Quedan ${formatStockQuantity(product)}`}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-3 shrink-0">
+              <span
+                className={`text-xs font-medium border px-2.5 py-1 rounded-full ${statusClasses}`}
+              >
+                {statusLabel}
+              </span>
+
+              <span className="text-gray-500 text-xl">
+                ›
+              </span>
+            </div>
+          </button>
+        )
+      })}
+    </div>
+  )}
 </div>
 
       {/* ================= GRID PRINCIPAL ================= */}
