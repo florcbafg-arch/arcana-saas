@@ -14,6 +14,7 @@ type Product = {
     code?: string
   barcode?: string
   brand?: string | null
+  image_url?: string | null
   quantity?: string | null
   cost_price?: number
   sale_type?: 'unit' | 'weight'
@@ -623,15 +624,46 @@ const statusTextColor =
     </p>
   ) : (
     <>
-      {/* Nombre */}
-      <div>
-        <h2 className="text-white text-lg font-semibold">
-          {selectedProduct.name}
-        </h2>
-        <p className="text-gray-400 text-sm">
-          Unidad: {selectedProduct.unit}
+      {/* Producto seleccionado */}
+<div>
+  <p className="text-gray-400 text-sm font-medium">
+    Producto seleccionado
+  </p>
+
+  <div className="flex items-center gap-4 mt-4">
+    <div className="w-20 h-20 rounded-2xl bg-[#111827] border border-[#1F2937] overflow-hidden shrink-0 flex items-center justify-center">
+      {selectedProduct.image_url ? (
+        <img
+          src={selectedProduct.image_url}
+          alt={selectedProduct.name}
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <span className="text-3xl" aria-hidden="true">
+          📦
+        </span>
+      )}
+    </div>
+
+    <div className="min-w-0">
+      <h2 className="text-white text-lg font-semibold leading-tight">
+        {selectedProduct.name}
+      </h2>
+
+      {getProductPresentation(selectedProduct) ? (
+        <p className="text-gray-400 text-sm mt-1">
+          {getProductPresentation(selectedProduct)}
         </p>
-      </div>
+      ) : (
+        <p className="text-gray-400 text-sm mt-1">
+          {selectedProduct.sale_type === 'weight'
+            ? 'Producto por peso'
+            : 'Producto por unidad'}
+        </p>
+      )}
+    </div>
+  </div>
+</div>
 
       {/* Stock grande */}
       <div>
