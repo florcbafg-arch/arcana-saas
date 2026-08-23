@@ -245,15 +245,18 @@ const formatProductPrice = (product: Product) => {
     
     <div className="p-4 md:p-6 space-y-5 md:space-y-8">
 
-      {/* ================= HEADER ================= */}
-      <div>
-        <h1 className="text-2xl md:text-3xl font-semibold text-white">
-          📦 Control de Stock
-        </h1>
-       <p className="text-gray-400 mt-1">
-  Revisá productos, alertas y existencias en tiempo real.
-</p>
-      </div>
+      {/* ================= HEADER WEB ================= */}
+<div className="hidden md:flex items-start justify-between gap-6">
+  <div>
+    <h1 className="text-3xl font-semibold text-white">
+      Control de Stock
+    </h1>
+
+    <p className="text-gray-400 mt-1">
+      Entendé qué pasa con tu mercadería y actuá a tiempo.
+    </p>
+  </div>
+</div>
 
       {/* ================= KPI CARDS ================= */}
 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
