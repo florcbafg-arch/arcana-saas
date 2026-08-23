@@ -31,11 +31,32 @@ type StockMovement = {
   created_at: string
 }
 
+type StockAdjustmentMode =
+  | 'entry'
+  | 'exit'
+  | 'correction'
+
+type WeightInputUnit = 'kg' | 'g'
+
 export default function StockPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [amount, setAmount] = useState(0)
+  const [isAdjustmentOpen, setIsAdjustmentOpen] = useState(false)
 
+const [adjustmentMode, setAdjustmentMode] =
+  useState<StockAdjustmentMode>('entry')
+
+const [adjustmentReason, setAdjustmentReason] = useState('')
+
+const [adjustmentNote, setAdjustmentNote] = useState('')
+
+const [weightInputUnit, setWeightInputUnit] =
+  useState<WeightInputUnit>('kg')
+
+const [isAdjustingStock, setIsAdjustingStock] =
+  useState(false)
+const [adjustmentError, setAdjustmentError] = useState('')
   const [movements, setMovements] = useState<StockMovement[]>([])
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [loadingMovements, setLoadingMovements] = useState(false)
@@ -188,42 +209,182 @@ const getProfitLabel = (product: Product) => {
     setMovements(data || [])
     setLoadingMovements(false)
   }
-const addStock = async () => {
-  if (!selectedProduct || amount === 0 || !selectedBusinessId) return
 
-  const { error } = await supabase.rpc(
-    "adjust_stock_atomic",
-    {
-      p_business_id: selectedBusinessId,
-      p_product_id: selectedProduct.id,
-      p_change: amount,
-      p_reason: amount > 0 ? "Ingreso manual" : "Ajuste manual",
-    }
+  const getNormalizedAdjustmentAmount = () => {
+  if (!selectedProduct) return 0
+
+  if (
+    selectedProduct.sale_type === 'weight' &&
+    weightInputUnit === 'g'
+  ) {
+    return amount / 1000
+  }
+
+  return amount
+}
+
+const getAdjustmentChange = () => {
+  if (!selectedProduct) return 0
+
+  const normalizedAmount =
+    getNormalizedAdjustmentAmount()
+
+  if (adjustmentMode === 'entry') {
+    return normalizedAmount
+  }
+
+  if (adjustmentMode === 'exit') {
+    return -normalizedAmount
+  }
+
+  return normalizedAmount -
+    selectedProduct.stock_quantity
+}
+
+const getResultingStock = () => {
+  if (!selectedProduct) return 0
+
+  return (
+    selectedProduct.stock_quantity +
+    getAdjustmentChange()
   )
+}
 
-  if (error) {
-    console.error("Error ajustando stock:", error)
+const addStock = async () => {
+  if (!selectedProduct || !selectedBusinessId) return
+
+  setAdjustmentError('')
+
+  const normalizedAmount =
+    getNormalizedAdjustmentAmount()
+
+  if (
+    adjustmentMode !== 'correction' &&
+    normalizedAmount <= 0
+  ) {
+    setAdjustmentError(
+      'Ingresá una cantidad mayor que cero.'
+    )
     return
   }
 
-  setAmount(0)
+  if (
+    adjustmentMode === 'correction' &&
+    normalizedAmount < 0
+  ) {
+    setAdjustmentError(
+      'El stock físico no puede ser negativo.'
+    )
+    return
+  }
 
-  await fetchProducts()
+  if (
+    selectedProduct.sale_type !== 'weight' &&
+    !Number.isInteger(normalizedAmount)
+  ) {
+    setAdjustmentError(
+      'Los productos por unidad no aceptan decimales.'
+    )
+    return
+  }
 
-const { data } = await supabase
-  .from('products')
-  .select('*')
-  .eq('id', selectedProduct.id)
-  .eq('active', true)
-  .single()
+  if (!adjustmentReason.trim()) {
+    setAdjustmentError(
+      'Seleccioná un motivo para continuar.'
+    )
+    return
+  }
 
-if (data) {
-  setSelectedProduct(data)
+  const rawChange = getAdjustmentChange()
+
+  const stockChange = Number(
+    rawChange.toFixed(3)
+  )
+
+  const resultingStock = Number(
+    (
+      selectedProduct.stock_quantity +
+      stockChange
+    ).toFixed(3)
+  )
+
+  if (stockChange === 0) {
+    setAdjustmentError(
+      'El stock ingresado es igual al actual.'
+    )
+    return
+  }
+
+  if (resultingStock < 0) {
+    setAdjustmentError(
+      'La salida supera el stock disponible.'
+    )
+    return
+  }
+
+  const movementType =
+    adjustmentMode === 'entry'
+      ? 'Entrada'
+      : adjustmentMode === 'exit'
+      ? 'Salida'
+      : 'Ajuste'
+
+  const fullReason = adjustmentNote.trim()
+    ? `${movementType}: ${adjustmentReason.trim()} · ${adjustmentNote.trim()}`
+    : `${movementType}: ${adjustmentReason.trim()}`
+
+  setIsAdjustingStock(true)
+
+  try {
+    const { error } = await supabase.rpc(
+      'adjust_stock_atomic',
+      {
+        p_business_id: selectedBusinessId,
+        p_product_id: selectedProduct.id,
+        p_change: stockChange,
+        p_reason: fullReason
+      }
+    )
+
+    if (error) {
+      console.error(
+        'Error ajustando stock:',
+        error
+      )
+
+      setAdjustmentError(
+        'No pudimos actualizar el stock. Intentá nuevamente.'
+      )
+      return
+    }
+
+    await fetchProducts()
+
+    const { data } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', selectedProduct.id)
+      .eq('business_id', selectedBusinessId)
+      .eq('active', true)
+      .single()
+
+    if (data) {
+      setSelectedProduct(data)
+    }
+
+    await fetchMovements(selectedProduct.id)
+
+    setAmount(0)
+    setAdjustmentReason('')
+    setAdjustmentNote('')
+    setWeightInputUnit('kg')
+    setAdjustmentMode('entry')
+    setIsAdjustmentOpen(false)
+  } finally {
+    setIsAdjustingStock(false)
+  }
 }
 
-await fetchMovements(selectedProduct.id)
-  
-}
 const outOfStockProducts = products.filter(
   (product) => product.stock_quantity <= 0
 ).length
@@ -883,6 +1044,22 @@ const statusTextColor =
   onClick={() => setIsHistoryOpen(true)}
   className="w-full border border-gray-700 text-gray-300 rounded-xl px-4 py-3 text-sm font-medium hover:bg-gray-800 hover:text-white transition"
 >
+  <button
+  type="button"
+  onClick={() => {
+    setAmount(0)
+    setAdjustmentMode('entry')
+    setAdjustmentReason('')
+    setAdjustmentNote('')
+    setWeightInputUnit('kg')
+    setAdjustmentError('')
+    setIsAdjustmentOpen(true)
+  }}
+  className="w-full bg-blue-600 text-white rounded-xl px-4 py-3 text-sm font-semibold hover:bg-blue-500 transition"
+>
+  Ajustar stock
+</button>
+
   Ver historial
 </button>
 
@@ -891,6 +1068,82 @@ const statusTextColor =
 </div>
 
 </div>
+
+{/* ================= AJUSTE DE STOCK WEB ================= */}
+{isAdjustmentOpen && selectedProduct && (
+  <div
+    className="hidden lg:flex fixed inset-0 z-[1200] bg-black/70 backdrop-blur-sm items-center justify-center p-6"
+    onClick={() => setIsAdjustmentOpen(false)}
+  >
+    <div
+      className="w-full max-w-2xl max-h-[90vh] bg-[#0F172A] border border-[#1E293B] rounded-2xl shadow-2xl overflow-y-auto"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-[#1E293B]">
+        <div>
+          <h2 className="text-white text-xl font-semibold">
+            Ajustar stock
+          </h2>
+
+          <p className="text-gray-400 text-sm mt-1">
+            Registrá un cambio y conservá su historial.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsAdjustmentOpen(false)}
+          className="w-9 h-9 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition"
+          aria-label="Cerrar ajuste de stock"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="p-6">
+        <div className="flex items-center justify-between gap-6 bg-[#111827] border border-[#1F2937] rounded-2xl p-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="w-14 h-14 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shrink-0 flex items-center justify-center">
+              {selectedProduct.image_url ? (
+                <img
+                  src={selectedProduct.image_url}
+                  alt={selectedProduct.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-2xl" aria-hidden="true">
+                  📦
+                </span>
+              )}
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-white font-semibold truncate">
+                {selectedProduct.name}
+              </p>
+
+              <p className="text-gray-400 text-sm mt-1">
+                {selectedProduct.sale_type === 'weight'
+                  ? 'Producto por peso'
+                  : 'Producto por unidad'}
+              </p>
+            </div>
+          </div>
+
+          <div className="text-right shrink-0">
+            <p className="text-gray-400 text-xs">
+              Stock actual
+            </p>
+
+            <p className="text-white text-xl font-bold mt-1">
+              {formatStockQuantity(selectedProduct)}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
 {/* ================= HISTORIAL WEB ================= */}
 {isHistoryOpen && selectedProduct && (
