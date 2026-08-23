@@ -270,6 +270,12 @@ const formatProductPrice = (product: Product) => {
   return `$${price} / ${priceUnit}`
 }
 
+const getProductPresentation = (product: Product) => {
+  return [product.brand, product.quantity]
+    .filter((value) => String(value ?? '').trim())
+    .join(' · ')
+}
+
   return (
     
     <div className="p-4 md:p-6 space-y-5 md:space-y-8">
@@ -567,34 +573,41 @@ const statusTextColor =
     }
   `}
 >
-  <div className="min-w-0 flex-1">
+ <div className="min-w-0 flex-1 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_180px_120px] md:items-center gap-2 md:gap-4">
+  <div className="min-w-0">
     <p className="text-white font-semibold leading-tight truncate">
       {product.name}
     </p>
 
-    <div className="flex items-center gap-2 mt-1">
-      <p className="text-gray-400 text-sm">
-        Stock:{" "}
-        <span className="text-white font-medium">
-          {formatStockQuantity(product)}
-        </span>
+    {getProductPresentation(product) && (
+      <p className="text-gray-500 text-xs mt-1 truncate">
+        {getProductPresentation(product)}
       </p>
-
-      <span className="text-gray-600">•</span>
-
-      <p className={`text-xs font-medium ${statusTextColor}`}>
-        {statusLabel}
-      </p>
-    </div>
+    )}
   </div>
 
-  <div className="flex items-center gap-3">
-    <div className={`w-3 h-3 rounded-full shrink-0 ${color}`} />
+  <div>
+    <p className="hidden md:block text-gray-500 text-xs">
+      Stock real
+    </p>
 
-    <span className="md:hidden text-gray-500 text-xl">
-      ›
-    </span>
+    <p className="text-white text-sm font-medium md:mt-1">
+      {formatStockQuantity(product)}
+    </p>
   </div>
+
+  <div className="flex items-center md:justify-end gap-2">
+    <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${color}`} />
+
+    <p className={`text-xs font-medium ${statusTextColor}`}>
+      {statusLabel}
+    </p>
+  </div>
+</div>
+
+<span className="md:hidden text-gray-500 text-xl shrink-0">
+  ›
+</span>
 </div>
       )
     })}
