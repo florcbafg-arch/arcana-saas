@@ -39,6 +39,7 @@ export default function StockPage() {
   const [movements, setMovements] = useState<StockMovement[]>([])
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [loadingMovements, setLoadingMovements] = useState(false)
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<
   'all' | 'out' | 'alert' | 'critical' | 'normal'
@@ -843,15 +844,106 @@ const statusTextColor =
             )}
           </p>
         </div>
+
       )
     })()
   )}
 </div>
+
+<button
+  type="button"
+  onClick={() => setIsHistoryOpen(true)}
+  className="w-full border border-gray-700 text-gray-300 rounded-xl px-4 py-3 text-sm font-medium hover:bg-gray-800 hover:text-white transition"
+>
+  Ver historial
+</button>
+
     </>
   )}
 </div>
 
 </div>
+
+{/* ================= HISTORIAL WEB ================= */}
+{isHistoryOpen && selectedProduct && (
+  <div
+    className="hidden lg:flex fixed inset-0 z-[1100] bg-black/70 backdrop-blur-sm items-center justify-center p-6"
+    onClick={() => setIsHistoryOpen(false)}
+  >
+    <div
+      className="w-full max-w-4xl max-h-[85vh] bg-[#0F172A] border border-[#1E293B] rounded-2xl shadow-2xl overflow-hidden"
+      onClick={(event) => event.stopPropagation()}
+    >
+      <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-[#1E293B]">
+        <div>
+          <h2 className="text-white text-xl font-semibold">
+            Historial de stock
+          </h2>
+
+          <p className="text-gray-400 text-sm mt-1">
+            Todos los cambios que explican el stock actual.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsHistoryOpen(false)}
+          className="w-9 h-9 rounded-lg text-gray-400 hover:text-white hover:bg-gray-800 transition"
+          aria-label="Cerrar historial"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="p-6">
+        <div className="flex items-center justify-between gap-6 bg-[#111827] border border-[#1F2937] rounded-2xl p-4">
+          <div className="flex items-center gap-4 min-w-0">
+            <div className="w-14 h-14 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shrink-0 flex items-center justify-center">
+              {selectedProduct.image_url ? (
+                <img
+                  src={selectedProduct.image_url}
+                  alt={selectedProduct.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span className="text-2xl" aria-hidden="true">
+                  📦
+                </span>
+              )}
+            </div>
+
+            <div className="min-w-0">
+              <p className="text-white font-semibold truncate">
+                {selectedProduct.name}
+              </p>
+
+              <p className="text-gray-400 text-sm mt-1">
+                {getProductPresentation(selectedProduct) ||
+                  (selectedProduct.sale_type === 'weight'
+                    ? 'Producto por peso'
+                    : 'Producto por unidad')}
+              </p>
+            </div>
+          </div>
+
+          <div className="text-right shrink-0">
+            <p className="text-gray-400 text-xs">
+              Stock actual
+            </p>
+
+            <p className="text-white text-xl font-bold mt-1">
+              {formatStockQuantity(selectedProduct)}
+            </p>
+          </div>
+        </div>
+
+        <p className="text-gray-500 text-sm mt-5">
+          {movements.length} movimientos registrados
+        </p>
+      </div>
+    </div>
+  </div>
+)}
 
 {/* ================= DETALLE MOBILE ================= */}
 {selectedProduct && (
