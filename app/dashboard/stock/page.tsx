@@ -261,44 +261,76 @@ const formatProductPrice = (product: Product) => {
       {/* ================= KPI CARDS ================= */}
 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
 
-  <div className="bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-2xl p-3 md:p-6">
-    <p className="text-gray-400 text-[11px] md:text-sm">
-      Productos activos
-    </p>
+  <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 md:p-5">
+  <div className="flex items-center gap-3">
+    <div className="w-11 h-11 rounded-full bg-blue-500/15 flex items-center justify-center text-xl">
+      📦
+    </div>
 
-    <p className="text-xl md:text-3xl font-bold text-white mt-1 md:mt-2">
-      {products.length}
-    </p>
+    <div>
+      <p className="text-gray-400 text-xs md:text-sm">
+        Productos activos
+      </p>
+
+      <p className="text-2xl md:text-3xl font-bold text-white mt-0.5">
+        {products.length}
+      </p>
+    </div>
   </div>
+</div>
 
-  <div className="bg-gray-900 border border-gray-800 rounded-2xl p-3 md:p-6">
-    <p className="text-gray-400 text-[11px] md:text-sm">
-      Sin stock
-    </p>
+ <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 md:p-5">
+  <div className="flex items-center gap-3">
+    <div className="w-11 h-11 rounded-full bg-red-500/15 flex items-center justify-center text-xl">
+      ⛔
+    </div>
 
-    <p className="text-xl md:text-3xl font-bold text-red-500 mt-1 md:mt-2">
-      {outOfStockProducts}
-    </p>
+    <div>
+      <p className="text-gray-400 text-xs md:text-sm">
+        Sin stock
+      </p>
+
+      <p className="text-2xl md:text-3xl font-bold text-red-500 mt-0.5">
+        {outOfStockProducts}
+      </p>
+    </div>
   </div>
+</div>
 
-  <div className="bg-gray-900 border border-gray-800 rounded-2xl p-3 md:p-6">
-    <p className="text-gray-400 text-[11px] md:text-sm">
-      Stock crítico
-    </p>
+  <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 md:p-5">
+  <div className="flex items-center gap-3">
+    <div className="w-11 h-11 rounded-full bg-orange-500/15 flex items-center justify-center text-xl">
+      🚨
+    </div>
 
-    <p className="text-xl md:text-3xl font-bold text-red-500 mt-1 md:mt-2">
-      {criticalProducts}
-    </p>
+    <div>
+      <p className="text-gray-400 text-xs md:text-sm">
+        Stock crítico
+      </p>
+
+      <p className="text-2xl md:text-3xl font-bold text-orange-500 mt-0.5">
+        {criticalProducts}
+      </p>
+    </div>
   </div>
+</div>
 
-<div className="bg-gray-900 border border-gray-800 rounded-2xl p-3 md:p-6">
-  <p className="text-gray-400 text-[11px] md:text-sm">
-    Bajo stock
-  </p>
+<div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 md:p-5">
+  <div className="flex items-center gap-3">
+    <div className="w-11 h-11 rounded-full bg-yellow-500/15 flex items-center justify-center text-xl">
+      ⚠️
+    </div>
 
-  <p className="text-xl md:text-3xl font-bold text-yellow-400 mt-1 md:mt-2">
-    {alertProducts}
-  </p>
+    <div>
+      <p className="text-gray-400 text-xs md:text-sm">
+        Bajo stock
+      </p>
+
+      <p className="text-2xl md:text-3xl font-bold text-yellow-400 mt-0.5">
+        {alertProducts}
+      </p>
+    </div>
+  </div>
 </div>
 
 </div>
