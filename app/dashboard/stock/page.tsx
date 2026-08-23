@@ -487,7 +487,20 @@ const getProductPresentation = (product: Product) => {
             }}
             className="w-full flex items-center justify-between gap-4 bg-[#111827] border border-[#1F2937] rounded-xl px-4 py-3 text-left hover:bg-[#1A2233] transition"
           >
-            <div className="min-w-0">
+            <div className="w-10 h-10 rounded-lg bg-gray-800 border border-gray-700 overflow-hidden shrink-0 flex items-center justify-center">
+  {product.image_url ? (
+    <img
+      src={product.image_url}
+      alt={product.name}
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <span className="text-lg" aria-hidden="true">
+      📦
+    </span>
+  )}
+</div>
+            <div className="min-w-0 flex-1">
               <p className="text-white font-medium truncate">
                 {product.name}
               </p>
@@ -940,6 +953,72 @@ const statusTextColor =
         <p className="text-gray-500 text-sm mt-5">
           {movements.length} movimientos registrados
         </p>
+
+<div className="mt-4 border border-[#1F2937] rounded-xl overflow-hidden">
+  <div className="grid grid-cols-[150px_minmax(0,1fr)_140px] gap-4 bg-gray-800/60 px-4 py-3 text-xs text-gray-400">
+    <p>Fecha</p>
+    <p>Movimiento</p>
+    <p className="text-right">Cambio</p>
+  </div>
+
+  {loadingMovements ? (
+    <p className="text-gray-500 text-sm px-4 py-6">
+      Cargando movimientos...
+    </p>
+  ) : movements.length === 0 ? (
+    <p className="text-gray-500 text-sm px-4 py-6">
+      No hay movimientos registrados.
+    </p>
+  ) : (
+    <div className="max-h-[360px] overflow-y-auto divide-y divide-[#1F2937]">
+      {movements.map((movement) => (
+        <div
+          key={movement.id}
+          className="grid grid-cols-[150px_minmax(0,1fr)_140px] items-center gap-4 px-4 py-3"
+        >
+          <p className="text-gray-400 text-xs">
+            {new Date(movement.created_at).toLocaleString(
+              'es-AR',
+              {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              }
+            )}
+          </p>
+
+          <div className="min-w-0">
+            <p className="text-white text-sm font-medium truncate">
+              {getMovementLabel(movement)}
+            </p>
+
+            {movement.reason && (
+              <p className="text-gray-500 text-xs mt-1 truncate">
+                {movement.reason}
+              </p>
+            )}
+          </div>
+
+          <p
+            className={`text-sm font-semibold text-right ${
+              movement.change < 0
+                ? 'text-red-400'
+                : 'text-green-400'
+            }`}
+          >
+            {formatMovementChange(
+              movement,
+              selectedProduct
+            )}
+          </p>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
+
       </div>
     </div>
   </div>
