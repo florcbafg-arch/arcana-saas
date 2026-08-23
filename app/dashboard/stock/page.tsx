@@ -113,6 +113,7 @@ const getProfitLabel = (product: Product) => {
       .from('products')
       .select('*')
       .eq('business_id', selectedBusinessId)
+      .eq('active', true)
 
     setProducts(data || [])
     setLoadingProducts(false)
@@ -205,6 +206,27 @@ useEffect(() => {
     setMovements([])
   }
 }, [search, filter])
+
+const formatStockQuantity = (product: Product) => {
+  if (product.sale_type === 'weight') {
+    const totalGrams = Math.round(product.stock_quantity * 1000)
+    const kilograms = Math.floor(totalGrams / 1000)
+    const grams = totalGrams % 1000
+
+    if (kilograms === 0) return `${grams} g`
+    if (grams === 0) return `${kilograms} kg`
+
+    return `${kilograms} kg ${grams} g`
+  }
+
+  const quantity = product.stock_quantity.toLocaleString('es-AR', {
+    maximumFractionDigits: 3
+  })
+
+  return `${quantity} ${
+    product.stock_quantity === 1 ? 'unidad' : 'unidades'
+  }`
+}
 
   return (
     
@@ -391,7 +413,7 @@ const statusTextColor =
       <p className="text-gray-400 text-sm">
         Stock:{" "}
         <span className="text-white font-medium">
-          {product.stock_quantity}
+          {formatStockQuantity(product)}
         </span>
       </p>
 
@@ -439,7 +461,7 @@ const statusTextColor =
       <div>
         <p className="text-gray-400 text-sm">Stock actual</p>
         <p className="text-4xl font-bold text-white">
-          {selectedProduct.stock_quantity}
+          {formatStockQuantity(selectedProduct)}
         </p>
 
         <p className="text-xs text-gray-500 mt-1">
@@ -685,7 +707,7 @@ const statusTextColor =
               </p>
 
               <p className="text-4xl font-bold text-white mt-1">
-                {selectedProduct.stock_quantity}
+                {formatStockQuantity(selectedProduct)}
               </p>
 
               <p className="text-xs text-gray-500 mt-1">
