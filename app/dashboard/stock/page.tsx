@@ -350,11 +350,7 @@ const formatProductPrice = (product: Product) => {
 
        {products
   .filter((product) => {
-   const matchesSearch =
-product.name.toLowerCase().includes(search.toLowerCase()) ||
-product.code?.toLowerCase().includes(search.toLowerCase())
-
-    if (!matchesSearch) return false
+   if (!matchesProductSearch(product)) return false
 
     const status = getStockStatus(product)
 
