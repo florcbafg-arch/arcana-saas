@@ -1039,30 +1039,31 @@ const statusTextColor =
   )}
 </div>
 
-<button
-  type="button"
-  onClick={() => setIsHistoryOpen(true)}
-  className="w-full border border-gray-700 text-gray-300 rounded-xl px-4 py-3 text-sm font-medium hover:bg-gray-800 hover:text-white transition"
->
+<div className="space-y-3">
   <button
-  type="button"
-  onClick={() => {
-    setAmount(0)
-    setAdjustmentMode('entry')
-    setAdjustmentReason('')
-    setAdjustmentNote('')
-    setWeightInputUnit('kg')
-    setAdjustmentError('')
-    setIsAdjustmentOpen(true)
-  }}
-  className="w-full bg-blue-600 text-white rounded-xl px-4 py-3 text-sm font-semibold hover:bg-blue-500 transition"
->
-  Ajustar stock
-</button>
+    type="button"
+    onClick={() => {
+      setAmount(0)
+      setAdjustmentMode('entry')
+      setAdjustmentReason('')
+      setAdjustmentNote('')
+      setWeightInputUnit('kg')
+      setAdjustmentError('')
+      setIsAdjustmentOpen(true)
+    }}
+    className="w-full bg-blue-600 text-white rounded-xl px-4 py-3 text-sm font-semibold hover:bg-blue-500 transition"
+  >
+    Ajustar stock
+  </button>
 
-  Ver historial
-</button>
-
+  <button
+    type="button"
+    onClick={() => setIsHistoryOpen(true)}
+    className="w-full border border-gray-700 text-gray-300 rounded-xl px-4 py-3 text-sm font-medium hover:bg-gray-800 hover:text-white transition"
+  >
+    Ver historial
+  </button>
+</div>
     </>
   )}
 </div>
@@ -1140,6 +1141,73 @@ const statusTextColor =
             </p>
           </div>
         </div>
+
+<div className="mt-6">
+  <p className="text-white text-sm font-medium mb-3">
+    ¿Qué necesitás hacer?
+  </p>
+
+  <div className="grid grid-cols-3 gap-3">
+    {[
+      {
+        value: 'entry',
+        label: 'Registrar entrada',
+        description: 'Ingresó mercadería',
+        icon: '↓'
+      },
+      {
+        value: 'exit',
+        label: 'Registrar salida',
+        description: 'Merma, rotura o consumo',
+        icon: '↑'
+      },
+      {
+        value: 'correction',
+        label: 'Corregir stock',
+        description: 'Conteo físico',
+        icon: '✎'
+      }
+    ].map((option) => (
+      <button
+        key={option.value}
+        type="button"
+        onClick={() => {
+          setAdjustmentMode(
+            option.value as StockAdjustmentMode
+          )
+          setAmount(0)
+          setAdjustmentReason('')
+          setAdjustmentNote('')
+          setAdjustmentError('')
+        }}
+        className={`rounded-xl border p-4 text-left transition ${
+          adjustmentMode === option.value
+            ? 'border-blue-500 bg-blue-500/10'
+            : 'border-gray-700 bg-[#111827] hover:bg-gray-800'
+        }`}
+      >
+        <span
+          className={`text-lg ${
+            adjustmentMode === option.value
+              ? 'text-blue-400'
+              : 'text-gray-400'
+          }`}
+        >
+          {option.icon}
+        </span>
+
+        <p className="text-white text-sm font-medium mt-3">
+          {option.label}
+        </p>
+
+        <p className="text-gray-500 text-xs mt-1">
+          {option.description}
+        </p>
+      </button>
+    ))}
+  </div>
+</div>
+
       </div>
     </div>
   </div>
