@@ -459,12 +459,12 @@ const formatProductPrice = (product: Product) => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 
   <h2 className="text-white font-semibold text-xl">
-    Productos
+    Inventario
   </h2>
 
   <input
     type="text"
-    placeholder="🔎 Buscar producto..."
+    placeholder="🔎 Buscar por nombre, marca, presentación o código..."
     value={search}
     onChange={(e) => setSearch(e.target.value)}
     onKeyDown={(e) => {
@@ -473,7 +473,7 @@ const formatProductPrice = (product: Product) => {
       }
     }}
     className="
-      w-full md:w-[280px]
+      w-full md:w-[380px]
       bg-[#111827]
       border border-[#1F2937]
       rounded-xl
@@ -491,11 +491,12 @@ const formatProductPrice = (product: Product) => {
 
 <div className="flex gap-2 mt-2 overflow-x-auto pb-1 scrollbar-hide">
   {[
-    { label: 'Todos', value: 'all' },
-    { label: 'En alerta', value: 'alert' },
-    { label: 'Críticos', value: 'critical' },
-    { label: 'Normales', value: 'normal' }
-  ].map((btn) => (
+  { label: 'Todos', value: 'all' },
+  { label: 'Sin stock', value: 'out' },
+  { label: 'Críticos', value: 'critical' },
+  { label: 'Bajo stock', value: 'alert' },
+  { label: 'Normales', value: 'normal' }
+].map((btn) => (
     <button
       key={btn.value}
       onClick={() => setFilter(btn.value as any)}
