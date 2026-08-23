@@ -39,7 +39,9 @@ export default function StockPage() {
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [loadingMovements, setLoadingMovements] = useState(false)
   const [search, setSearch] = useState('')
-  const [filter, setFilter] = useState<'all' | 'alert' | 'critical' | 'normal'>('all')
+  const [filter, setFilter] = useState<
+  'all' | 'out' | 'alert' | 'critical' | 'normal'
+>('all')
   const [selectedBusinessId, setSelectedBusinessId] = useState<string | null>(null)
   
 
@@ -53,6 +55,22 @@ export default function StockPage() {
   }
 
   return 'green'
+}
+
+const matchesStockFilter = (product: Product) => {
+  const status = getStockStatus(product)
+
+  if (filter === 'all') return true
+  if (filter === 'out') return product.stock_quantity <= 0
+
+  if (filter === 'critical') {
+    return product.stock_quantity > 0 && status === 'red'
+  }
+
+  if (filter === 'alert') return status === 'yellow'
+  if (filter === 'normal') return status === 'green'
+
+  return true
 }
 
 const matchesProductSearch = (product: Product) => {
@@ -195,14 +213,7 @@ useEffect(() => {
 
       if (!matchesSearch) return false
 
-      const status = getStockStatus(product)
-
-      if (filter === 'all') return true
-      if (filter === 'critical') return status === 'red'
-      if (filter === 'alert') return status === 'yellow'
-      if (filter === 'normal') return status === 'green'
-
-      return true
+      return matchesStockFilter(product)
     })
     .some((p) => p.id === selectedProduct.id)
 
@@ -506,14 +517,7 @@ const formatProductPrice = (product: Product) => {
   .filter((product) => {
    if (!matchesProductSearch(product)) return false
 
-    const status = getStockStatus(product)
-
-    if (filter === 'all') return true
-    if (filter === 'critical') return status === 'red'
-    if (filter === 'alert') return status === 'yellow'
-    if (filter === 'normal') return status === 'green'
-
-    return true
+    return matchesStockFilter(product)
   })
   .map((product) => {
       const status = getStockStatus(product)
