@@ -228,6 +228,14 @@ const formatStockQuantity = (product: Product) => {
   }`
 }
 
+const formatProductPrice = (product: Product) => {
+  const price = Number(product.price || 0).toLocaleString('es-AR')
+  const priceUnit =
+    product.sale_type === 'weight' ? '100 g' : 'unidad'
+
+  return `$${price} / ${priceUnit}`
+}
+
   return (
     
     <div className="p-4 md:p-6 space-y-5 md:space-y-8">
@@ -475,7 +483,7 @@ const statusTextColor =
     Precio unitario
   </p>
   <p className="text-xl font-semibold text-white">
-    ${selectedProduct.price.toLocaleString()}
+    {formatProductPrice(selectedProduct)}
   </p>
 </div>
 
@@ -772,7 +780,7 @@ const statusTextColor =
             </p>
 
             <p className="text-lg text-white font-bold mt-1">
-              ${Number(selectedProduct.price || 0).toLocaleString('es-AR')}
+              {formatProductPrice(selectedProduct)}
             </p>
           </div>
 
