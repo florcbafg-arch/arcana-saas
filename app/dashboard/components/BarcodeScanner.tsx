@@ -13,6 +13,9 @@ export default function BarcodeScanner({ onScan }: Props) {
   const controlsRef = useRef<any>(null)
 
   const scanLockedRef = useRef(false)
+  const lastScannedCodeRef = useRef("")
+const lastCodeSeenAtRef = useRef(0)
+const onScanRef = useRef(onScan)
 
   const [message, setMessage] = useState(
     "Apuntá el código dentro del marco"
@@ -62,6 +65,10 @@ export default function BarcodeScanner({ onScan }: Props) {
   }
 
   useEffect(() => {
+  onScanRef.current = onScan
+}, [onScan])
+
+  useEffect(() => {
     let mounted = true
 
     const startScanner = async () => {
@@ -90,28 +97,61 @@ export default function BarcodeScanner({ onScan }: Props) {
             videoRef.current!,
 
             (result) => {
-              if (!result) return
+  const now = Date.now()
 
-              // 🔒 Una sola lectura por apertura
-              if (scanLockedRef.current) return
+  // El código salió del cuadro:
+  // habilitamos una nueva lectura.
+  if (!result) {
+    if (
+      scanLockedRef.current &&
+      now - lastCodeSeenAtRef.current > 800
+    ) {
+      scanLockedRef.current = false
+      lastScannedCodeRef.current = ""
 
-              scanLockedRef.current = true
+      if (mounted) {
+        setStatus("scanning")
+        setMessage("Buscando código...")
+      }
+    }
 
-              const code = result.getText()
+    return
+  }
 
-              setStatus("success")
-              setMessage("✅ Código detectado")
+  const code = result.getText()
+  const isSameCode =
+    code === lastScannedCodeRef.current
 
-              vibrate()
-              beep()
+  // Si el mismo código sigue frente a la cámara,
+  // no volvemos a agregarlo.
+  if (scanLockedRef.current && isSameCode) {
+    lastCodeSeenAtRef.current = now
+    return
+  }
 
-              // Detenemos inmediatamente la cámara
-              controlsRef.current?.stop()
+  // Si aparece otro código demasiado rápido,
+  // esperamos para evitar una lectura accidental.
+  if (
+    scanLockedRef.current &&
+    now - lastCodeSeenAtRef.current <= 800
+  ) {
+    return
+  }
 
-              if (mounted) {
-                onScan(code)
-              }
-            }
+  scanLockedRef.current = true
+  lastScannedCodeRef.current = code
+  lastCodeSeenAtRef.current = now
+
+  setStatus("success")
+  setMessage("✅ Código detectado. Podés seguir escaneando")
+
+  vibrate()
+  beep()
+
+  if (mounted) {
+    onScanRef.current(code)
+  }
+}
           )
 
         controlsRef.current = controls
@@ -137,7 +177,7 @@ export default function BarcodeScanner({ onScan }: Props) {
       scanLockedRef.current = true
       controlsRef.current?.stop()
     }
-  }, [onScan])
+ }, [])
 
   return (
     <div className="flex h-full w-full flex-col">
