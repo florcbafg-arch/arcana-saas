@@ -256,11 +256,11 @@ const formatProductPrice = (product: Product) => {
       </div>
 
       {/* ================= KPI CARDS ================= */}
-<div className="grid grid-cols-3 gap-2 md:gap-6">
+<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
 
   <div className="bg-gray-900/80 backdrop-blur-sm border border-gray-800 rounded-2xl p-3 md:p-6">
     <p className="text-gray-400 text-[11px] md:text-sm">
-      Productos
+      Productos activos
     </p>
 
     <p className="text-xl md:text-3xl font-bold text-white mt-1 md:mt-2">
@@ -270,23 +270,33 @@ const formatProductPrice = (product: Product) => {
 
   <div className="bg-gray-900 border border-gray-800 rounded-2xl p-3 md:p-6">
     <p className="text-gray-400 text-[11px] md:text-sm">
-      En alerta
+      Sin stock
     </p>
 
-    <p className="text-xl md:text-3xl font-bold text-yellow-400 mt-1 md:mt-2">
-      {alertProducts}
+    <p className="text-xl md:text-3xl font-bold text-red-500 mt-1 md:mt-2">
+      {outOfStockProducts}
     </p>
   </div>
 
   <div className="bg-gray-900 border border-gray-800 rounded-2xl p-3 md:p-6">
     <p className="text-gray-400 text-[11px] md:text-sm">
-      Críticos
+      Stock crítico
     </p>
 
     <p className="text-xl md:text-3xl font-bold text-red-500 mt-1 md:mt-2">
       {criticalProducts}
     </p>
   </div>
+
+<div className="bg-gray-900 border border-gray-800 rounded-2xl p-3 md:p-6">
+  <p className="text-gray-400 text-[11px] md:text-sm">
+    Bajo stock
+  </p>
+
+  <p className="text-xl md:text-3xl font-bold text-yellow-400 mt-1 md:mt-2">
+    {alertProducts}
+  </p>
+</div>
 
 </div>
 
