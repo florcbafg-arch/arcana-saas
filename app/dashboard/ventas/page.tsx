@@ -1036,8 +1036,6 @@ const filteredProducts = products.filter((product) => {
                   "Producto no encontrado en tu catálogo"
               })
 
-              setShowScanner(false)
-
               return
             }
 
@@ -1049,8 +1047,6 @@ const filteredProducts = products.filter((product) => {
                 message:
                   `${product.name} no tiene stock disponible`
               })
-
-              setShowScanner(false)
 
               return
             }
@@ -1068,7 +1064,6 @@ const filteredProducts = products.filter((product) => {
 
             // El componente ya hace beep/vibración.
             // Cerramos inmediatamente la cámara.
-            setShowScanner(false)
           }}
         />
 
