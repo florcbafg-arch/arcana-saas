@@ -250,6 +250,27 @@ const getResultingStock = () => {
   )
 }
 
+const adjustmentReasons =
+  adjustmentMode === 'entry'
+    ? [
+        'Compra a proveedor',
+        'Devolución recibida',
+        'Stock inicial',
+        'Otro'
+      ]
+    : adjustmentMode === 'exit'
+    ? [
+        'Rotura o merma',
+        'Producto vencido',
+        'Consumo interno',
+        'Otro'
+      ]
+    : [
+        'Conteo físico',
+        'Error de carga',
+        'Otro'
+      ]
+
 const addStock = async () => {
   if (!selectedProduct || !selectedBusinessId) return
 
@@ -1205,6 +1226,126 @@ const statusTextColor =
         </p>
       </button>
     ))}
+  </div>
+</div>
+
+{/* Cantidad */}
+<div className="mt-6">
+  <label
+    htmlFor="stock-adjustment-amount"
+    className="block text-white text-sm font-medium mb-2"
+  >
+    {adjustmentMode === 'entry'
+      ? 'Cantidad que ingresa'
+      : adjustmentMode === 'exit'
+      ? 'Cantidad que sale'
+      : 'Stock físico contado'}
+  </label>
+
+  <div className="flex">
+    <input
+      id="stock-adjustment-amount"
+      type="number"
+      min="0"
+      step={
+        selectedProduct.sale_type === 'weight'
+          ? weightInputUnit === 'g'
+            ? '1'
+            : '0.001'
+          : '1'
+      }
+      value={amount}
+      onChange={(event) => {
+        setAmount(Number(event.target.value))
+        setAdjustmentError('')
+      }}
+      className={`w-full bg-[#111827] border border-gray-700 px-4 py-3 text-white focus:outline-none focus:border-blue-500 ${
+        selectedProduct.sale_type === 'weight'
+          ? 'rounded-l-xl'
+          : 'rounded-xl'
+      }`}
+    />
+
+    {selectedProduct.sale_type === 'weight' && (
+      <select
+        value={weightInputUnit}
+        onChange={(event) => {
+          setWeightInputUnit(
+            event.target.value as WeightInputUnit
+          )
+          setAdjustmentError('')
+        }}
+        className="bg-gray-800 border border-l-0 border-gray-700 rounded-r-xl px-4 text-white focus:outline-none focus:border-blue-500"
+      >
+        <option value="kg">kg</option>
+        <option value="g">g</option>
+      </select>
+    )}
+  </div>
+
+  <p className="text-gray-500 text-xs mt-2">
+    {adjustmentMode === 'correction'
+      ? 'Ingresá la cantidad real que contaste.'
+      : selectedProduct.sale_type === 'weight'
+      ? 'Podés cargar la cantidad en kilos o gramos.'
+      : 'Ingresá una cantidad de unidades enteras.'}
+  </p>
+</div>
+
+{/* Motivo y nota */}
+<div className="mt-5 space-y-4">
+  <div>
+    <label
+      htmlFor="stock-adjustment-reason"
+      className="block text-white text-sm font-medium mb-2"
+    >
+      Motivo
+      <span className="text-red-400 ml-1">*</span>
+    </label>
+
+    <select
+      id="stock-adjustment-reason"
+      value={adjustmentReason}
+      onChange={(event) => {
+        setAdjustmentReason(event.target.value)
+        setAdjustmentError('')
+      }}
+      className="w-full bg-[#111827] border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-blue-500"
+    >
+      <option value="">
+        Seleccioná un motivo
+      </option>
+
+      {adjustmentReasons.map((reason) => (
+        <option key={reason} value={reason}>
+          {reason}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  <div>
+    <label
+      htmlFor="stock-adjustment-note"
+      className="block text-white text-sm font-medium mb-2"
+    >
+      Nota
+      <span className="text-gray-500 font-normal ml-1">
+        (opcional)
+      </span>
+    </label>
+
+    <textarea
+      id="stock-adjustment-note"
+      value={adjustmentNote}
+      onChange={(event) =>
+        setAdjustmentNote(event.target.value)
+      }
+      placeholder="Ej.: Pedido recibido completo"
+      rows={2}
+      maxLength={180}
+      className="w-full resize-none bg-[#111827] border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
+    />
   </div>
 </div>
 
