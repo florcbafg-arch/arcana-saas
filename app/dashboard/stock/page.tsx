@@ -302,6 +302,26 @@ const formatStockQuantity = (product: Product) => {
   return formatQuantityValue(product.stock_quantity, product)
 }
 
+const getMovementLabel = (movement: StockMovement) => {
+  if (movement.reason === 'Venta') return 'Venta'
+  if (movement.reason === 'Ingreso manual') return 'Entrada'
+  if (movement.reason === 'Ajuste manual') return 'Ajuste'
+
+  return movement.reason || 'Movimiento'
+}
+
+const formatMovementChange = (
+  movement: StockMovement,
+  product: Product
+) => {
+  const formattedQuantity = formatQuantityValue(
+    Math.abs(movement.change),
+    product
+  )
+
+  return `${movement.change > 0 ? '+' : '-'}${formattedQuantity}`
+}
+
 const formatProductPrice = (product: Product) => {
   const price = Number(product.price || 0).toLocaleString('es-AR')
   const priceUnit =
@@ -771,108 +791,60 @@ const statusTextColor =
   })()}
 </div>
 
-
-{/* Ganancia potencial */}
-<div className="mt-4 bg-[#0F172A] border border-[#1E293B] rounded-xl p-4">
-
-  <p className="text-gray-400 text-sm mb-2">
-    Ganancia potencial
+{/* Último movimiento */}
+<div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-4">
+  <p className="text-gray-400 text-sm">
+    Último movimiento
   </p>
-
-  <p className="text-2xl font-bold text-green-400">
-    $
-    {(
-      ((selectedProduct.price || 0) -
-        (selectedProduct.cost_price || 0)) *
-      selectedProduct.stock_quantity
-    ).toLocaleString('es-AR')}
-  </p>
-
-  <p className="text-xs text-gray-500 mt-2">
-    Ganancia estimada si vendés todo el stock actual.
-  </p>
-
-</div>
-
-      {/* Estado */}
-      <div>
-        {(() => {
-          const status = getStockStatus(selectedProduct)
-
-          if (status === 'red')
-            return <p className="text-red-400">🔴 Crítico</p>
-
-          if (status === 'yellow')
-            return <p className="text-yellow-400">⚠️ Bajo</p>
-
-          return <p className="text-green-400">🟢 Normal</p>
-        })()}
-      </div>
-
-      {/* Barra visual */}
-      <div className="w-full bg-gray-800 rounded-full h-3 overflow-hidden">
-        <div
-          className={`h-full transition-all duration-500 ${
-            getStockStatus(selectedProduct) === 'red'
-              ? 'bg-red-500'
-              : getStockStatus(selectedProduct) === 'yellow'
-              ? 'bg-yellow-400'
-              : 'bg-green-500'
-          }`}
-          style={{
-            width: `${Math.min(
-              100,
-              (selectedProduct.stock_quantity /
-                (selectedProduct.min_stock_yellow * 2)) *
-                100
-            )}%`,
-            
-          }}
-        />
-        
-        </div>
-    
-{/* Historial */}
-<div className="pt-4 border-t border-gray-800 space-y-3">
-  <p className="text-sm text-gray-400">Historial</p>
 
   {loadingMovements ? (
-    <p className="text-gray-500 text-xs">Cargando...</p>
+    <p className="text-gray-500 text-sm mt-3">
+      Cargando...
+    </p>
   ) : movements.length === 0 ? (
-    <p className="text-gray-500 text-xs">
-      No hay movimientos todavía.
+    <p className="text-gray-500 text-sm mt-3">
+      No hay movimientos registrados.
     </p>
   ) : (
-    <div className="max-h-[300px] overflow-y-auto pr-2 space-y-2">
-      {movements.map((m) => (
-        <div
-          key={m.id}
-          className="flex justify-between text-xs bg-gray-800 rounded-lg px-3 py-2"
-        >
-          <span
-            className={
-              m.change < 0
-                ? 'text-red-400'
-                : 'text-green-400'
-            }
-          >
-            {m.change > 0 ? '+' : ''}
-            {m.change}
-          </span>
+    (() => {
+      const lastMovement = movements[0]
 
-          <span className="text-gray-400 truncate max-w-[120px]">
-  {m.reason === 'Ingreso manual' && '➕ Ingreso'}
-  {m.reason === 'Ajuste manual' && '⚙️ Ajuste'}
-  {m.reason === 'Venta' && '🛒 Venta'}
-  {!['Ingreso manual','Ajuste manual','Venta'].includes(m.reason) && m.reason}
-</span>
+      return (
+        <div className="mt-3">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-white text-sm font-medium">
+              {getMovementLabel(lastMovement)}
+            </p>
 
-          <span className="text-gray-500">
-            {new Date(m.created_at).toLocaleDateString()}
-          </span>
+            <p
+              className={`text-sm font-semibold ${
+                lastMovement.change < 0
+                  ? 'text-red-400'
+                  : 'text-green-400'
+              }`}
+            >
+              {formatMovementChange(
+                lastMovement,
+                selectedProduct
+              )}
+            </p>
+          </div>
+
+          <p className="text-gray-500 text-xs mt-2">
+            {new Date(lastMovement.created_at).toLocaleString(
+              'es-AR',
+              {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              }
+            )}
+          </p>
         </div>
-      ))}
-    </div>
+      )
+    })()
   )}
 </div>
     </>
