@@ -647,6 +647,21 @@ const statusTextColor =
     }
   `}
 >
+
+<div className="w-11 h-11 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shrink-0 flex items-center justify-center">
+  {product.image_url ? (
+    <img
+      src={product.image_url}
+      alt={product.name}
+      className="w-full h-full object-cover"
+    />
+  ) : (
+    <span className="text-xl" aria-hidden="true">
+      📦
+    </span>
+  )}
+</div>
+
  <div className="min-w-0 flex-1 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_180px_120px] md:items-center gap-2 md:gap-4">
   <div className="min-w-0">
     <p className="text-white font-semibold leading-tight truncate">
