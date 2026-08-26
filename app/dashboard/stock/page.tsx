@@ -65,6 +65,10 @@ const [weightInputUnit, setWeightInputUnit] =
 const [isAdjustingStock, setIsAdjustingStock] =
   useState(false)
 const [adjustmentError, setAdjustmentError] = useState('')
+const [
+  hasAdjustmentAmount,
+  setHasAdjustmentAmount
+] = useState(false)
   const [movements, setMovements] = useState<StockMovement[]>([])
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [loadingMovements, setLoadingMovements] = useState(false)
@@ -286,6 +290,13 @@ const addStock = async () => {
 
   setAdjustmentError('')
 
+  if (!hasAdjustmentAmount) {
+  setAdjustmentError(
+    'Ingresá una cantidad para continuar.'
+  )
+  return
+}
+
   const normalizedAmount =
     getNormalizedAdjustmentAmount()
 
@@ -405,15 +416,16 @@ const addStock = async () => {
 
     await fetchMovements(selectedProduct.id)
 
-    setAmount(0)
-    setAdjustmentReason('')
-    setAdjustmentNote('')
-    setWeightInputUnit('kg')
-    setAdjustmentMode('entry')
-    setIsAdjustmentOpen(false)
-  } finally {
-    setIsAdjustingStock(false)
-  }
+  setAmount(0)
+setHasAdjustmentAmount(false)
+setAdjustmentReason('')
+setAdjustmentNote('')
+setWeightInputUnit('kg')
+setAdjustmentMode('entry')
+setIsAdjustmentOpen(false)
+} finally {
+  setIsAdjustingStock(false)
+}
 }
 
 const outOfStockProducts = products.filter(
@@ -473,22 +485,34 @@ const formatQuantityValue = (
   value: number,
   product: Product
 ) => {
-  if (product.sale_type === 'weight') {
-    const totalGrams = Math.round(value * 1000)
+const sign = value < 0 ? '-' : ''
+const absoluteValue = Math.abs(value)
+
+if (product.sale_type === 'weight') {
+  const totalGrams = Math.round(
+    absoluteValue * 1000
+  )
     const kilograms = Math.floor(totalGrams / 1000)
     const grams = totalGrams % 1000
 
-    if (kilograms === 0) return `${grams} g`
-    if (grams === 0) return `${kilograms} kg`
+    if (kilograms === 0) {
+  return `${sign}${grams} g`
+}
 
-    return `${kilograms} kg ${grams} g`
+if (grams === 0) {
+  return `${sign}${kilograms} kg`
+}
+
+return `${sign}${kilograms} kg ${grams} g`
   }
 
-  const quantity = value.toLocaleString('es-AR', {
+  const quantity = absoluteValue.toLocaleString('es-AR', {
     maximumFractionDigits: 3
   })
 
-  return `${quantity} ${value === 1 ? 'unidad' : 'unidades'}`
+  return `${sign}${quantity} ${
+  absoluteValue === 1 ? 'unidad' : 'unidades'
+}`
 }
 
 const formatStockQuantity = (product: Product) => {
@@ -1249,6 +1273,7 @@ const statusTextColor =
     type="button"
     onClick={() => {
       setAmount(0)
+      setHasAdjustmentAmount(false)
       setAdjustmentMode('entry')
       setAdjustmentReason('')
       setAdjustmentNote('')
@@ -1423,6 +1448,7 @@ const statusTextColor =
             option.value as StockAdjustmentMode
           )
           setAmount(0)
+          setHasAdjustmentAmount(false)
           setAdjustmentReason('')
           setAdjustmentNote('')
           setAdjustmentError('')
@@ -1483,6 +1509,7 @@ const statusTextColor =
       value={amount}
       onChange={(event) => {
         setAmount(Number(event.target.value))
+        setHasAdjustmentAmount(true)
         setAdjustmentError('')
       }}
       className={`w-full bg-[#111827] border border-gray-700 px-4 py-3 text-white focus:outline-none focus:border-blue-500 ${
@@ -1573,6 +1600,141 @@ const statusTextColor =
       className="w-full resize-none bg-[#111827] border border-gray-700 rounded-xl px-4 py-3 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
     />
   </div>
+</div>
+
+{/* Previsualización */}
+{hasAdjustmentAmount && (
+  <div className="mt-5">
+    {(() => {
+      const stockChange = getAdjustmentChange()
+      const resultingStock = getResultingStock()
+      const isInvalid = resultingStock < 0
+
+      return (
+        <div
+          className={`rounded-xl border p-4 ${
+            isInvalid
+              ? 'border-red-500/30 bg-red-500/5'
+              : 'border-green-500/30 bg-green-500/5'
+          }`}
+        >
+          <p className="text-gray-400 text-xs">
+            Stock resultante
+          </p>
+
+          <div className="flex items-center flex-wrap gap-2 mt-2 text-sm font-semibold">
+            {adjustmentMode === 'correction' ? (
+              <>
+                <span className="text-gray-400">
+                  Stock contado:
+                </span>
+
+                <span
+                  className={
+                    isInvalid
+                      ? 'text-red-400'
+                      : 'text-green-400'
+                  }
+                >
+                  {formatQuantityValue(
+                    resultingStock,
+                    selectedProduct
+                  )}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-white">
+                  {formatStockQuantity(selectedProduct)}
+                </span>
+
+                <span
+                  className={
+                    stockChange < 0
+                      ? 'text-red-400'
+                      : 'text-green-400'
+                  }
+                >
+                  {stockChange < 0 ? '−' : '+'}
+                </span>
+
+                <span className="text-white">
+                  {formatQuantityValue(
+                    Math.abs(stockChange),
+                    selectedProduct
+                  )}
+                </span>
+
+                <span className="text-gray-500">
+                  =
+                </span>
+
+                <span
+                  className={
+                    isInvalid
+                      ? 'text-red-400'
+                      : 'text-green-400'
+                  }
+                >
+                  {formatQuantityValue(
+                    resultingStock,
+                    selectedProduct
+                  )}
+                </span>
+              </>
+            )}
+          </div>
+
+          <p className="text-gray-500 text-xs mt-3">
+            Este movimiento quedará registrado en el historial.
+          </p>
+        </div>
+      )
+    })()}
+  </div>
+)}
+
+{/* Error */}
+{adjustmentError && (
+  <div className="mt-4 border border-red-500/30 bg-red-500/10 rounded-xl px-4 py-3">
+    <p className="text-red-400 text-sm">
+      {adjustmentError}
+    </p>
+  </div>
+)}
+
+{/* Acciones */}
+<div className="flex justify-end gap-3 mt-6">
+  <button
+    type="button"
+    onClick={() => {
+      setIsAdjustmentOpen(false)
+      setAmount(0)
+      setHasAdjustmentAmount(false)
+      setAdjustmentReason('')
+      setAdjustmentNote('')
+      setAdjustmentError('')
+    }}
+    disabled={isAdjustingStock}
+    className="border border-gray-700 text-gray-300 rounded-xl px-5 py-3 text-sm font-medium hover:bg-gray-800 hover:text-white transition disabled:opacity-50"
+  >
+    Cancelar
+  </button>
+
+  <button
+    type="button"
+    onClick={addStock}
+    disabled={isAdjustingStock}
+    className="bg-blue-600 text-white rounded-xl px-5 py-3 text-sm font-semibold hover:bg-blue-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    {isAdjustingStock
+      ? 'Guardando...'
+      : adjustmentMode === 'entry'
+      ? 'Confirmar entrada'
+      : adjustmentMode === 'exit'
+      ? 'Confirmar salida'
+      : 'Confirmar corrección'}
+  </button>
 </div>
 
       </div>
