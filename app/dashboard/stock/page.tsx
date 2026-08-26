@@ -15,6 +15,7 @@ type Product = {
   barcode?: string
   brand?: string | null
   image_url?: string | null
+  expiration_date?: string | null
   quantity?: string | null
   cost_price?: number
   sale_type?: 'unit' | 'weight'
@@ -519,6 +520,76 @@ const getProductPresentation = (product: Product) => {
     .join(' · ')
 }
 
+const getExpirationInfo = (product: Product) => {
+  if (!product.expiration_date) return null
+
+  const datePart =
+    product.expiration_date.split('T')[0]
+
+  const [year, month, day] = datePart
+    .split('-')
+    .map(Number)
+
+  if (!year || !month || !day) return null
+
+  const expirationDate = new Date(
+    year,
+    month - 1,
+    day
+  )
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const differenceInDays = Math.ceil(
+    (
+      expirationDate.getTime() -
+      today.getTime()
+    ) /
+      86400000
+  )
+
+  const formattedDate =
+    expirationDate.toLocaleDateString('es-AR')
+
+  if (differenceInDays < 0) {
+    return {
+      date: formattedDate,
+      message: `Venció hace ${Math.abs(
+        differenceInDays
+      )} días`,
+      textClass: 'text-red-400'
+    }
+  }
+
+  if (differenceInDays === 0) {
+    return {
+      date: formattedDate,
+      message: 'Vence hoy',
+      textClass: 'text-red-400'
+    }
+  }
+
+  if (differenceInDays === 1) {
+    return {
+      date: formattedDate,
+      message: 'Vence mañana',
+      textClass: 'text-orange-400'
+    }
+  }
+
+  return {
+    date: formattedDate,
+    message: `Faltan ${differenceInDays} días`,
+    textClass:
+      differenceInDays <= 7
+        ? 'text-orange-400'
+        : differenceInDays <= 30
+        ? 'text-yellow-400'
+        : 'text-gray-300'
+  }
+}
+
   return (
     
     <div className="p-4 md:p-6 space-y-5 md:space-y-8">
@@ -996,6 +1067,36 @@ const statusTextColor =
               {formatProductPrice(selectedProduct)}
             </p>
           </div>
+
+<div className="flex items-center justify-between gap-4 px-4 py-3">
+  <p className="text-gray-400 text-sm">
+    Vencimiento
+  </p>
+
+  {(() => {
+    const expirationInfo =
+      getExpirationInfo(selectedProduct)
+
+    return expirationInfo ? (
+      <div className="text-right">
+        <p className="text-white text-sm font-medium">
+          {expirationInfo.date}
+        </p>
+
+        <p
+          className={`text-xs mt-1 ${expirationInfo.textClass}`}
+        >
+          {expirationInfo.message}
+        </p>
+      </div>
+    ) : (
+      <p className="text-gray-500 text-sm text-right">
+        Sin vencimiento registrado
+      </p>
+    )
+  })()}
+</div>
+
         </div>
       </>
     )
@@ -1161,6 +1262,48 @@ const statusTextColor =
               {formatStockQuantity(selectedProduct)}
             </p>
           </div>
+
+<div className="grid grid-cols-2 gap-3 mt-3">
+  <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-4 py-3">
+    <p className="text-gray-500 text-xs">
+      Precio de venta
+    </p>
+
+    <p className="text-white text-sm font-medium mt-1">
+      {formatProductPrice(selectedProduct)}
+    </p>
+  </div>
+
+  <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-4 py-3">
+    <p className="text-gray-500 text-xs">
+      Vencimiento
+    </p>
+
+    {(() => {
+      const expirationInfo =
+        getExpirationInfo(selectedProduct)
+
+      return expirationInfo ? (
+        <>
+          <p className="text-white text-sm font-medium mt-1">
+            {expirationInfo.date}
+          </p>
+
+          <p
+            className={`text-xs mt-1 ${expirationInfo.textClass}`}
+          >
+            {expirationInfo.message}
+          </p>
+        </>
+      ) : (
+        <p className="text-gray-500 text-sm mt-1">
+          Sin vencimiento registrado
+        </p>
+      )
+    })()}
+  </div>
+</div>
+
         </div>
 
 <div className="mt-6">
@@ -1409,9 +1552,9 @@ const statusTextColor =
 
               <p className="text-gray-400 text-sm mt-1">
                 {getProductPresentation(selectedProduct) ||
-                  (selectedProduct.sale_type === 'weight'
-                    ? 'Producto por peso'
-                    : 'Producto por unidad')}
+                   (selectedProduct.sale_type === 'weight'
+                        ? 'Producto por peso'
+                        : 'Producto por unidad')}
               </p>
             </div>
           </div>
