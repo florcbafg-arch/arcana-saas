@@ -1759,7 +1759,7 @@ const statusTextColor =
           </h2>
 
           <p className="text-gray-400 text-sm mt-1">
-            Todos los cambios que explican el stock actual.
+            Revisá los movimientos registrados de este producto.
           </p>
         </div>
 
