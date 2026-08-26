@@ -39,6 +39,13 @@ type StockAdjustmentMode =
 
 type WeightInputUnit = 'kg' | 'g'
 
+type HistoryFilter =
+  | 'all'
+  | 'sales'
+  | 'entries'
+  | 'exits'
+  | 'adjustments'
+
 export default function StockPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -62,6 +69,8 @@ const [adjustmentError, setAdjustmentError] = useState('')
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [loadingMovements, setLoadingMovements] = useState(false)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
+  const [historyFilter, setHistoryFilter] =
+  useState<HistoryFilter>('all')
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<
   'all' | 'out' | 'alert' | 'critical' | 'normal'
@@ -487,11 +496,76 @@ const formatStockQuantity = (product: Product) => {
 }
 
 const getMovementLabel = (movement: StockMovement) => {
-  if (movement.reason === 'Venta') return 'Venta'
-  if (movement.reason === 'Ingreso manual') return 'Entrada'
-  if (movement.reason === 'Ajuste manual') return 'Ajuste'
+  const reason = movement.reason || ''
 
-  return movement.reason || 'Movimiento'
+  if (reason === 'Venta') return 'Venta'
+  if (reason === 'Ingreso manual') return 'Entrada'
+  if (reason === 'Ajuste manual') return 'Ajuste'
+  if (reason === 'Stock inicial') return 'Stock inicial'
+
+  if (reason.startsWith('Entrada:')) return 'Entrada'
+  if (reason.startsWith('Salida:')) return 'Salida'
+  if (reason.startsWith('Ajuste:')) return 'Ajuste'
+
+  return reason || 'Movimiento'
+}
+
+const getMovementDetail = (
+  movement: StockMovement
+) => {
+  const reason = movement.reason || ''
+
+  if (
+    [
+      'Venta',
+      'Ingreso manual',
+      'Ajuste manual',
+      'Stock inicial'
+    ].includes(reason)
+  ) {
+    return null
+  }
+
+  const separatorPosition = reason.indexOf(':')
+
+  if (separatorPosition !== -1) {
+    return reason
+      .slice(separatorPosition + 1)
+      .trim()
+  }
+
+  return null
+}
+
+const getMovementCategory = (
+  movement: StockMovement
+): HistoryFilter => {
+  const reason = movement.reason || ''
+
+  if (reason === 'Venta') return 'sales'
+
+  if (
+    reason === 'Stock inicial' ||
+    reason === 'Ingreso manual' ||
+    reason.startsWith('Entrada:')
+  ) {
+    return 'entries'
+  }
+
+  if (reason.startsWith('Salida:')) {
+    return 'exits'
+  }
+
+  if (
+    reason === 'Ajuste manual' ||
+    reason.startsWith('Ajuste:')
+  ) {
+    return 'adjustments'
+  }
+
+  return movement.change >= 0
+    ? 'entries'
+    : 'exits'
 }
 
 const formatMovementChange = (
@@ -589,6 +663,15 @@ const getExpirationInfo = (product: Product) => {
         : 'text-gray-300'
   }
 }
+
+const filteredMovements =
+  historyFilter === 'all'
+    ? movements
+    : movements.filter(
+        (movement) =>
+          getMovementCategory(movement) ===
+          historyFilter
+      )
 
   return (
     
@@ -1568,11 +1651,85 @@ const statusTextColor =
               {formatStockQuantity(selectedProduct)}
             </p>
           </div>
+
+<div className="grid grid-cols-2 gap-3 mt-3">
+  <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-4 py-3">
+    <p className="text-gray-500 text-xs">
+      Precio de venta
+    </p>
+
+    <p className="text-white text-sm font-medium mt-1">
+      {formatProductPrice(selectedProduct)}
+    </p>
+  </div>
+
+  <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-4 py-3">
+    <p className="text-gray-500 text-xs">
+      Vencimiento
+    </p>
+
+    {(() => {
+      const expirationInfo =
+        getExpirationInfo(selectedProduct)
+
+      return expirationInfo ? (
+        <>
+          <p className="text-white text-sm font-medium mt-1">
+            {expirationInfo.date}
+          </p>
+
+          <p
+            className={`text-xs mt-1 ${expirationInfo.textClass}`}
+          >
+            {expirationInfo.message}
+          </p>
+        </>
+      ) : (
+        <p className="text-gray-500 text-sm mt-1">
+          Sin vencimiento registrado
+        </p>
+      )
+    })()}
+  </div>
+</div>
+
         </div>
 
-        <p className="text-gray-500 text-sm mt-5">
-          {movements.length} movimientos registrados
-        </p>
+        <div className="flex items-center justify-between gap-4 mt-5">
+  <div className="flex gap-2 overflow-x-auto">
+    {[
+      { label: 'Todos', value: 'all' },
+      { label: 'Ventas', value: 'sales' },
+      { label: 'Entradas', value: 'entries' },
+      { label: 'Salidas', value: 'exits' },
+      { label: 'Ajustes', value: 'adjustments' }
+    ].map((option) => (
+      <button
+        key={option.value}
+        type="button"
+        onClick={() =>
+          setHistoryFilter(
+            option.value as HistoryFilter
+          )
+        }
+        className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition ${
+          historyFilter === option.value
+            ? 'bg-blue-600 text-white'
+            : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+        }`}
+      >
+        {option.label}
+      </button>
+    ))}
+  </div>
+
+  <p className="text-gray-500 text-xs shrink-0">
+    {filteredMovements.length}{' '}
+    {filteredMovements.length === 1
+      ? 'movimiento'
+      : 'movimientos'}
+  </p>
+</div>
 
 <div className="mt-4 border border-[#1F2937] rounded-xl overflow-hidden">
   <div className="grid grid-cols-[150px_minmax(0,1fr)_140px] gap-4 bg-gray-800/60 px-4 py-3 text-xs text-gray-400">
@@ -1585,13 +1742,13 @@ const statusTextColor =
     <p className="text-gray-500 text-sm px-4 py-6">
       Cargando movimientos...
     </p>
-  ) : movements.length === 0 ? (
+  ) : filteredMovements.length === 0 ? (
     <p className="text-gray-500 text-sm px-4 py-6">
       No hay movimientos registrados.
     </p>
   ) : (
     <div className="max-h-[360px] overflow-y-auto divide-y divide-[#1F2937]">
-      {movements.map((movement) => (
+      {filteredMovements.map((movement) => (
         <div
           key={movement.id}
           className="grid grid-cols-[150px_minmax(0,1fr)_140px] items-center gap-4 px-4 py-3"
@@ -1614,11 +1771,11 @@ const statusTextColor =
               {getMovementLabel(movement)}
             </p>
 
-            {movement.reason && (
-              <p className="text-gray-500 text-xs mt-1 truncate">
-                {movement.reason}
-              </p>
-            )}
+            {getMovementDetail(movement) && (
+  <p className="text-gray-500 text-xs mt-1 truncate">
+    {getMovementDetail(movement)}
+  </p>
+)}
           </div>
 
           <p
