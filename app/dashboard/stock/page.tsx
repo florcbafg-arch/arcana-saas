@@ -1371,7 +1371,7 @@ const filteredMovements =
   ))}
 </div>
 
-         <div className="max-h-[620px] overflow-y-auto pr-1 space-y-3 scrollbar-hide">
+         <div className="max-h-[350px] md:max-h-[620px] overflow-y-auto overscroll-contain pr-2 space-y-3">
 
 
        {products
@@ -1383,6 +1383,9 @@ const filteredMovements =
   .map((product) => {
       const status = getStockStatus(product)
 
+      const statusInfo =
+  getStockStatusInfo(product)
+
 const color =
   status === 'red'
     ? 'bg-red-500'
@@ -1390,19 +1393,10 @@ const color =
     ? 'bg-yellow-400'
     : 'bg-green-500'
 
-    const statusLabel =
-  status === 'red'
-    ? 'Crítico'
-    : status === 'yellow'
-    ? 'En alerta'
-    : 'Normal'
+   const statusLabel = statusInfo.label
 
 const statusTextColor =
-  status === 'red'
-    ? 'text-red-400'
-    : status === 'yellow'
-    ? 'text-yellow-400'
-    : 'text-green-400'
+  statusInfo.textClass
 
       return (
         <div
