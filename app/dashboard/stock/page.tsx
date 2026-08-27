@@ -2386,301 +2386,270 @@ const statusTextColor =
     }}
   >
     <div
-      className="w-full max-h-[88vh] bg-[#111827] border-t border-[#263247] rounded-t-3xl overflow-hidden flex flex-col"
-      onClick={(e) => e.stopPropagation()}
-    >
+  className="w-full max-h-[90vh] bg-[#111827] border-t border-[#263247] rounded-t-3xl overflow-hidden flex flex-col"
+  onClick={(event) => {
+    event.stopPropagation()
+  }}
+>
       {/* Indicador superior */}
       <div className="flex justify-center pt-3">
         <div className="w-12 h-1.5 rounded-full bg-gray-700" />
       </div>
 
-      {/* Encabezado */}
-      <div className="flex items-start justify-between gap-4 px-5 pt-4 pb-5 border-b border-gray-800">
-        <div className="min-w-0">
-          <h2 className="text-xl font-bold text-white leading-tight">
-            {selectedProduct.name}
-          </h2>
+      {/* Encabezado Mobile */}
+<div className="flex items-center gap-3 px-5 pt-4 pb-5 border-b border-gray-800">
+  <div className="w-14 h-14 rounded-2xl bg-gray-800 border border-gray-700 overflow-hidden shrink-0 flex items-center justify-center">
+    {selectedProduct.image_url ? (
+      <img
+        src={selectedProduct.image_url}
+        alt={selectedProduct.name}
+        className="w-full h-full object-cover"
+      />
+    ) : (
+      <span
+        className="text-2xl"
+        aria-hidden="true"
+      >
+        📦
+      </span>
+    )}
+  </div>
 
-          <p className="text-sm text-gray-400 mt-1">
-            Unidad: {selectedProduct.unit}
-          </p>
-        </div>
+  <div className="min-w-0 flex-1">
+    <p className="text-blue-400 text-[11px] font-semibold uppercase tracking-wider">
+      Detalle del producto
+    </p>
 
-        <button
-          type="button"
-          onClick={() => {
-            setSelectedProduct(null)
-            setMovements([])
-          }}
-          className="w-10 h-10 shrink-0 rounded-full bg-gray-800 text-gray-300 flex items-center justify-center text-xl"
-          aria-label="Cerrar detalle"
-        >
-          ✕
-        </button>
-      </div>
+    <h2 className="text-lg font-bold text-white leading-tight mt-1 truncate">
+      {selectedProduct.name}
+    </h2>
+
+    <p className="text-gray-400 text-xs mt-1 truncate">
+      {getProductPresentation(selectedProduct) ||
+        (selectedProduct.sale_type === 'weight'
+          ? 'Producto por peso'
+          : 'Producto por unidad')}
+    </p>
+  </div>
+
+  <button
+    type="button"
+    onClick={() => {
+      setSelectedProduct(null)
+      setMovements([])
+    }}
+    className="w-10 h-10 shrink-0 rounded-full bg-gray-800 text-gray-300 flex items-center justify-center text-lg active:scale-95 transition"
+    aria-label="Cerrar detalle"
+  >
+    ✕
+  </button>
+</div>
 
       {/* Contenido desplazable */}
       <div className="overflow-y-auto flex-1 px-5 py-5 space-y-5">
 
-        {/* Estado y stock */}
-        <div className="bg-[#0F172A] border border-[#1E293B] rounded-2xl p-4">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm text-gray-400">
-                Stock actual
-              </p>
+        {/* Resumen de stock Mobile */}
+<div className="bg-[#0F172A] border border-[#1E293B] rounded-2xl p-4">
+  <div className="flex items-start justify-between gap-4">
+    <div className="min-w-0">
+      <p className="text-gray-400 text-xs">
+        Stock actual
+      </p>
 
-              <p className="text-4xl font-bold text-white mt-1">
-                {formatStockQuantity(selectedProduct)}
-              </p>
+      <p className="text-white text-3xl font-bold mt-1">
+        {formatStockQuantity(selectedProduct)}
+      </p>
+    </div>
 
-              <p className="text-xs text-gray-500 mt-1">
-                {selectedProduct.unit}
-              </p>
-            </div>
+    <span
+      className={`text-xs font-semibold border px-3 py-1.5 rounded-full whitespace-nowrap ${
+        getStockStatusInfo(selectedProduct)
+          .badgeClass
+      }`}
+    >
+      {getStockStatusInfo(selectedProduct).label}
+    </span>
+  </div>
 
-            <div>
-              {getStockStatus(selectedProduct) === 'red' && (
-                <span className="inline-flex px-3 py-1.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 text-xs font-semibold">
-                  🔴 Crítico
-                </span>
-              )}
+  <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-gray-800">
+    <div>
+      <p className="text-gray-500 text-xs">
+        Avisar desde
+      </p>
 
-              {getStockStatus(selectedProduct) === 'yellow' && (
-                <span className="inline-flex px-3 py-1.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 text-xs font-semibold">
-                  🟡 En alerta
-                </span>
-              )}
+      <p className="text-white text-sm font-medium mt-1">
+        {formatQuantityValue(
+          selectedProduct.min_stock_yellow,
+          selectedProduct
+        )}
+      </p>
+    </div>
 
-              {getStockStatus(selectedProduct) === 'green' && (
-                <span className="inline-flex px-3 py-1.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20 text-xs font-semibold">
-                  🟢 Normal
-                </span>
-              )}
-            </div>
-          </div>
+    <div>
+      <p className="text-gray-500 text-xs">
+        Crítico desde
+      </p>
 
-          <div className="w-full bg-gray-800 rounded-full h-2 overflow-hidden mt-4">
-            <div
-              className={`h-full transition-all duration-500 ${
-                getStockStatus(selectedProduct) === 'red'
-                  ? 'bg-red-500'
-                  : getStockStatus(selectedProduct) === 'yellow'
-                  ? 'bg-yellow-400'
-                  : 'bg-green-500'
-              }`}
-              style={{
-                width: `${Math.min(
-                  100,
-                  selectedProduct.min_stock_yellow > 0
-                    ? (selectedProduct.stock_quantity /
-                        (selectedProduct.min_stock_yellow * 2)) *
-                        100
-                    : 100
-                )}%`
-              }}
-            />
-          </div>
+      <p className="text-white text-sm font-medium mt-1">
+        {formatQuantityValue(
+          selectedProduct.min_stock_red,
+          selectedProduct
+        )}
+      </p>
+    </div>
+  </div>
+</div>
 
-          <p className="text-xs text-gray-500 mt-3">
-            Alerta: {selectedProduct.min_stock_yellow} · Crítico:{" "}
-            {selectedProduct.min_stock_red}
+       {/* Precio y vencimiento Mobile */}
+<div className="grid grid-cols-2 gap-3">
+  <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
+    <p className="text-gray-500 text-xs">
+      Precio de venta
+    </p>
+
+    <p className="text-white text-sm font-semibold mt-2">
+      {formatProductPrice(selectedProduct)}
+    </p>
+  </div>
+
+  <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
+    <p className="text-gray-500 text-xs">
+      Vencimiento
+    </p>
+
+    {(() => {
+      const expirationInfo =
+        getExpirationInfo(selectedProduct)
+
+      return expirationInfo ? (
+        <>
+          <p className="text-white text-sm font-semibold mt-2">
+            {expirationInfo.date}
           </p>
-        </div>
 
-        {/* Valores principales */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
-            <p className="text-xs text-gray-400">
-              Precio
-            </p>
+          <p
+            className={`text-xs mt-1 ${expirationInfo.textClass}`}
+          >
+            {expirationInfo.message}
+          </p>
+        </>
+      ) : (
+        <p className="text-gray-500 text-xs mt-2">
+          Sin vencimiento registrado
+        </p>
+      )
+    })()}
+  </div>
+</div>
 
-            <p className="text-lg text-white font-bold mt-1">
-              {formatProductPrice(selectedProduct)}
-            </p>
-          </div>
+{/* Último movimiento Mobile */}
+<div className="bg-[#0F172A] border border-[#1E293B] rounded-2xl p-4">
+  <div className="flex items-center justify-between gap-3">
+    <p className="text-gray-400 text-sm">
+      Último movimiento
+    </p>
 
-          <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
-            <p className="text-xs text-gray-400">
-              Costo
-            </p>
+    {movements.length > 0 && (
+      <span className="text-gray-500 text-xs">
+        Más reciente
+      </span>
+    )}
+  </div>
 
-            <p className="text-lg text-white font-bold mt-1">
-              ${Number(selectedProduct.cost_price || 0).toLocaleString('es-AR')}
-            </p>
-          </div>
+  {loadingMovements ? (
+    <p className="text-gray-500 text-sm mt-3">
+      Cargando...
+    </p>
+  ) : movements.length === 0 ? (
+    <p className="text-gray-500 text-sm mt-3">
+      No hay movimientos registrados.
+    </p>
+  ) : (
+    (() => {
+      const lastMovement = movements[0]
 
-          <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
-            <p className="text-xs text-gray-400">
-              Margen
-            </p>
+      return (
+        <div className="mt-3">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-white text-sm font-medium truncate">
+                {getMovementLabel(lastMovement)}
+              </p>
+
+              {getMovementDetail(lastMovement) && (
+                <p className="text-gray-500 text-xs mt-1 truncate">
+                  {getMovementDetail(lastMovement)}
+                </p>
+              )}
+            </div>
 
             <p
-              className={`text-lg font-bold mt-1 ${
-                (selectedProduct.price || 0) -
-                  (selectedProduct.cost_price || 0) <
-                0
+              className={`text-sm font-semibold shrink-0 ${
+                lastMovement.change < 0
                   ? 'text-red-400'
                   : 'text-green-400'
               }`}
             >
-              $
-              {(
-                (selectedProduct.price || 0) -
-                (selectedProduct.cost_price || 0)
-              ).toLocaleString('es-AR')}
+              {formatMovementChange(
+                lastMovement,
+                selectedProduct
+              )}
             </p>
           </div>
 
-          <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
-            <p className="text-xs text-gray-400">
-              Valor en stock
-            </p>
-
-            <p className="text-lg text-blue-400 font-bold mt-1">
-              $
-              {(
-                selectedProduct.stock_quantity *
-                selectedProduct.price
-              ).toLocaleString('es-AR')}
-            </p>
-          </div>
-        </div>
-
-        {/* Rentabilidad */}
-        <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
-          <p className="text-sm text-gray-400">
-            Rentabilidad
-          </p>
-
-          <p
-            className={`text-lg font-bold mt-2 ${
-              getProfitStatus(selectedProduct) === 'loss'
-                ? 'text-red-400'
-                : getProfitStatus(selectedProduct) === 'low' ||
-                  getProfitStatus(selectedProduct) === 'zero'
-                ? 'text-yellow-400'
-                : 'text-green-400'
-            }`}
-          >
-            {getProfitLabel(selectedProduct)}
-          </p>
-
-          <p className="text-xs text-gray-500 mt-2">
-            {selectedProduct.sale_type === 'weight'
-              ? 'Valores calculados por 100 gramos.'
-              : 'Valores calculados por unidad.'}
+          <p className="text-gray-500 text-xs mt-2">
+            {new Date(
+              lastMovement.created_at
+            ).toLocaleString('es-AR', {
+              day: '2-digit',
+              month: '2-digit',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit'
+            })}
           </p>
         </div>
+      )
+    })()
+  )}
+</div>
 
-        {/* Ganancia potencial */}
-        <div className="bg-[#0F172A] border border-[#1E293B] rounded-2xl p-4">
-          <p className="text-sm text-gray-400">
-            Ganancia potencial
-          </p>
+       {/* Acciones Mobile */}
+<div className="sticky bottom-0 bg-[#111827] border-t border-gray-800 pt-4 pb-1">
+  <div className="grid grid-cols-2 gap-3">
+    <button
+      type="button"
+      onClick={() => {
+        setAmount(0)
+        setHasAdjustmentAmount(false)
+        setAdjustmentMode('entry')
+        setAdjustmentReason('')
+        setAdjustmentNote('')
+        setAdjustmentError('')
+        setWeightInputUnit('kg')
+        setIsAdjustmentOpen(true)
+      }}
+      className="bg-blue-600 text-white rounded-xl px-4 py-3.5 text-sm font-semibold active:scale-[0.98] transition"
+    >
+      Ajustar stock
+    </button>
 
-          <p className="text-2xl font-bold text-green-400 mt-2">
-            $
-            {(
-              ((selectedProduct.price || 0) -
-                (selectedProduct.cost_price || 0)) *
-              selectedProduct.stock_quantity
-            ).toLocaleString('es-AR')}
-          </p>
+    <button
+      type="button"
+      onClick={() => {
+        setHistoryFilter('all')
+        setIsHistoryOpen(true)
+      }}
+      className="bg-gray-800 border border-gray-700 text-white rounded-xl px-4 py-3.5 text-sm font-semibold active:scale-[0.98] transition"
+    >
+      Ver historial
+    </button>
+  </div>
 
-          <p className="text-xs text-gray-500 mt-2">
-            Ganancia estimada si vendés todo el stock actual.
-          </p>
-        </div>
-
-        {/* Historial */}
-        <div className="pt-2">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-white font-semibold">
-                Historial
-              </p>
-
-              <p className="text-xs text-gray-500">
-                Últimos movimientos del producto
-              </p>
-            </div>
-
-            <span className="text-xs text-gray-500">
-              {movements.length} movimientos
-            </span>
-          </div>
-
-          {loadingMovements ? (
-            <div className="bg-gray-800/60 rounded-2xl p-4">
-              <p className="text-gray-400 text-sm">
-                Cargando historial...
-              </p>
-            </div>
-          ) : movements.length === 0 ? (
-            <div className="bg-gray-800/60 border border-gray-700 rounded-2xl p-4">
-              <p className="text-gray-400 text-sm">
-                Todavía no hay movimientos registrados.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {movements.map((movement) => (
-                <div
-                  key={movement.id}
-                  className="flex items-center justify-between gap-3 bg-gray-800/60 border border-gray-700 rounded-xl px-4 py-3"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div
-                      className={`w-9 h-9 shrink-0 rounded-full flex items-center justify-center ${
-                        movement.change < 0
-                          ? 'bg-red-500/10 text-red-400'
-                          : 'bg-green-500/10 text-green-400'
-                      }`}
-                    >
-                      {movement.change < 0 ? '−' : '+'}
-                    </div>
-
-                    <div className="min-w-0">
-                      <p className="text-sm text-white font-medium truncate">
-                        {movement.reason === 'Ingreso manual' && 'Ingreso'}
-                        {movement.reason === 'Ajuste manual' && 'Ajuste'}
-                        {movement.reason === 'Venta' && 'Venta'}
-                        {![
-                          'Ingreso manual',
-                          'Ajuste manual',
-                          'Venta'
-                        ].includes(movement.reason) && movement.reason}
-                      </p>
-
-                      <p className="text-xs text-gray-500">
-                        {new Date(movement.created_at).toLocaleDateString(
-                          'es-AR',
-                          {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric'
-                          }
-                        )}
-                      </p>
-                    </div>
-                  </div>
-
-                  <p
-                    className={`text-base font-bold ${
-                      movement.change < 0
-                        ? 'text-red-400'
-                        : 'text-green-400'
-                    }`}
-                  >
-                    {movement.change > 0 ? '+' : ''}
-                    {movement.change}
-                  </p>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+  <p className="text-gray-500 text-[11px] text-center mt-3">
+    Cada cambio quedará registrado.
+  </p>
+</div>
       </div>
     </div>
   </div>
