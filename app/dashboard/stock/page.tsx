@@ -1060,6 +1060,94 @@ const filteredMovements =
   </div>
 </div>
 
+{/* ================= NECESITAN TU ATENCIÓN MOBILE ================= */}
+{allAttentionProducts.length > 0 && (
+  <div className="md:hidden bg-gray-900 border border-gray-800 rounded-2xl p-4">
+    <div className="flex items-start justify-between gap-3 mb-4">
+      <div>
+        <h2 className="text-white font-semibold">
+          Necesitan tu atención
+        </h2>
+
+        <p className="text-gray-400 text-xs mt-1">
+          Revisá primero estos productos.
+        </p>
+      </div>
+
+      <span className="text-xs text-gray-400 bg-gray-800 px-2.5 py-1 rounded-full shrink-0">
+        {allAttentionProducts.length}
+      </span>
+    </div>
+
+    <div className="space-y-2">
+      {attentionProducts.map(({ product, info }) => (
+        <button
+          key={product.id}
+          type="button"
+          onClick={() => {
+            setSelectedProduct(product)
+            fetchMovements(product.id)
+          }}
+          className="w-full bg-[#111827] border border-[#1F2937] rounded-xl p-3 text-left active:scale-[0.99] transition"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shrink-0 flex items-center justify-center">
+              {product.image_url ? (
+                <img
+                  src={product.image_url}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span
+                  className="text-lg"
+                  aria-hidden="true"
+                >
+                  📦
+                </span>
+              )}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="text-white text-sm font-semibold truncate">
+                {product.name}
+              </p>
+
+              {getProductPresentation(product) && (
+                <p className="text-gray-500 text-xs mt-1 truncate">
+                  {getProductPresentation(product)}
+                </p>
+              )}
+            </div>
+
+            <span className="text-gray-500 text-xl shrink-0">
+              ›
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 mt-3">
+            <p className="text-gray-400 text-xs truncate">
+              {info.detail}
+            </p>
+
+            <span
+              className={`text-[11px] font-medium border px-2 py-1 rounded-full whitespace-nowrap ${info.badgeClass}`}
+            >
+              {info.label}
+            </span>
+          </div>
+        </button>
+      ))}
+    </div>
+
+    {allAttentionProducts.length > 3 && (
+      <p className="text-gray-500 text-xs text-center mt-3">
+        Se muestran los 3 casos más urgentes.
+      </p>
+    )}
+  </div>
+)}
+
       {/* ================= KPI CARDS ================= */}
 <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
 
