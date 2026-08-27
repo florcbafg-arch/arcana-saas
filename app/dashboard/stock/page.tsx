@@ -46,6 +46,13 @@ type HistoryFilter =
   | 'exits'
   | 'adjustments'
 
+  type AttentionInfo = {
+  priority: number
+  label: string
+  detail: string
+  badgeClass: string
+}
+
 export default function StockPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -126,6 +133,157 @@ const getStockStatusInfo = (product: Product) => {
     textClass: 'text-green-400',
     badgeClass: 'text-green-400 bg-green-500/10 border-green-500/20'
   }
+}
+
+const getExpirationDays = (product: Product) => {
+  if (!product.expiration_date) return null
+
+  const datePart =
+    product.expiration_date.split('T')[0]
+
+  const [year, month, day] = datePart
+    .split('-')
+    .map(Number)
+
+  if (!year || !month || !day) return null
+
+  const expirationDate = new Date(
+    year,
+    month - 1,
+    day
+  )
+
+  expirationDate.setHours(0, 0, 0, 0)
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  return Math.ceil(
+    (
+      expirationDate.getTime() -
+      today.getTime()
+    ) /
+      86400000
+  )
+}
+
+const getAttentionInfo = (
+  product: Product
+): AttentionInfo | null => {
+  const expirationDays =
+    getExpirationDays(product)
+
+  const stockStatus =
+    getStockStatus(product)
+
+  const isOutOfStock =
+    product.stock_quantity <= 0
+
+  // 1. Producto vencido
+  if (
+    expirationDays !== null &&
+    expirationDays < 0
+  ) {
+    const daysAgo = Math.abs(expirationDays)
+
+    return {
+      priority: 0,
+      label: 'Producto vencido',
+      detail:
+        daysAgo === 1
+          ? 'Venció ayer'
+          : `Venció hace ${daysAgo} días`,
+      badgeClass:
+        'text-red-400 bg-red-500/10 border-red-500/20'
+    }
+  }
+
+  // 2. Sin stock
+  if (isOutOfStock) {
+    return {
+      priority: 1,
+      label: 'Sin stock',
+      detail: 'No quedan existencias',
+      badgeClass:
+        'text-red-400 bg-red-500/10 border-red-500/20'
+    }
+  }
+
+  // 3. Vence hoy o mañana
+  if (
+    expirationDays === 0 ||
+    expirationDays === 1
+  ) {
+    return {
+      priority: 2,
+      label:
+        expirationDays === 0
+          ? 'Vence hoy'
+          : 'Vence mañana',
+      detail:
+        expirationDays === 0
+          ? 'Revisalo durante el día'
+          : 'Revisalo cuanto antes',
+      badgeClass:
+        'text-orange-400 bg-orange-500/10 border-orange-500/20'
+    }
+  }
+
+  // 4. Stock crítico
+  if (stockStatus === 'red') {
+    return {
+      priority: 3,
+      label: 'Stock crítico',
+      detail: `Quedan ${formatStockQuantity(
+        product
+      )}`,
+      badgeClass:
+        'text-orange-400 bg-orange-500/10 border-orange-500/20'
+    }
+  }
+
+  // 5. Vence dentro de 7 días
+  if (
+    expirationDays !== null &&
+    expirationDays <= 7
+  ) {
+    return {
+      priority: 4,
+      label: 'Vence pronto',
+      detail: `Faltan ${expirationDays} días`,
+      badgeClass:
+        'text-orange-400 bg-orange-500/10 border-orange-500/20'
+    }
+  }
+
+  // 6. Bajo stock
+  if (stockStatus === 'yellow') {
+    return {
+      priority: 5,
+      label: 'Bajo stock',
+      detail: `Quedan ${formatStockQuantity(
+        product
+      )}`,
+      badgeClass:
+        'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
+    }
+  }
+
+  // 7. Vence dentro de 30 días
+  if (
+    expirationDays !== null &&
+    expirationDays <= 30
+  ) {
+    return {
+      priority: 6,
+      label: 'Próximo a vencer',
+      detail: `Faltan ${expirationDays} días`,
+      badgeClass:
+        'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
+    }
+  }
+
+  return null
 }
 
 const matchesStockFilter = (product: Product) => {
@@ -463,24 +621,6 @@ useEffect(() => {
   }
 }, [search, filter])
 
-const attentionProducts = products
-  .filter((product) => getStockStatus(product) !== 'green')
-  .sort((a, b) => {
-    const priority = {
-      red: 0,
-      yellow: 1,
-      green: 2
-    }
-
-    const statusDifference =
-      priority[getStockStatus(a)] - priority[getStockStatus(b)]
-
-    if (statusDifference !== 0) return statusDifference
-
-    return a.stock_quantity - b.stock_quantity
-  })
-  .slice(0, 3)
-
 const formatQuantityValue = (
   value: number,
   product: Product
@@ -518,6 +658,61 @@ return `${sign}${kilograms} kg ${grams} g`
 const formatStockQuantity = (product: Product) => {
   return formatQuantityValue(product.stock_quantity, product)
 }
+
+const allAttentionProducts = products
+  .map((product) => ({
+    product,
+    info: getAttentionInfo(product)
+  }))
+  .filter(
+    (
+      item
+    ): item is {
+      product: Product
+      info: AttentionInfo
+    } => item.info !== null
+  )
+  .sort((a, b) => {
+    const priorityDifference =
+      a.info.priority - b.info.priority
+
+    if (priorityDifference !== 0) {
+      return priorityDifference
+    }
+
+    const aExpirationDays =
+  getExpirationDays(a.product)
+
+const bExpirationDays =
+  getExpirationDays(b.product)
+
+if (
+  aExpirationDays !== null ||
+  bExpirationDays !== null
+) {
+  const expirationDifference =
+    (
+      aExpirationDays ??
+      Number.POSITIVE_INFINITY
+    ) -
+    (
+      bExpirationDays ??
+      Number.POSITIVE_INFINITY
+    )
+
+  if (expirationDifference !== 0) {
+    return expirationDifference
+  }
+}
+
+    return (
+      a.product.stock_quantity -
+      b.product.stock_quantity
+    )
+  })
+
+const attentionProducts =
+  allAttentionProducts.slice(0, 3)
 
 const getMovementLabel = (movement: StockMovement) => {
   const reason = movement.reason || ''
@@ -805,39 +1000,27 @@ const filteredMovements =
     </div>
 
     <span className="text-xs text-gray-400 bg-gray-800 px-3 py-1.5 rounded-full">
-      {attentionProducts.length} prioritarios
+      {allAttentionProducts.length}{' '}
+{allAttentionProducts.length === 1
+  ? 'prioritario'
+  : 'prioritarios'}
     </span>
   </div>
 
-  {attentionProducts.length === 0 ? (
+  {allAttentionProducts.length === 0 ? (
     <div className="border border-green-500/20 bg-green-500/5 rounded-xl p-4">
       <p className="text-green-400 font-medium">
         Todo bajo control
       </p>
 
       <p className="text-gray-400 text-sm mt-1">
-        No hay productos con stock crítico o bajo.
+        No hay problemas de stock ni vencimientos próximos.
       </p>
     </div>
   ) : (
     <div className="space-y-2">
-      {attentionProducts.map((product) => {
-        const status = getStockStatus(product)
-        const isOutOfStock = product.stock_quantity <= 0
-
-        const statusLabel = isOutOfStock
-          ? 'Sin stock'
-          : status === 'red'
-          ? 'Stock crítico'
-          : 'Bajo stock'
-
-        const statusClasses = isOutOfStock
-          ? 'text-red-400 bg-red-500/10 border-red-500/20'
-          : status === 'red'
-          ? 'text-orange-400 bg-orange-500/10 border-orange-500/20'
-          : 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20'
-
-        return (
+      {attentionProducts.map(({ product, info }) => {
+  return (
           <button
             key={product.id}
             type="button"
@@ -866,17 +1049,15 @@ const filteredMovements =
               </p>
 
               <p className="text-gray-400 text-sm mt-1">
-                {isOutOfStock
-                  ? 'No quedan existencias'
-                  : `Quedan ${formatStockQuantity(product)}`}
+               {info.detail}
               </p>
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
               <span
-                className={`text-xs font-medium border px-2.5 py-1 rounded-full ${statusClasses}`}
+                className={`text-xs font-medium border px-2.5 py-1 rounded-full ${info.badgeClass}`}
               >
-                {statusLabel}
+                {info.label}
               </span>
 
               <span className="text-gray-500 text-xl">
