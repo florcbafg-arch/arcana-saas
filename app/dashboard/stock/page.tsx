@@ -896,6 +896,74 @@ const filteredMovements =
     
     <div className="p-4 md:p-6 space-y-5 md:space-y-8">
 
+{/* ================= HEADER MOBILE ================= */}
+<div className="md:hidden">
+  <div className="flex items-start justify-between gap-4">
+    <div className="min-w-0">
+      <p className="text-blue-400 text-xs font-semibold uppercase tracking-wider">
+        Inventario
+      </p>
+
+      <h1 className="text-2xl font-bold text-white mt-1">
+        Control de Stock
+      </h1>
+
+      <p className="text-gray-400 text-sm mt-1">
+        Revisá existencias, vencimientos y movimientos.
+      </p>
+    </div>
+
+    <div className="w-11 h-11 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-xl shrink-0">
+      📦
+    </div>
+  </div>
+
+  <div
+    className={`mt-4 rounded-xl border px-4 py-3 ${
+      allAttentionProducts.length > 0
+        ? 'border-orange-500/20 bg-orange-500/5'
+        : 'border-green-500/20 bg-green-500/5'
+    }`}
+  >
+    <div className="flex items-center justify-between gap-3">
+      <div>
+        <p
+          className={`text-sm font-semibold ${
+            allAttentionProducts.length > 0
+              ? 'text-orange-400'
+              : 'text-green-400'
+          }`}
+        >
+          {allAttentionProducts.length > 0
+            ? 'Hay productos para revisar'
+            : 'Todo bajo control'}
+        </p>
+
+        <p className="text-gray-400 text-xs mt-1">
+          {allAttentionProducts.length > 0
+            ? `${allAttentionProducts.length} ${
+                allAttentionProducts.length === 1
+                  ? 'producto necesita'
+                  : 'productos necesitan'
+              } tu atención.`
+            : 'No hay problemas de stock ni vencimientos próximos.'}
+        </p>
+      </div>
+
+      <span
+        className={`text-xl ${
+          allAttentionProducts.length > 0
+            ? 'text-orange-400'
+            : 'text-green-400'
+        }`}
+        aria-hidden="true"
+      >
+        {allAttentionProducts.length > 0 ? '!' : '✓'}
+      </span>
+    </div>
+  </div>
+</div>
+
       {/* ================= HEADER WEB ================= */}
 <div className="hidden md:flex items-start justify-between gap-6">
   <div>
@@ -909,8 +977,91 @@ const filteredMovements =
   </div>
 </div>
 
+{/* ================= MÉTRICAS MOBILE ================= */}
+<div className="md:hidden grid grid-cols-2 gap-3">
+  <div className="bg-gray-900 border border-gray-800 rounded-2xl p-3.5">
+    <div className="flex items-center justify-between gap-2">
+      <p className="text-gray-400 text-xs">
+        Productos
+      </p>
+
+      <span className="text-sm" aria-hidden="true">
+        📦
+      </span>
+    </div>
+
+    <p className="text-white text-2xl font-bold mt-2">
+      {products.length}
+    </p>
+
+    <p className="text-gray-500 text-xs mt-1">
+      Activos
+    </p>
+  </div>
+
+  <div className="bg-gray-900 border border-red-500/20 rounded-2xl p-3.5">
+    <div className="flex items-center justify-between gap-2">
+      <p className="text-gray-400 text-xs">
+        Sin stock
+      </p>
+
+      <span className="text-red-400 text-sm" aria-hidden="true">
+        ⛔
+      </span>
+    </div>
+
+    <p className="text-red-400 text-2xl font-bold mt-2">
+      {outOfStockProducts}
+    </p>
+
+    <p className="text-gray-500 text-xs mt-1">
+      Sin existencias
+    </p>
+  </div>
+
+  <div className="bg-gray-900 border border-orange-500/20 rounded-2xl p-3.5">
+    <div className="flex items-center justify-between gap-2">
+      <p className="text-gray-400 text-xs">
+        Críticos
+      </p>
+
+      <span className="text-orange-400 text-sm" aria-hidden="true">
+        🚨
+      </span>
+    </div>
+
+    <p className="text-orange-400 text-2xl font-bold mt-2">
+      {criticalProducts}
+    </p>
+
+    <p className="text-gray-500 text-xs mt-1">
+      Reposición urgente
+    </p>
+  </div>
+
+  <div className="bg-gray-900 border border-yellow-500/20 rounded-2xl p-3.5">
+    <div className="flex items-center justify-between gap-2">
+      <p className="text-gray-400 text-xs">
+        Bajo stock
+      </p>
+
+      <span className="text-yellow-400 text-sm" aria-hidden="true">
+        ⚠️
+      </span>
+    </div>
+
+    <p className="text-yellow-400 text-2xl font-bold mt-2">
+      {alertProducts}
+    </p>
+
+    <p className="text-gray-500 text-xs mt-1">
+      Conviene revisar
+    </p>
+  </div>
+</div>
+
       {/* ================= KPI CARDS ================= */}
-<div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+<div className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
 
   <div className="bg-gray-900 border border-gray-800 rounded-2xl p-4 md:p-5">
   <div className="flex items-center gap-3">
