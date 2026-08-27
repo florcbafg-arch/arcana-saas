@@ -1409,8 +1409,8 @@ const statusTextColor =
     flex items-center justify-between gap-3
     bg-[#111827]
     border border-[#1F2937]
-    rounded-2xl
-    px-4 py-4
+    rounded-xl md:rounded-2xl
+    px-3 py-3 md:px-4 md:py-4
     cursor-pointer
     transition-all
     active:scale-[0.99]
@@ -1422,7 +1422,7 @@ const statusTextColor =
   `}
 >
 
-<div className="w-11 h-11 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shrink-0 flex items-center justify-center">
+<div className="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shrink-0 flex items-center justify-center">
   {product.image_url ? (
     <img
       src={product.image_url}
@@ -1435,9 +1435,8 @@ const statusTextColor =
     </span>
   )}
 </div>
-
- <div className="min-w-0 flex-1 grid grid-cols-1 md:grid-cols-[minmax(0,1fr)_180px_120px] md:items-center gap-2 md:gap-4">
-  <div className="min-w-0">
+<div className="min-w-0 flex-1 grid grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[minmax(0,1fr)_180px_120px] items-center gap-x-3 gap-y-1 md:gap-4">
+  <div className="min-w-0 row-span-2 md:row-span-1">
     <p className="text-white font-semibold leading-tight truncate">
       {product.name}
     </p>
@@ -1449,7 +1448,7 @@ const statusTextColor =
     )}
   </div>
 
-  <div>
+  <div className="text-right md:text-left">
     <p className="hidden md:block text-gray-500 text-xs">
       Stock real
     </p>
@@ -1459,7 +1458,7 @@ const statusTextColor =
     </p>
   </div>
 
-  <div className="flex items-center md:justify-end gap-2">
+  <div className="flex items-center justify-end gap-1.5">
     <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${color}`} />
 
     <p className={`text-xs font-medium ${statusTextColor}`}>
