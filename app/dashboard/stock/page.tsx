@@ -2419,11 +2419,15 @@ const statusTextColor =
   </p>
 </div>
 
+{/* Movimientos agrupados */}
 <div className="mt-4 border border-[#1F2937] rounded-xl overflow-hidden">
-  <div className="grid grid-cols-[150px_minmax(0,1fr)_140px] gap-4 bg-gray-800/60 px-4 py-3 text-xs text-gray-400">
-    <p>Fecha</p>
+  {/* Encabezado Web */}
+  <div className="hidden lg:grid grid-cols-[150px_minmax(0,1fr)_140px] gap-4 bg-gray-800/60 px-4 py-3 text-xs text-gray-400">
+    <p>Hora</p>
     <p>Movimiento</p>
-    <p className="text-right">Cambio</p>
+    <p className="text-right">
+      Cambio
+    </p>
   </div>
 
   {loadingMovements ? (
@@ -2431,55 +2435,106 @@ const statusTextColor =
       Cargando movimientos...
     </p>
   ) : filteredMovements.length === 0 ? (
-    <p className="text-gray-500 text-sm px-4 py-6">
-      No hay movimientos registrados.
-    </p>
+    <div className="px-4 py-8 text-center">
+      <p className="text-gray-400 text-sm">
+        No hay movimientos en esta categoría.
+      </p>
+
+      <p className="text-gray-600 text-xs mt-1">
+        Probá seleccionando otro filtro.
+      </p>
+    </div>
   ) : (
-    <div className="max-h-[360px] overflow-y-auto divide-y divide-[#1F2937]">
-      {filteredMovements.map((movement) => (
-        <div
-          key={movement.id}
-          className="grid grid-cols-[150px_minmax(0,1fr)_140px] items-center gap-4 px-4 py-3"
-        >
-          <p className="text-gray-400 text-xs">
-            {new Date(movement.created_at).toLocaleString(
-              'es-AR',
-              {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-              }
-            )}
-          </p>
+    <div className="max-h-[360px] lg:max-h-[380px] overflow-y-auto overscroll-contain">
+      {Object.entries(groupedMovements).map(
+        ([dayLabel, dayMovements]) => (
+          <div key={dayLabel}>
+            {/* Separador de día */}
+            <div className="sticky top-0 z-[1] flex items-center justify-between gap-3 bg-[#172033] border-y border-[#1F2937] px-4 py-2.5">
+              <p className="text-white text-xs font-semibold">
+                {dayLabel}
+              </p>
 
-          <div className="min-w-0">
-            <p className="text-white text-sm font-medium truncate">
-              {getMovementLabel(movement)}
-            </p>
+              <p className="text-gray-500 text-[11px]">
+                {dayMovements.length}{' '}
+                {dayMovements.length === 1
+                  ? 'movimiento'
+                  : 'movimientos'}
+              </p>
+            </div>
 
-            {getMovementDetail(movement) && (
-  <p className="text-gray-500 text-xs mt-1 truncate">
-    {getMovementDetail(movement)}
-  </p>
-)}
+            <div className="divide-y divide-[#1F2937]">
+              {dayMovements.map((movement) => (
+                <div
+                  key={movement.id}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] lg:grid-cols-[150px_minmax(0,1fr)_140px] items-center gap-3 lg:gap-4 px-4 py-3"
+                >
+                  {/* Hora Web */}
+                  <p className="hidden lg:block text-gray-400 text-xs">
+                    {new Date(
+                      movement.created_at
+                    ).toLocaleTimeString(
+                      'es-AR',
+                      {
+                        timeZone:
+                          'America/Argentina/Cordoba',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      }
+                    )}
+                  </p>
+
+                  {/* Movimiento */}
+                  <div className="min-w-0">
+                    <p className="text-white text-sm font-medium truncate">
+                      {getMovementLabel(movement)}
+                    </p>
+
+                    {getMovementDetail(
+                      movement
+                    ) && (
+                      <p className="text-gray-500 text-xs mt-1 truncate">
+                        {getMovementDetail(
+                          movement
+                        )}
+                      </p>
+                    )}
+
+                    {/* Hora Mobile */}
+                    <p className="lg:hidden text-gray-500 text-xs mt-1">
+                      {new Date(
+                        movement.created_at
+                      ).toLocaleTimeString(
+                        'es-AR',
+                        {
+                          timeZone:
+                            'America/Argentina/Cordoba',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        }
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Cantidad */}
+                  <p
+                    className={`text-sm font-semibold text-right shrink-0 ${
+                      movement.change < 0
+                        ? 'text-red-400'
+                        : 'text-green-400'
+                    }`}
+                  >
+                    {formatMovementChange(
+                      movement,
+                      selectedProduct
+                    )}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
-
-          <p
-            className={`text-sm font-semibold text-right ${
-              movement.change < 0
-                ? 'text-red-400'
-                : 'text-green-400'
-            }`}
-          >
-            {formatMovementChange(
-              movement,
-              selectedProduct
-            )}
-          </p>
-        </div>
-      ))}
+        )
+      )}
     </div>
   )}
 </div>
