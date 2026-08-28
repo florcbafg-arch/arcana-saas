@@ -1713,17 +1713,18 @@ const statusTextColor =
 
 </div>
 
-{/* ================= AJUSTE DE STOCK WEB ================= */}
+{/* ================= AJUSTE DE STOCK WEB + MOBILE ================= */}
 {isAdjustmentOpen && selectedProduct && (
   <div
-    className="hidden lg:flex fixed inset-0 z-[1200] bg-black/70 backdrop-blur-sm items-center justify-center p-6"
+   
+  className="fixed inset-0 z-[1300] bg-black/70 backdrop-blur-sm flex items-end lg:items-center justify-center p-0 lg:p-6"
     onClick={() => setIsAdjustmentOpen(false)}
   >
     <div
-      className="w-full max-w-2xl max-h-[90vh] bg-[#0F172A] border border-[#1E293B] rounded-2xl shadow-2xl overflow-y-auto"
+     className="w-full max-w-2xl max-h-[92vh] lg:max-h-[90vh] bg-[#0F172A] border border-[#1E293B] rounded-t-3xl lg:rounded-2xl shadow-2xl overflow-y-auto overscroll-contain"
       onClick={(event) => event.stopPropagation()}
     >
-      <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-[#1E293B]">
+      <div className="sticky top-0 z-10 flex items-start justify-between gap-4 px-5 lg:px-6 py-4 lg:py-5 bg-[#0F172A] border-b border-[#1E293B]">
         <div>
           <h2 className="text-white text-xl font-semibold">
             Ajustar stock
@@ -1744,58 +1745,67 @@ const statusTextColor =
         </button>
       </div>
 
-      <div className="p-6">
-        <div className="flex items-center justify-between gap-6 bg-[#111827] border border-[#1F2937] rounded-2xl p-4">
-          <div className="flex items-center gap-4 min-w-0">
-            <div className="w-14 h-14 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shrink-0 flex items-center justify-center">
-              {selectedProduct.image_url ? (
-                <img
-                  src={selectedProduct.image_url}
-                  alt={selectedProduct.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-2xl" aria-hidden="true">
-                  📦
-                </span>
-              )}
-            </div>
+      <div className="p-4 lg:p-6">
+        {/* Producto y stock */}
+<div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-4">
+  <div className="flex items-center justify-between gap-3">
+    <div className="flex items-center gap-3 min-w-0">
+      <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shrink-0 flex items-center justify-center">
+        {selectedProduct.image_url ? (
+          <img
+            src={selectedProduct.image_url}
+            alt={selectedProduct.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span
+            className="text-xl lg:text-2xl"
+            aria-hidden="true"
+          >
+            📦
+          </span>
+        )}
+      </div>
 
-            <div className="min-w-0">
-              <p className="text-white font-semibold truncate">
-                {selectedProduct.name}
-              </p>
+      <div className="min-w-0">
+        <p className="text-white text-sm lg:text-base font-semibold truncate">
+          {selectedProduct.name}
+        </p>
 
-              <p className="text-gray-400 text-sm mt-1">
-                {selectedProduct.sale_type === 'weight'
-                  ? 'Producto por peso'
-                  : 'Producto por unidad'}
-              </p>
-            </div>
-          </div>
+        <p className="text-gray-400 text-xs lg:text-sm mt-1 truncate">
+          {getProductPresentation(selectedProduct) ||
+            (selectedProduct.sale_type === 'weight'
+              ? 'Producto por peso'
+              : 'Producto por unidad')}
+        </p>
+      </div>
+    </div>
 
-          <div className="text-right shrink-0">
-            <p className="text-gray-400 text-xs">
-              Stock actual
-            </p>
+    <div className="text-right shrink-0">
+      <p className="text-gray-500 text-xs">
+        Stock actual
+      </p>
 
-            <p className="text-white text-xl font-bold mt-1">
-              {formatStockQuantity(selectedProduct)}
-            </p>
-          </div>
+      <p className="text-white text-base lg:text-xl font-bold mt-1">
+        {formatStockQuantity(selectedProduct)}
+      </p>
+    </div>
+  </div>
+</div>
 
+{/* Precio y vencimiento */}
 <div className="grid grid-cols-2 gap-3 mt-3">
-  <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-4 py-3">
+  <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-3 lg:px-4 py-3">
     <p className="text-gray-500 text-xs">
       Precio de venta
     </p>
 
-    <p className="text-white text-sm font-medium mt-1">
+    <p className="text-white text-xs lg:text-sm font-medium mt-1">
       {formatProductPrice(selectedProduct)}
     </p>
   </div>
 
-  <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-4 py-3">
+  <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-3 lg:px-4 py-3">
     <p className="text-gray-500 text-xs">
       Vencimiento
     </p>
@@ -1806,49 +1816,48 @@ const statusTextColor =
 
       return expirationInfo ? (
         <>
-          <p className="text-white text-sm font-medium mt-1">
+          <p className="text-white text-xs lg:text-sm font-medium mt-1">
             {expirationInfo.date}
           </p>
 
           <p
-            className={`text-xs mt-1 ${expirationInfo.textClass}`}
+            className={`text-[11px] lg:text-xs mt-1 ${expirationInfo.textClass}`}
           >
             {expirationInfo.message}
           </p>
         </>
       ) : (
-        <p className="text-gray-500 text-sm mt-1">
-          Sin vencimiento registrado
+        <p className="text-gray-500 text-[11px] lg:text-sm mt-1">
+          Sin vencimiento
         </p>
       )
     })()}
   </div>
 </div>
 
-        </div>
-
-<div className="mt-6">
+{/* Tipo de ajuste */}
+<div className="mt-5 lg:mt-6">
   <p className="text-white text-sm font-medium mb-3">
     ¿Qué necesitás hacer?
   </p>
 
-  <div className="grid grid-cols-3 gap-3">
+  <div className="grid grid-cols-3 gap-2 lg:gap-3">
     {[
       {
         value: 'entry',
-        label: 'Registrar entrada',
+        label: 'Entrada',
         description: 'Ingresó mercadería',
-        icon: '↓'
+        icon: '+'
       },
       {
         value: 'exit',
-        label: 'Registrar salida',
+        label: 'Salida',
         description: 'Merma, rotura o consumo',
-        icon: '↑'
+        icon: '−'
       },
       {
         value: 'correction',
-        label: 'Corregir stock',
+        label: 'Corrección',
         description: 'Conteo físico',
         icon: '✎'
       }
@@ -1866,27 +1875,27 @@ const statusTextColor =
           setAdjustmentNote('')
           setAdjustmentError('')
         }}
-        className={`rounded-xl border p-4 text-left transition ${
+        className={`rounded-xl border p-3 lg:p-4 text-center lg:text-left transition active:scale-[0.98] ${
           adjustmentMode === option.value
             ? 'border-blue-500 bg-blue-500/10'
             : 'border-gray-700 bg-[#111827] hover:bg-gray-800'
         }`}
       >
         <span
-          className={`text-lg ${
+          className={`inline-flex items-center justify-center w-7 h-7 rounded-lg text-base font-bold ${
             adjustmentMode === option.value
-              ? 'text-blue-400'
-              : 'text-gray-400'
+              ? 'text-blue-400 bg-blue-500/10'
+              : 'text-gray-400 bg-gray-800'
           }`}
         >
           {option.icon}
         </span>
 
-        <p className="text-white text-sm font-medium mt-3">
+        <p className="text-white text-xs lg:text-sm font-medium mt-2">
           {option.label}
         </p>
 
-        <p className="text-gray-500 text-xs mt-1">
+        <p className="hidden lg:block text-gray-500 text-xs mt-1">
           {option.description}
         </p>
       </button>
@@ -1895,7 +1904,7 @@ const statusTextColor =
 </div>
 
 {/* Cantidad */}
-<div className="mt-6">
+<div className="mt-5 lg:mt-6">
   <label
     htmlFor="stock-adjustment-amount"
     className="block text-white text-sm font-medium mb-2"
@@ -1911,6 +1920,7 @@ const statusTextColor =
     <input
       id="stock-adjustment-amount"
       type="number"
+      inputMode="decimal"
       min="0"
       step={
         selectedProduct.sale_type === 'weight'
@@ -2117,7 +2127,7 @@ const statusTextColor =
 )}
 
 {/* Acciones */}
-<div className="flex justify-end gap-3 mt-6">
+<div className="sticky bottom-0 z-10 grid grid-cols-2 gap-3 mt-6 -mx-4 lg:-mx-6 px-4 lg:px-6 pt-4 pb-4 bg-[#0F172A] border-t border-[#1E293B]">
   <button
     type="button"
     onClick={() => {
@@ -2127,9 +2137,11 @@ const statusTextColor =
       setAdjustmentReason('')
       setAdjustmentNote('')
       setAdjustmentError('')
+      setWeightInputUnit('kg')
+      setAdjustmentMode('entry')
     }}
     disabled={isAdjustingStock}
-    className="border border-gray-700 text-gray-300 rounded-xl px-5 py-3 text-sm font-medium hover:bg-gray-800 hover:text-white transition disabled:opacity-50"
+   className="w-full border border-gray-700 text-gray-300 rounded-xl px-3 lg:px-5 py-3 text-sm font-medium hover:bg-gray-800 hover:text-white transition disabled:opacity-50"
   >
     Cancelar
   </button>
@@ -2138,7 +2150,7 @@ const statusTextColor =
     type="button"
     onClick={addStock}
     disabled={isAdjustingStock}
-    className="bg-blue-600 text-white rounded-xl px-5 py-3 text-sm font-semibold hover:bg-blue-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+   className="w-full bg-blue-600 text-white rounded-xl px-3 lg:px-5 py-3 text-sm font-semibold hover:bg-blue-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
   >
     {isAdjustingStock
       ? 'Guardando...'
