@@ -892,6 +892,101 @@ const filteredMovements =
           historyFilter
       )
 
+      const getArgentinaDayKey = (
+  value: string | Date
+) => {
+  const date =
+    value instanceof Date
+      ? value
+      : new Date(value)
+
+  const parts = new Intl.DateTimeFormat(
+    'en-CA',
+    {
+      timeZone: 'America/Argentina/Cordoba',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }
+  ).formatToParts(date)
+
+  const year = parts.find(
+    (part) => part.type === 'year'
+  )?.value
+
+  const month = parts.find(
+    (part) => part.type === 'month'
+  )?.value
+
+  const day = parts.find(
+    (part) => part.type === 'day'
+  )?.value
+
+  return `${year}-${month}-${day}`
+}
+
+const getMovementDayLabel = (
+  movement: StockMovement
+) => {
+  const movementDate =
+    new Date(movement.created_at)
+
+  const movementKey =
+    getArgentinaDayKey(movementDate)
+
+  const today = new Date()
+  const todayKey =
+    getArgentinaDayKey(today)
+
+  const yesterday = new Date(
+    today.getTime() - 86400000
+  )
+
+  const yesterdayKey =
+    getArgentinaDayKey(yesterday)
+
+  if (movementKey === todayKey) {
+    return 'Hoy'
+  }
+
+  if (movementKey === yesterdayKey) {
+    return 'Ayer'
+  }
+
+  return movementDate.toLocaleDateString(
+    'es-AR',
+    {
+      timeZone: 'America/Argentina/Cordoba',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }
+  )
+}
+
+const groupedMovements =
+  filteredMovements.reduce(
+    (
+      groups: Record<
+        string,
+        StockMovement[]
+      >,
+      movement
+    ) => {
+      const label =
+        getMovementDayLabel(movement)
+
+      if (!groups[label]) {
+        groups[label] = []
+      }
+
+      groups[label].push(movement)
+
+      return groups
+    },
+    {}
+  )
+
   return (
     
     <div className="p-4 md:p-6 space-y-5 md:space-y-8">
@@ -2167,17 +2262,17 @@ const statusTextColor =
   </div>
 )}
 
-{/* ================= HISTORIAL WEB ================= */}
+{/* ================= HISTORIAL WEB + MOBILE ================= */}
 {isHistoryOpen && selectedProduct && (
   <div
-    className="hidden lg:flex fixed inset-0 z-[1100] bg-black/70 backdrop-blur-sm items-center justify-center p-6"
+   className="fixed inset-0 z-[1400] bg-black/70 backdrop-blur-sm flex items-end lg:items-center justify-center p-0 lg:p-6"
     onClick={() => setIsHistoryOpen(false)}
   >
     <div
-      className="w-full max-w-4xl max-h-[85vh] bg-[#0F172A] border border-[#1E293B] rounded-2xl shadow-2xl overflow-hidden"
+     className="w-full max-w-4xl max-h-[92vh] lg:max-h-[85vh] bg-[#0F172A] border border-[#1E293B] rounded-t-3xl lg:rounded-2xl shadow-2xl overflow-hidden flex flex-col"
       onClick={(event) => event.stopPropagation()}
     >
-      <div className="flex items-start justify-between gap-4 px-6 py-5 border-b border-[#1E293B]">
+      <div className="shrink-0 flex items-start justify-between gap-4 px-5 lg:px-6 py-4 lg:py-5 bg-[#0F172A] border-b border-[#1E293B]">
         <div>
           <h2 className="text-white text-xl font-semibold">
             Historial de stock
@@ -2198,59 +2293,67 @@ const statusTextColor =
         </button>
       </div>
 
-      <div className="p-6">
-        <div className="flex items-center justify-between gap-6 bg-[#111827] border border-[#1F2937] rounded-2xl p-4">
-          <div className="flex items-center gap-4 min-w-0">
-            <div className="w-14 h-14 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shrink-0 flex items-center justify-center">
-              {selectedProduct.image_url ? (
-                <img
-                  src={selectedProduct.image_url}
-                  alt={selectedProduct.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-2xl" aria-hidden="true">
-                  📦
-                </span>
-              )}
-            </div>
+      <div className="p-4 lg:p-6 overflow-y-auto overscroll-contain">
+      {/* Producto y stock */}
+<div className="bg-[#111827] border border-[#1F2937] rounded-2xl p-4">
+  <div className="flex items-center justify-between gap-3">
+    <div className="flex items-center gap-3 min-w-0">
+      <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-xl bg-gray-800 border border-gray-700 overflow-hidden shrink-0 flex items-center justify-center">
+        {selectedProduct.image_url ? (
+          <img
+            src={selectedProduct.image_url}
+            alt={selectedProduct.name}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <span
+            className="text-xl lg:text-2xl"
+            aria-hidden="true"
+          >
+            📦
+          </span>
+        )}
+      </div>
 
-            <div className="min-w-0">
-              <p className="text-white font-semibold truncate">
-                {selectedProduct.name}
-              </p>
+      <div className="min-w-0">
+        <p className="text-white text-sm lg:text-base font-semibold truncate">
+          {selectedProduct.name}
+        </p>
 
-              <p className="text-gray-400 text-sm mt-1">
-                {getProductPresentation(selectedProduct) ||
-                   (selectedProduct.sale_type === 'weight'
-                        ? 'Producto por peso'
-                        : 'Producto por unidad')}
-              </p>
-            </div>
-          </div>
+        <p className="text-gray-400 text-xs lg:text-sm mt-1 truncate">
+          {getProductPresentation(selectedProduct) ||
+            (selectedProduct.sale_type === 'weight'
+              ? 'Producto por peso'
+              : 'Producto por unidad')}
+        </p>
+      </div>
+    </div>
 
-          <div className="text-right shrink-0">
-            <p className="text-gray-400 text-xs">
-              Stock actual
-            </p>
+    <div className="text-right shrink-0">
+      <p className="text-gray-500 text-xs">
+        Stock actual
+      </p>
 
-            <p className="text-white text-xl font-bold mt-1">
-              {formatStockQuantity(selectedProduct)}
-            </p>
-          </div>
+      <p className="text-white text-base lg:text-xl font-bold mt-1">
+        {formatStockQuantity(selectedProduct)}
+      </p>
+    </div>
+  </div>
+</div>
 
+{/* Precio y vencimiento */}
 <div className="grid grid-cols-2 gap-3 mt-3">
-  <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-4 py-3">
+  <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-3 lg:px-4 py-3">
     <p className="text-gray-500 text-xs">
       Precio de venta
     </p>
 
-    <p className="text-white text-sm font-medium mt-1">
+    <p className="text-white text-xs lg:text-sm font-medium mt-1">
       {formatProductPrice(selectedProduct)}
     </p>
   </div>
 
-  <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-4 py-3">
+  <div className="bg-[#111827] border border-[#1F2937] rounded-xl px-3 lg:px-4 py-3">
     <p className="text-gray-500 text-xs">
       Vencimiento
     </p>
@@ -2261,29 +2364,27 @@ const statusTextColor =
 
       return expirationInfo ? (
         <>
-          <p className="text-white text-sm font-medium mt-1">
+          <p className="text-white text-xs lg:text-sm font-medium mt-1">
             {expirationInfo.date}
           </p>
 
           <p
-            className={`text-xs mt-1 ${expirationInfo.textClass}`}
+            className={`text-[11px] lg:text-xs mt-1 ${expirationInfo.textClass}`}
           >
             {expirationInfo.message}
           </p>
         </>
       ) : (
-        <p className="text-gray-500 text-sm mt-1">
-          Sin vencimiento registrado
+        <p className="text-gray-500 text-[11px] lg:text-sm mt-1">
+          Sin vencimiento
         </p>
       )
     })()}
   </div>
 </div>
 
-        </div>
-
-        <div className="flex items-center justify-between gap-4 mt-5">
-  <div className="flex gap-2 overflow-x-auto">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 lg:gap-4 mt-5">
+  <div className="flex gap-2 max-w-full overflow-x-auto overscroll-x-contain pb-1">
     {[
       { label: 'Todos', value: 'all' },
       { label: 'Ventas', value: 'sales' },
@@ -2299,7 +2400,7 @@ const statusTextColor =
             option.value as HistoryFilter
           )
         }
-        className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition ${
+        className={`min-h-9 px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition ${
           historyFilter === option.value
             ? 'bg-blue-600 text-white'
             : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
@@ -2310,7 +2411,7 @@ const statusTextColor =
     ))}
   </div>
 
-  <p className="text-gray-500 text-xs shrink-0">
+  <p className="text-gray-500 text-xs text-right lg:text-left shrink-0">
     {filteredMovements.length}{' '}
     {filteredMovements.length === 1
       ? 'movimiento'
