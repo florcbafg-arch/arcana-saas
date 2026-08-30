@@ -20,6 +20,7 @@ export default function ConfiguracionPage() {
   const [newBusinessName, setNewBusinessName] = useState('')
   const [showNewBusinessForm, setShowNewBusinessForm] = useState(false)
   const [openBusinessMenuId, setOpenBusinessMenuId] = useState<string | null>(null)
+  const [isPlanModalOpen, setIsPlanModalOpen] = useState(false)
   const [toast, setToast] = useState<string | null>(null)
   const [planType, setPlanType] = useState<'base' | 'impulso' | 'dominio'>('base')
   const [loadingUpgrade, setLoadingUpgrade] = useState(false)
@@ -301,12 +302,12 @@ const handleUpgrade = async () => {
 </div>
 
 {/* Resumen del plan */}
-<div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+<div className="grid grid-cols-1 lg:grid-cols-[minmax(250px,0.72fr)_minmax(0,1.55fr)] items-start gap-4">
 
   {!hasImpulsoAccess ? (
     <>
       {/* Plan Base activo */}
-      <div className="bg-[#14141A] border border-blue-500/30 rounded-2xl p-5">
+      <div className="self-start bg-[#14141A] border border-blue-500/30 rounded-2xl p-4 sm:p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <span className="inline-flex rounded-full bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400">
@@ -341,7 +342,7 @@ const handleUpgrade = async () => {
       </div>
 
       {/* Invitación a Impulso */}
-      <div className="bg-[#14141A] border border-purple-500/30 rounded-2xl p-5">
+      <div className="self-start bg-[#14141A] border border-purple-500/30 rounded-2xl p-4 sm:p-5">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
             <span className="inline-flex rounded-full bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-400">
@@ -372,16 +373,35 @@ const handleUpgrade = async () => {
           </span>
         </div>
 
-        <button
-          type="button"
-          onClick={handleUpgrade}
-          disabled={loadingUpgrade}
-          className="w-full mt-5 rounded-xl bg-purple-600 hover:bg-purple-500 transition px-4 py-3 text-sm font-semibold text-white disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          {loadingUpgrade
-            ? 'Conectando con Mercado Pago...'
-            : 'Conocer Arcana Impulso'}
-        </button>
+<div className="flex flex-wrap gap-2 mt-4">
+  {[
+    'Sucursales',
+    'Clientes y fiado',
+    'Compras inteligentes',
+  ].map((benefit) => (
+    <span
+      key={benefit}
+      className="rounded-full border border-purple-500/20 bg-purple-500/5 px-3 py-1.5 text-xs text-purple-200"
+    >
+      {benefit}
+    </span>
+  ))}
+</div>
+
+     <button
+  type="button"
+  onClick={() => setIsPlanModalOpen(true)}
+  className="group w-full mt-5 rounded-xl border border-purple-500/40 bg-purple-500/5 hover:bg-purple-500/10 transition px-4 py-3 text-sm font-semibold text-purple-300 flex items-center justify-between"
+>
+  <span>Ver todos los beneficios</span>
+
+  <span
+    aria-hidden="true"
+    className="h-8 w-8 rounded-full border border-purple-500/40 flex items-center justify-center text-lg transition-transform group-hover:translate-x-1"
+  >
+    →
+  </span>
+</button>
       </div>
     </>
   ) : (
