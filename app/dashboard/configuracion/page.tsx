@@ -12,6 +12,8 @@ type Business = {
 export default function ConfiguracionPage() {
 
   const IMPULSO_PRICE = 'USD 20'
+  const BASE_PRODUCT_LIMIT = 2000
+  const IMPULSO_PRODUCT_LIMIT = 5000
 
   const [businesses, setBusinesses] = useState<Business[]>([])
   const [activeBusinessId, setActiveBusinessId] = useState<string | null>(null)
@@ -19,6 +21,8 @@ export default function ConfiguracionPage() {
   const [toast, setToast] = useState<string | null>(null)
   const [planType, setPlanType] = useState<'base' | 'impulso' | 'dominio'>('base')
   const [loadingUpgrade, setLoadingUpgrade] = useState(false)
+  const hasImpulsoAccess =
+  planType === 'impulso' || planType === 'dominio'
   const [businessData, setBusinessData] = useState({
   name: '',
   email: '',
@@ -48,14 +52,32 @@ export default function ConfiguracionPage() {
   }
 
   const switchBusiness = (id: string) => {
-    localStorage.setItem('activeBusinessId', id)
+  if (!hasImpulsoAccess) {
+    setToast('Las sucursales están disponibles en Arcana Impulso')
+    return
+  }
+
+  localStorage.setItem('activeBusinessId', id)
     setActiveBusinessId(id)
     setToast('Negocio cambiado correctamente')
     setTimeout(() => window.location.reload(), 800)
   }
 
   const createBusiness = async () => {
-  if (!newBusinessName.trim()) return
+  if (!hasImpulsoAccess) {
+    setToast('Crear sucursales está disponible en Arcana Impulso')
+    return
+  }
+
+  if (businesses.length >= 2) {
+    setToast('Arcana Impulso permite hasta 2 sucursales')
+    return
+  }
+
+  if (!newBusinessName.trim()) {
+    setToast('Ingresá el nombre de la sucursal')
+    return
+  }
 
   const {
     data: { user }
@@ -68,7 +90,7 @@ export default function ConfiguracionPage() {
     .insert({
   name: newBusinessName,
   owner_id: user.id,
-  plan_type: 'base',
+  plan_type: planType,
   subscription_active: true
 })
     .select()
@@ -87,6 +109,21 @@ export default function ConfiguracionPage() {
 }
 
  const deleteBusiness = async (id: string) => {
+  if (!hasImpulsoAccess) {
+    setToast('Administrar sucursales está disponible en Arcana Impulso')
+    return
+  }
+
+  if (businesses.length <= 1) {
+    setToast('Tu cuenta debe conservar al menos un negocio')
+    return
+  }
+
+  if (id === activeBusinessId) {
+    setToast('No podés eliminar la sucursal que está activa')
+    return
+  }
+
   const confirmDelete = confirm(
     '¿Eliminar negocio? Se borrará todo su contenido.'
   )
@@ -302,7 +339,9 @@ const handleUpgrade = async () => {
       <div className="text-white">✓ Tickets</div>
 
       <div className="text-white">✓ 1 Sucursal</div>
-      <div className="text-white">✓ 500 Productos</div>
+      <div className="text-white">
+  ✓ Hasta {BASE_PRODUCT_LIMIT.toLocaleString('es-AR')} productos
+</div>
 
     </div>
 
@@ -353,11 +392,13 @@ const handleUpgrade = async () => {
       <div className="text-white">✓ Soporte prioritario</div>
 
       <div className="text-white">✓ 2 Sucursales</div>
-      <div className="text-white">✓ 1000 Productos</div>
+      <div className="text-white">
+  ✓ Hasta {IMPULSO_PRODUCT_LIMIT.toLocaleString('es-AR')} productos
+</div>
 
     </div>
 
-    {planType === 'impulso' ? (
+    {hasImpulsoAccess ? (
   <div className="w-full rounded-xl border border-green-500/30 bg-green-500/10 py-3 text-center font-medium text-green-400">
     ✅ Arcana Impulso activo
   </div>
@@ -465,6 +506,9 @@ const handleUpgrade = async () => {
   </button>
 </div>
 
+{hasImpulsoAccess && (
+  <>
+
       {/* Lista de negocios */}
       <div className="bg-[#14141A] border border-[#1F1F24] rounded-2xl p-4 space-y-4">
         <h2 className="text-white font-medium">
@@ -522,6 +566,9 @@ const handleUpgrade = async () => {
           </button>
         </div>
       </div>
+
+  </>
+)}
 
       {toast && (
         <div className="p-3 rounded-xl text-sm font-medium bg-blue-500/10 text-blue-400 border border-blue-500/30">
