@@ -53,6 +53,8 @@ type HistoryFilter =
   badgeClass: string
 }
 
+const HISTORY_PAGE_SIZE = 50
+
 export default function StockPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
@@ -77,6 +79,18 @@ const [
   setHasAdjustmentAmount
 ] = useState(false)
   const [movements, setMovements] = useState<StockMovement[]>([])
+  const [movementPage, setMovementPage] =
+  useState(0)
+
+const [
+  hasMoreMovements,
+  setHasMoreMovements
+] = useState(false)
+
+const [
+  loadingMoreMovements,
+  setLoadingMoreMovements
+] = useState(false)
   const [loadingProducts, setLoadingProducts] = useState(false)
   const [loadingMovements, setLoadingMovements] = useState(false)
   const [isHistoryOpen, setIsHistoryOpen] = useState(false)
@@ -366,21 +380,82 @@ const getProfitLabel = (product: Product) => {
     setLoadingProducts(false)
   }
 
-  const fetchMovements = async (productId: string) => {
-    if (!selectedBusinessId) return
+const fetchMovements = async (
+  productId: string,
+  page = 0
+) => {
+  if (!selectedBusinessId) return
 
-    setLoadingMovements(true)
+  if (page === 0) {
+  setLoadingMovements(true)
+  setMovementPage(0)
+  setHasMoreMovements(false)
+  setMovements([])
+} else {
+  setLoadingMoreMovements(true)
+}
 
-    const { data } = await supabase
+  const from =
+    page * HISTORY_PAGE_SIZE
+
+  const to =
+    from + HISTORY_PAGE_SIZE - 1
+
+  try {
+    const { data, error } = await supabase
       .from('stock_movements')
       .select('*')
       .eq('product_id', productId)
       .eq('business_id', selectedBusinessId)
-      .order('created_at', { ascending: false })
+      .order('created_at', {
+        ascending: false
+      })
+      .range(from, to)
 
-    setMovements(data || [])
+    if (error) {
+      console.error(
+        'Error cargando movimientos:',
+        error
+      )
+      return
+    }
+
+    const newMovements = data || []
+
+    setMovements((currentMovements) => {
+      if (page === 0) {
+        return newMovements
+      }
+
+      const existingIds = new Set(
+        currentMovements.map(
+          (movement) => movement.id
+        )
+      )
+
+      const uniqueMovements =
+        newMovements.filter(
+          (movement) =>
+            !existingIds.has(movement.id)
+        )
+
+      return [
+        ...currentMovements,
+        ...uniqueMovements
+      ]
+    })
+
+    setMovementPage(page)
+
+    setHasMoreMovements(
+      newMovements.length ===
+        HISTORY_PAGE_SIZE
+    )
+  } finally {
     setLoadingMovements(false)
+    setLoadingMoreMovements(false)
   }
+}
 
   const getNormalizedAdjustmentAmount = () => {
   if (!selectedProduct) return 0
@@ -2532,13 +2607,43 @@ const statusTextColor =
                 </div>
               ))}
             </div>
+            
           </div>
         )
       )}
     </div>
   )}
 </div>
+{/* Carga progresiva */}
+{!loadingMovements &&
+  movements.length > 0 && (
+    <div className="flex items-center justify-between gap-4 mt-4">
+      <p className="text-gray-500 text-xs">
+        {movements.length}{' '}
+        {movements.length === 1
+          ? 'movimiento cargado'
+          : 'movimientos cargados'}
+      </p>
 
+      {hasMoreMovements && (
+        <button
+          type="button"
+          onClick={() =>
+            fetchMovements(
+              selectedProduct.id,
+              movementPage + 1
+            )
+          }
+          disabled={loadingMoreMovements}
+          className="border border-gray-700 bg-gray-800 text-gray-300 rounded-xl px-4 py-2.5 text-xs font-medium hover:bg-gray-700 hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loadingMoreMovements
+            ? 'Cargando...'
+            : 'Cargar anteriores'}
+        </button>
+      )}
+    </div>
+  )}
       </div>
     </div>
   </div>
