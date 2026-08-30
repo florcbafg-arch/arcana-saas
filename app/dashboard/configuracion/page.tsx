@@ -45,6 +45,38 @@ export default function ConfiguracionPage() {
   fetchBusiness()
 }, [activeBusinessId])
 
+useEffect(() => {
+  if (!isPlanModalOpen) return
+
+  const previousOverflow = document.body.style.overflow
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setIsPlanModalOpen(false)
+    }
+  }
+
+  document.body.style.overflow = 'hidden'
+  window.addEventListener('keydown', handleKeyDown)
+
+  return () => {
+    document.body.style.overflow = previousOverflow
+    window.removeEventListener('keydown', handleKeyDown)
+  }
+}, [isPlanModalOpen])
+
+useEffect(() => {
+  if (!toast) return
+
+  const timeoutId = window.setTimeout(() => {
+    setToast(null)
+  }, 3500)
+
+  return () => {
+    window.clearTimeout(timeoutId)
+  }
+}, [toast])
+
   const fetchBusinesses = async () => {
     const { data } = await supabase
       .from('businesses')
@@ -187,11 +219,12 @@ const updateBusiness = async () => {
     .eq('id', activeBusinessId)
 
   if (error) {
-    alert('Error al guardar')
-    return
-  }
+  console.error('Error actualizando negocio:', error)
+  setToast('Error al guardar los datos del negocio')
+  return
+}
 
-  alert('Datos actualizados ✅')
+setToast('Datos del negocio guardados correctamente')
 }
 
 const handleUpload = async (e: any) => {
@@ -208,10 +241,11 @@ const filePath = `business-${activeBusinessId}/logo-${Date.now()}.${fileExt}`
       upsert: true,
     })
 
-  if (error) {
-    alert('Error subiendo imagen')
-    return
-  }
+ if (error) {
+  console.error('Error subiendo logo:', error)
+  setToast('Error al subir el logo del negocio')
+  return
+}
 
   // obtener URL pública
   const { data } = supabase.storage
@@ -227,8 +261,8 @@ const filePath = `business-${activeBusinessId}/logo-${Date.now()}.${fileExt}`
   .eq('id', activeBusinessId)
 
 if (updateError) {
-  console.error('ERROR GUARDANDO LOGO EN DB:', updateError)
-  alert('La imagen subió, pero no se pudo guardar en el negocio')
+  console.error('Error guardando logo en el negocio:', updateError)
+  setToast('El logo subió, pero no se pudo guardar en el negocio')
   return
 }
 
@@ -237,7 +271,7 @@ if (updateError) {
     logo_url: publicUrl,
   }))
 
-  alert('Logo actualizado ✅')
+  setToast('Logo del negocio actualizado correctamente')
 }
 
 const handleUpgrade = async () => {
@@ -249,9 +283,9 @@ const handleUpgrade = async () => {
     } = await supabase.auth.getUser()
 
     if (!user) {
-      alert('Tenés que iniciar sesión.')
-      return
-    }
+  setToast('Tenés que iniciar sesión para contratar Arcana Impulso')
+  return
+}
 
     const res = await fetch('/api/create-subscription', {
       method: 'POST',
@@ -277,14 +311,21 @@ const handleUpgrade = async () => {
       return
     }
 
-    alert('No se pudo iniciar Mercado Pago.')
+    setToast('No se pudo iniciar el checkout de Mercado Pago')
   } catch (error) {
     console.error(error)
-    alert('Error iniciando suscripción.')
+    setToast('Error al iniciar la suscripción de Arcana Impulso')
   } finally {
     setLoadingUpgrade(false)
   }
 }
+
+const toastIsError = Boolean(
+  toast &&
+    /error|no se pudo|no podés|tenés que|límite|disponible|ingresá|debe conservar/i.test(
+      toast
+    )
+)
 
   return (
     <div className="space-y-6">
@@ -750,11 +791,259 @@ const handleUpgrade = async () => {
   </div>
 )}
 
-      {toast && (
-        <div className="p-3 rounded-xl text-sm font-medium bg-blue-500/10 text-blue-400 border border-blue-500/30">
-          {toast}
+{/* Modal de comparación de planes */}
+{isPlanModalOpen && !hasImpulsoAccess && (
+  <div
+    className="fixed inset-0 z-[1200] bg-black/75 backdrop-blur-sm flex items-end sm:items-center justify-center sm:p-4"
+    onClick={() => setIsPlanModalOpen(false)}
+  >
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="plan-modal-title"
+      onClick={(event) => event.stopPropagation()}
+      className="w-full sm:max-w-4xl max-h-[95vh] bg-[#111827] border border-[#263247] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden flex flex-col"
+    >
+      {/* Encabezado */}
+      <div className="shrink-0 flex items-start justify-between gap-4 px-4 py-4 sm:px-6 border-b border-[#263247]">
+        <div>
+          <span className="inline-flex rounded-full bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-300">
+            COMPARÁ LOS PLANES
+          </span>
+
+          <h2
+            id="plan-modal-title"
+            className="text-white text-xl sm:text-2xl font-semibold mt-3"
+          >
+            Llevá tu negocio al siguiente nivel
+          </h2>
+
+          <p className="text-gray-400 text-sm mt-1">
+            Elegí las herramientas que necesitás para seguir creciendo.
+          </p>
         </div>
-      )}
+
+        <button
+          type="button"
+          onClick={() => setIsPlanModalOpen(false)}
+          className="h-10 w-10 shrink-0 rounded-xl text-gray-400 hover:text-white hover:bg-gray-800 transition"
+          aria-label="Cerrar comparación de planes"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Contenido con scroll interno */}
+      <div className="min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6">
+
+        {/* Resumen */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-blue-500/30 bg-blue-500/5 p-4">
+            <span className="text-blue-400 text-xs font-medium">
+              PLAN ACTUAL
+            </span>
+
+            <h3 className="text-white text-lg font-semibold mt-2">
+              Arcana Base
+            </h3>
+
+            <p className="text-gray-400 text-sm mt-1">
+              Gratis para siempre
+            </p>
+
+            <p className="text-white text-sm mt-4">
+              Hasta {BASE_PRODUCT_LIMIT.toLocaleString('es-AR')} productos
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-purple-500/40 bg-purple-500/5 p-4">
+            <span className="text-purple-300 text-xs font-medium">
+              MÁS CAPACIDAD Y CONTROL
+            </span>
+
+            <h3 className="text-white text-lg font-semibold mt-2">
+              Arcana Impulso
+            </h3>
+
+            <p className="text-purple-300 font-semibold mt-1">
+              {IMPULSO_PRICE} / mes
+            </p>
+
+            <p className="text-white text-sm mt-4">
+              Hasta {IMPULSO_PRODUCT_LIMIT.toLocaleString('es-AR')} productos
+            </p>
+          </div>
+        </div>
+
+        {/* Comparación */}
+        <div className="mt-5 rounded-2xl border border-[#263247] overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[620px] text-sm">
+              <thead className="bg-[#172033]">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium text-gray-400">
+                    Característica
+                  </th>
+
+                  <th className="px-4 py-3 text-left font-medium text-blue-400">
+                    Arcana Base
+                  </th>
+
+                  <th className="px-4 py-3 text-left font-medium text-purple-300">
+                    Arcana Impulso
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-[#263247]">
+                {[
+                  [
+                    'Productos',
+                    BASE_PRODUCT_LIMIT.toLocaleString('es-AR'),
+                    IMPULSO_PRODUCT_LIMIT.toLocaleString('es-AR'),
+                  ],
+                  ['Negocio', '1 negocio', 'Hasta 2 sucursales'],
+                  ['Clientes y fiado', '—', 'Incluido'],
+                  ['Proveedores', '—', 'Incluido'],
+                  ['Compras inteligentes', '—', 'Incluido'],
+                  ['Tickets', 'Estándar', 'Personalizables'],
+                  ['Alertas configurables', '—', 'Incluidas'],
+                  ['Usuarios y permisos', '—', 'Incluidos'],
+                  ['Historial', 'Esencial', 'Completo'],
+                  ['Soporte', 'Estándar', 'Prioritario'],
+                ].map(([feature, base, impulso]) => (
+                  <tr key={feature} className="bg-[#111827]">
+                    <td className="px-4 py-3 text-gray-300">
+                      {feature}
+                    </td>
+
+                    <td className="px-4 py-3 text-gray-400">
+                      {base}
+                    </td>
+
+                    <td className="px-4 py-3 font-medium text-purple-200">
+                      {impulso}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Beneficios destacados */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+          {[
+            {
+              title: 'Más capacidad',
+              description:
+                'Ampliá tu catálogo y administrá más productos.',
+            },
+            {
+              title: 'Más control',
+              description:
+                'Gestioná sucursales, clientes, compras y alertas.',
+            },
+            {
+              title: 'Más crecimiento',
+              description:
+                'Accedé a herramientas avanzadas para decidir mejor.',
+            },
+          ].map((benefit) => (
+            <div
+              key={benefit.title}
+              className="rounded-2xl border border-[#263247] bg-[#172033]/60 p-4"
+            >
+              <h4 className="text-white text-sm font-semibold">
+                {benefit.title}
+              </h4>
+
+              <p className="text-gray-400 text-xs leading-relaxed mt-2">
+                {benefit.description}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Checkout */}
+        <div className="mt-5 rounded-2xl border border-purple-500/30 bg-purple-500/5 p-4 sm:p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <p className="text-white text-lg font-semibold">
+                Arcana Impulso · {IMPULSO_PRICE} / mes
+              </p>
+
+              <p className="text-gray-400 text-xs sm:text-sm mt-1">
+                Cobro equivalente en pesos argentinos mediante Mercado Pago.
+              </p>
+
+              <p className="text-gray-500 text-xs mt-1">
+                Podés cancelar cuando quieras.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleUpgrade}
+              disabled={loadingUpgrade}
+              className="w-full sm:w-auto shrink-0 rounded-xl bg-purple-600 hover:bg-purple-500 transition px-6 py-3 text-sm font-semibold text-white disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {loadingUpgrade
+                ? 'Conectando con Mercado Pago...'
+                : 'Actualizar a Arcana Impulso →'}
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+)}
+
+  {toast && (
+  <div
+    role={toastIsError ? 'alert' : 'status'}
+    aria-live={toastIsError ? 'assertive' : 'polite'}
+    className={`fixed top-4 left-4 right-4 sm:left-auto sm:right-5 sm:w-full sm:max-w-sm z-[1400] rounded-2xl backdrop-blur-md shadow-2xl p-4 border ${
+      toastIsError
+        ? 'border-red-500/30 bg-[#1A1116]/95'
+        : 'border-green-500/30 bg-[#101A17]/95'
+    }`}
+  >
+    <div className="flex items-start gap-3">
+      <div
+        className={`h-8 w-8 shrink-0 rounded-full flex items-center justify-center font-semibold ${
+          toastIsError
+            ? 'bg-red-500/10 text-red-400'
+            : 'bg-green-500/10 text-green-400'
+        }`}
+      >
+        {toastIsError ? '!' : '✓'}
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <p className="text-white text-sm font-medium">
+          {toastIsError
+            ? 'No pudimos completar la acción'
+            : 'Todo listo'}
+        </p>
+
+        <p className="text-gray-400 text-xs mt-1">
+          {toast}
+        </p>
+      </div>
+
+      <button
+        type="button"
+        onClick={() => setToast(null)}
+        className="h-8 w-8 shrink-0 rounded-lg text-gray-500 hover:text-white hover:bg-white/5 transition"
+        aria-label="Cerrar mensaje"
+      >
+        ✕
+      </button>
+    </div>
+  </div>
+)}
     </div>
   )
 }
