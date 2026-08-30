@@ -17,11 +17,8 @@ type Product = {
   image_url?: string | null
   expiration_date?: string | null
   quantity?: string | null
-  cost_price?: number
   sale_type?: 'unit' | 'weight'
-  price_by?: string
-  package_weight_kg?: number | null
-  package_cost?: number | null
+  price_by?: string 
 }
 
 type StockMovement = {
@@ -344,26 +341,6 @@ useEffect(() => {
     fetchProducts()
   }
 }, [selectedBusinessId])
-
-const getProfitStatus = (product: Product) => {
-  const margin = (product.price || 0) - (product.cost_price || 0)
-
-  if (margin < 0) return 'loss'
-  if (margin === 0) return 'zero'
-  if (margin <= product.price * 0.2) return 'low'
-
-  return 'good'
-}
-
-const getProfitLabel = (product: Product) => {
-  const status = getProfitStatus(product)
-
-  if (status === 'loss') return '💀 Con pérdida'
-  if (status === 'zero') return '⚠️ Sin margen'
-  if (status === 'low') return '⚠️ Margen bajo'
-
-  return '🔥 Muy rentable'
-}
 
   const fetchProducts = async () => {
     if (!selectedBusinessId) return
@@ -1870,8 +1847,11 @@ const statusTextColor =
   </button>
 
   <button
-    type="button"
-    onClick={() => setIsHistoryOpen(true)}
+  type="button"
+  onClick={() => {
+    setHistoryFilter('all')
+    setIsHistoryOpen(true)
+  }}
     className="w-full border border-gray-700 text-gray-300 rounded-xl px-4 py-3 text-sm font-medium hover:bg-gray-800 hover:text-white transition"
   >
     Ver historial
